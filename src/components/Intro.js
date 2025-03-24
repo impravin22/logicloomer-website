@@ -5,17 +5,14 @@ import Me from '../assets/Images/profile-img.png' // Changed back to original pr
 
 
 const Box = styled(motion.div)`
-
 position: absolute;
 left: 50%;
 top: 50%;
 transform: translate(-50%, -50%);
 
-
 width: 65vw;
 height:55vh;
 display: flex;
-
 
 background: linear-gradient(
     to right,
@@ -30,9 +27,15 @@ background-size: 100% 2px;
     border-left: 2px solid ${props => props.theme.body};
     border-right: 2px solid ${props => props.theme.text};
 
+z-index:1;
 
-    z-index:1;
-
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    width: 85vw;
+    height: auto;
+    flex-direction: column;
+    padding: 2rem 0;
+}
 `
 const SubBox = styled.div`
 width: 50%;
@@ -46,6 +49,19 @@ display: flex;
     transform: translate(-50%,0%);
     width: 100%;
     height: auto;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    width: 100%;
+    height: ${props => props.right ? '50vh' : 'auto'};
+    margin-top: ${props => props.right ? '2rem' : '0'};
+    
+    .pic {
+        position: relative;
+        width: 70%;
+        margin-top: 2rem;
+    }
 }
 `
 
@@ -63,11 +79,13 @@ justify-content: space-evenly;
     color: ${props => `rgba(${props.theme.bodyRgba},0.6)` };
     font-size: calc(0.5rem + 1.5vw);
     font-weight:300;
-
 }
 
-
-
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    padding: 1rem;
+    text-align: center;
+}
 `
 
 const Intro = () => {
@@ -84,7 +102,7 @@ const Intro = () => {
                     <h6>I'm an AI Software Developer specializing in Computer Vision and LLMs.</h6>
                 </Text>
             </SubBox>
-            <SubBox>
+            <SubBox right>
                 <motion.div
                 initial={{opacity:0}}
         animate={{opacity: 1}}

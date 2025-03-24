@@ -16,6 +16,12 @@ width: 100vw;
 height:100vh;
 position: relative;
 overflow: hidden;
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    height: auto;
+    min-height: 100vh;
+}
 `
 const float = keyframes`
 0% { transform: translateY(-10px) }
@@ -33,6 +39,14 @@ img{
     width: 100%;
     height: auto;
 }
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    width: 30vw;
+    top: 10%;
+    right: 5%;
+    opacity: 0.6;
+}
 `
 const Main =  styled.div`
   border: 2px solid ${(props) => props.theme.text};
@@ -46,13 +60,25 @@ const Main =  styled.div`
   justify-content: center;
   align-items: center;
   font-size: calc(0.6rem + 1vw);
- backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
   
   position: absolute;
   left: calc(5rem + 5vw);
   top: 10rem;
   font-family: 'Ubuntu Mono', monospace;
   font-style: italic;
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    width: 80vw;
+    height: auto;
+    min-height: 50vh;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 15rem;
+    padding: 1.5rem;
+    font-size: calc(0.6rem + 0.8vw);
+  }
 `
 
 

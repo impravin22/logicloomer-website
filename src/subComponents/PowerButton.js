@@ -1,5 +1,3 @@
-// Home button
-
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import styled from 'styled-components'
@@ -35,14 +33,21 @@ cursor: pointer;
     text-decoration: none;
     color: inherit;
 }
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    width: 2rem;
+    height: 2rem;
+    top: 1rem;
+}
 `
 
 const PowerButton = () => {
     return (
         <Power>
-        <NavLink to="/">
-        <PowerBtn width={30} height={30} fill='currentColor' />
-        </NavLink>
+            <NavLink to="/">
+                <PowerBtn width={30} height={30} fill='currentColor' />
+            </NavLink>
         </Power>
     )
 }

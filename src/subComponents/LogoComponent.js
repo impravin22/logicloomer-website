@@ -1,6 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-import { DarkTheme } from '../components/Themes'
 import LogoImg from '../assets/Images/logicloomer.webp'
 
 const Logo = styled.div`
@@ -15,6 +14,14 @@ height: 50px;
 img {
   width: 100%;
   height: auto;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  left: 1rem;
+  top: 1rem;
+  width: 40px;
+  height: 40px;
 }
 `
 

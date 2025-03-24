@@ -18,6 +18,11 @@ const Box = styled.div`
   position: relative;
   display: flex;
   align-items: center;
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    height: 400vh;
+  }
 `;
 
 const Main = styled(motion.ul)`
@@ -29,6 +34,23 @@ const Main = styled(motion.ul)`
   overflow-y: auto; /* Added to allow vertical scrolling within the container */
   padding-bottom: 2rem; /* Added some padding at the bottom */
   color: white;
+
+  /* Mobile responsiveness */
+  @media (max-width: 1024px) {
+    left: calc(8rem + 15vw);
+  }
+  
+  @media (max-width: 768px) {
+    left: 1rem;
+    top: 10rem;
+    height: 70vh;
+    right: 1rem;
+    width: calc(100% - 2rem);
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 1rem 2rem;
+  }
 `;
 const Rotate = styled.span`
   display: block;
@@ -61,7 +83,12 @@ const WorkPage = () => {
     let element = ref.current;
 
     const rotate = () => {
-      element.style.transform = `translateX(${-window.pageYOffset}px)`;
+      // Only apply horizontal scroll on desktop
+      if (window.innerWidth > 768) {
+        element.style.transform = `translateX(${-window.pageYOffset}px)`;
+      } else {
+        element.style.transform = 'none';
+      }
 
       return (yinyang.current.style.transform =
         "rotate(" + -window.pageYOffset + "deg)");

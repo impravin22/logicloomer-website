@@ -33,6 +33,12 @@ align-items: center;
 padding-top: 10rem;
 width: 70%;
 margin: 0 auto;
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    width: 85%;
+    padding-top: 8rem;
+}
 `
 
 const Heading = styled.h2`
@@ -40,12 +46,24 @@ font-size: 2.5rem;
 margin-bottom: 2rem;
 color: ${props => props.theme.text};
 text-align: center;
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+}
 `
 
 const SubHeading = styled.h3`
 font-size: 1.8rem;
 margin: 2rem 0 1rem;
 color: ${props => props.theme.text};
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    font-size: 1.5rem;
+    margin: 1.5rem 0 1rem;
+}
 `
 
 const Text = styled.p`
@@ -54,6 +72,13 @@ line-height: 1.8;
 color: ${props => props.theme.text};
 margin-bottom: 2rem;
 text-align: justify;
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    font-size: 1rem;
+    line-height: 1.6;
+    text-align: left;
+}
 `
 
 const PublicationList = styled.ul`
@@ -73,12 +98,23 @@ transition: all 0.3s ease;
   background-color: rgba(255, 255, 255, 0.2);
   transform: translateY(-5px);
 }
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    padding: 1.2rem;
+    margin-bottom: 1.5rem;
+}
 `
 
 const PublicationTitle = styled.h4`
 font-size: 1.4rem;
 margin-bottom: 0.5rem;
 color: ${props => props.theme.text};
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    font-size: 1.2rem;
+}
 `
 
 const PublicationLink = styled.a`
@@ -90,6 +126,13 @@ margin-top: 0.5rem;
 
 &:hover {
   text-decoration: underline;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    margin-top: 0.8rem;
+    padding: 0.5rem 0;
+    display: block;
 }
 `
 
@@ -107,6 +150,12 @@ border-radius: 5px;
 margin-right: 0.5rem;
 margin-bottom: 0.5rem;
 font-size: 0.9rem;
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.6rem;
+}
 `
 
 // Framer-motion config

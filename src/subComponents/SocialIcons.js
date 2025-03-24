@@ -19,6 +19,15 @@ const Icons = styled.div`
   & > *:not(:last-child) {
     margin: 0.5rem 0;
   }
+  
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    left: 1rem;
+    
+    & > *:not(:last-child) {
+      margin: 0.3rem 0;
+    }
+  }
 `;
 
 const Line = styled(motion.span)`
@@ -26,6 +35,11 @@ const Line = styled(motion.span)`
   height: 8rem;
   background-color: ${(props) =>
     props.color === "dark" ? DarkTheme.text : DarkTheme.body};
+    
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    height: 5rem;
+  }
 `;
 
 const SocialIcons = (props) => {
