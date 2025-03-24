@@ -22,10 +22,21 @@ h2,h3,h4,h5,h6{
   font-family:'Karla', sans-serif ;
   font-weight:500;
 }
+
+/* Improve overflow handling on mobile */
+@media (max-width: 768px) {
+  overflow: auto;
+  overflow-x: hidden;
+}
 `
 
 const Container = styled.div`
 padding: 2rem;
+
+/* Reduce padding on mobile */
+@media (max-width: 768px) {
+  padding: 1rem;
+}
 `
 
 const Contact = styled.a`
@@ -35,6 +46,12 @@ top: 2rem;
 right: calc(1rem + 2vw);
 text-decoration: none;
 z-index:1;
+
+/* Adjust position on mobile */
+@media (max-width: 768px) {
+  top: 1rem;
+  right: 1rem;
+}
 `
 const BLOG = styled(NavLink)`
 color: ${props => props.theme.text};
@@ -44,6 +61,12 @@ right: calc(1rem + 2vw);
 transform: rotate(90deg) translate(-50%, -50%);
 text-decoration: none;
 z-index:1;
+
+/* Adjust position and size on mobile */
+@media (max-width: 768px) {
+  font-size: 0.8em;
+  right: 0.5rem;
+}
 `
 const WORK = styled(NavLink)`
 color: ${props => props.click ? props.theme.body : props.theme.text};
@@ -54,6 +77,12 @@ left: calc(1rem + 2vw);
 transform: translate(-50%, -50%) rotate(-90deg) ;
 text-decoration: none;
 z-index:1;
+
+/* Adjust position and size on mobile */
+@media (max-width: 768px) {
+  font-size: 0.8em;
+  left: 0.5rem;
+}
 `
 
 const BottomBar = styled.div`
@@ -65,6 +94,11 @@ width: 100%;
 
 display: flex;
 justify-content: space-evenly;
+
+/* Adjust position on mobile */
+@media (max-width: 768px) {
+  bottom: 0.5rem;
+}
 `
 
 const ABOUT = styled(NavLink)`
@@ -110,6 +144,21 @@ transition: all 1s ease;
 &>:last-child{
     display: ${props => props.click ? 'none' :'inline-block'  };
     padding-top: 1rem;
+}
+
+/* Adjust position and size on mobile */
+@media (max-width: 768px) {
+  & > :first-child {
+    width: ${props => props.click ? '80px' : '150px'} !important;
+    height: ${props => props.click ? '80px' : '150px'} !important;
+  }
+  
+  top: ${props => props.click ? '85%' :'50%'  };
+  left: ${props => props.click ? '88%' :'50%'  };
+  
+  & > :last-child {
+    font-size: 0.8em;
+  }
 }
 `
 
@@ -175,7 +224,7 @@ const Main = () => {
                 whileHover={{scale: 1.1}}
                 whileTap={{scale: 0.9}}
                 >
-                    Education
+                    What I offer?
                 </motion.h2>
             </BLOG>
             <WORK to="/work" click={+click}>

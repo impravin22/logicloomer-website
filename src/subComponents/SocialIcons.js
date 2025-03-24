@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import React from "react";
 // import { NavLink } from 'react-router-dom'
 import styled from "styled-components";
-import { GitLab, LinkedIn, Instagram } from "../components/AllSvgs";
+import { GitLab, LinkedIn, Instagram, Github } from "../components/AllSvgs";
 import { DarkTheme } from "../components/Themes";
 
 const Icons = styled.div`
@@ -54,6 +54,24 @@ const SocialIcons = (props) => {
           style={{ color: "inherit" }}
           target="_blank"
           rel="noreferrer"
+          href={"https://github.com/impravin22"}
+        >
+          <Github
+            width={25}
+            height={25}
+            fill={props.theme === "dark" ? DarkTheme.text : DarkTheme.body}
+          />
+        </a>
+      </motion.div>
+      <motion.div
+        initial={{scale:0 }}
+        animate={{ scale: [0, 1, 1.5, 1] }}
+        transition={{ type: "spring", duration: 1, delay: 1.2 }}
+      >
+        <a
+          style={{ color: "inherit" }}
+          target="_blank"
+          rel="noreferrer"
           href={"https://gitlab.com/impravin22"}
         >
           <GitLab
@@ -66,7 +84,7 @@ const SocialIcons = (props) => {
       <motion.div
         initial={{scale:0 }}
         animate={{ scale: [0, 1, 1.5, 1] }}
-        transition={{ type: "spring", duration: 1, delay: 1.2 }}
+        transition={{ type: "spring", duration: 1, delay: 1.4 }}
       >
         <a
           style={{ color: "inherit" }}
@@ -84,7 +102,7 @@ const SocialIcons = (props) => {
       <motion.div
         initial={{scale:0 }}
         animate={{ scale: [0, 1, 1.5, 1] }}
-        transition={{ type: "spring", duration: 1, delay: 1.4 }}
+        transition={{ type: "spring", duration: 1, delay: 1.6 }}
       >
         <a
           style={{ color: "inherit" }}
