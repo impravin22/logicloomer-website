@@ -348,6 +348,16 @@ const BlogPage = () => {
                                 Custom SaaS solutions designed to meet your business needs.
                             </ServiceDescription>
                         </ServiceBox>
+                        
+                        <ServiceBox>
+                            <ServiceIcon>
+                                <Design width={25} height={25} />
+                            </ServiceIcon>
+                            <ServiceTitle>Customized Website Building</ServiceTitle>
+                            <ServiceDescription>
+                                Professional, responsive website development tailored to your specific needs and brand identity.
+                            </ServiceDescription>
+                        </ServiceBox>
                     </ServicesGrid>
                     
                     {/* Education Section */}

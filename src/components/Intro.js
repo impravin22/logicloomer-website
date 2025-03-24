@@ -32,9 +32,11 @@ z-index:1;
 /* Mobile responsiveness */
 @media (max-width: 768px) {
     width: 85vw;
+    min-height: 80vh; /* Set a minimum height instead of auto */
     height: auto;
     flex-direction: column;
     padding: 2rem 0;
+    overflow: visible; /* Prevent content from being cut off */
 }
 `
 const SubBox = styled.div`
@@ -54,13 +56,23 @@ display: flex;
 /* Mobile responsiveness */
 @media (max-width: 768px) {
     width: 100%;
-    height: ${props => props.right ? '50vh' : 'auto'};
-    margin-top: ${props => props.right ? '2rem' : '0'};
+    height: auto;
     
-    .pic {
-        position: relative;
-        width: 70%;
+    &:nth-child(2) { /* Target the image container */
         margin-top: 2rem;
+        order: -1; /* Move image to top on mobile */
+        height: auto;
+        
+        .pic {
+            position: relative;
+            bottom: auto;
+            left: auto;
+            transform: none;
+            width: 60%;
+            max-width: 250px;
+            margin: 0 auto;
+            display: block;
+        }
     }
 }
 `
@@ -85,6 +97,16 @@ justify-content: space-evenly;
 @media (max-width: 768px) {
     padding: 1rem;
     text-align: center;
+    margin-top: 1.5rem; /* Add space after the image */
+    
+    h1, h3 {
+        margin-bottom: 0.5rem; /* Add some spacing between text elements */
+    }
+    
+    h6 {
+        margin-top: 1rem;
+        line-height: 1.5;
+    }
 }
 `
 
@@ -105,8 +127,8 @@ const Intro = () => {
             <SubBox right>
                 <motion.div
                 initial={{opacity:0}}
-        animate={{opacity: 1}}
-        transition={{ duration:1, delay:2 }}
+                animate={{opacity: 1}}
+                transition={{ duration:1, delay:2 }}
                 >
                     <img className="pic" src={Me} alt="Profile Pic" />
                 </motion.div>

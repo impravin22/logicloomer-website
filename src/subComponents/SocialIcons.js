@@ -20,9 +20,11 @@ const Icons = styled.div`
     margin: 0.5rem 0;
   }
   
-  /* Mobile responsiveness */
+  /* Improved mobile responsiveness */
   @media (max-width: 768px) {
-    left: 1rem;
+    left: 0.8rem; /* Slightly closer to the edge */
+    bottom: 0.5rem; /* Slightly higher from bottom */
+    z-index: 10; /* Higher z-index to stay above other elements */
     
     & > *:not(:last-child) {
       margin: 0.3rem 0;
@@ -38,11 +40,14 @@ const Line = styled(motion.span)`
     
   /* Mobile responsiveness */
   @media (max-width: 768px) {
-    height: 5rem;
+    height: 3rem; /* Shorter line on mobile */
   }
 `;
 
 const SocialIcons = (props) => {
+  // Default to 'light' theme if no theme prop is provided
+  const theme = props.theme || 'light';
+  
   return (
     <Icons>
       <motion.div
@@ -59,7 +64,7 @@ const SocialIcons = (props) => {
           <Github
             width={25}
             height={25}
-            fill={props.theme === "dark" ? DarkTheme.text : DarkTheme.body}
+            fill={theme === "dark" ? DarkTheme.text : DarkTheme.body}
           />
         </a>
       </motion.div>
@@ -77,7 +82,7 @@ const SocialIcons = (props) => {
           <GitLab
             width={25}
             height={25}
-            fill={props.theme === "dark" ? DarkTheme.text : DarkTheme.body}
+            fill={theme === "dark" ? DarkTheme.text : DarkTheme.body}
           />
         </a>
       </motion.div>
@@ -95,7 +100,7 @@ const SocialIcons = (props) => {
           <LinkedIn
             width={25}
             height={25}
-            fill={props.theme === "dark" ? DarkTheme.text : DarkTheme.body}
+            fill={theme === "dark" ? DarkTheme.text : DarkTheme.body}
           />
         </a>
       </motion.div>
@@ -113,13 +118,13 @@ const SocialIcons = (props) => {
           <Instagram
             width={25}
             height={25}
-            fill={props.theme === "dark" ? DarkTheme.text : DarkTheme.body}
+            fill={theme === "dark" ? DarkTheme.text : DarkTheme.body}
           />
         </a>
       </motion.div>
 
       <Line
-        color={props.theme}
+        color={theme}
         initial={{
           height: 0,
         }}

@@ -20,7 +20,7 @@ height: 2.5rem;
 display: flex;
 justify-content: center;
 align-items:center;
-z-index:3;
+z-index:5; /* Increased z-index to ensure clickability */
 
 cursor: pointer;
 
@@ -36,17 +36,21 @@ cursor: pointer;
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
-    width: 2rem;
-    height: 2rem;
+    width: 2.8rem; /* Increased for better tappability */
+    height: 2.8rem; /* Increased for better tappability */
     top: 1rem;
+    padding: 0.4rem; /* Slightly increased padding */
+    z-index: 10; /* Further increased z-index for mobile */
 }
 `
 
 const PowerButton = () => {
+    const iconSize = window.innerWidth <= 768 ? 25 : 30; /* Slightly smaller on mobile */
+    
     return (
         <Power>
             <NavLink to="/">
-                <PowerBtn width={30} height={30} fill='currentColor' />
+                <PowerBtn width={iconSize} height={iconSize} fill='currentColor' />
             </NavLink>
         </Power>
     )

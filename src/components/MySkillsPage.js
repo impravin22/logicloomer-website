@@ -178,7 +178,7 @@ Machine Learning, Deep Learning, Model Distillation, Unsupervised Learning, Vect
 <Description>
 <strong>Tools</strong>
 <p>
-Docker, Kubernetes, AWS SageMaker, AWS EC2, FastAPI, Streamlit
+Docker, Kubernetes, AWS SageMaker, AWS EC2, FastAPI, Streamlit, ReactJS, NodeJS
 </p>
 </Description>
 
