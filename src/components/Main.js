@@ -149,16 +149,22 @@ transition: all 1s ease;
 /* Adjust position and size on mobile */
 @media (max-width: 768px) {
   & > :first-child {
-    width: ${props => props.click ? '80px' : '150px'} !important;
-    height: ${props => props.click ? '80px' : '150px'} !important;
+    width: ${props => props.click ? '60px' : '120px'} !important;
+    height: ${props => props.click ? '60px' : '120px'} !important;
   }
   
   top: ${props => props.click ? '85%' :'50%'  };
-  left: ${props => props.click ? '88%' :'50%'  };
+  left: ${props => props.click ? '50%' :'50%'  }; /* Keep centered horizontally even when clicked */
+  right: auto; /* Remove any right positioning */
+  transform: translate(-50%, -50%); /* Ensure proper centering */
   
   & > :last-child {
     font-size: 0.8em;
+    padding-top: 0.5rem;
   }
+  
+  /* Ensure z-index is appropriate */
+  z-index: 5;
 }
 `
 

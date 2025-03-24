@@ -32,11 +32,12 @@ z-index:1;
 /* Mobile responsiveness */
 @media (max-width: 768px) {
     width: 85vw;
-    min-height: 80vh; /* Set a minimum height instead of auto */
+    min-height: 80vh;
     height: auto;
-    flex-direction: column;
+    flex-direction: row; /* Keep horizontal layout */
+    flex-wrap: wrap;     /* Allow wrapping for better mobile display */
     padding: 2rem 0;
-    overflow: visible; /* Prevent content from being cut off */
+    overflow: visible;
 }
 `
 const SubBox = styled.div`
@@ -55,23 +56,21 @@ display: flex;
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
-    width: 100%;
-    height: auto;
+    width: 50%; /* Keep the 50% width to maintain horizontal split */
+    min-height: 50vh; /* Set minimum height for each half */
     
     &:nth-child(2) { /* Target the image container */
-        margin-top: 2rem;
-        order: -1; /* Move image to top on mobile */
-        height: auto;
+        background-color: ${props => props.theme.text}; /* Ensure dark background */
         
         .pic {
             position: relative;
-            bottom: auto;
-            left: auto;
-            transform: none;
-            width: 60%;
-            max-width: 250px;
+            width: 80%;
+            max-width: 200px;
             margin: 0 auto;
             display: block;
+            bottom: auto;
+            left: 50%;
+            transform: translateX(-50%);
         }
     }
 }
@@ -96,16 +95,15 @@ justify-content: space-evenly;
 /* Mobile responsiveness */
 @media (max-width: 768px) {
     padding: 1rem;
-    text-align: center;
-    margin-top: 1.5rem; /* Add space after the image */
+    font-size: calc(0.8em + 1vw); /* Slightly smaller text on mobile */
+    justify-content: center; /* Center content vertically */
     
-    h1, h3 {
-        margin-bottom: 0.5rem; /* Add some spacing between text elements */
+    h1, h3, h6 {
+        line-height: 1.4;
     }
     
-    h6 {
-        margin-top: 1rem;
-        line-height: 1.5;
+    &>*:last-child{
+        font-size: calc(0.4rem + 1vw);
     }
 }
 `
