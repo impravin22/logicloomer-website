@@ -32,9 +32,12 @@ z-index:1;
 /* Mobile responsiveness */
 @media (max-width: 768px) {
     width: 85vw;
+    min-height: 80vh;
     height: auto;
-    flex-direction: column;
+    flex-direction: row; /* Keep horizontal layout */
+    flex-wrap: wrap;     /* Allow wrapping for better mobile display */
     padding: 2rem 0;
+    overflow: visible;
 }
 `
 const SubBox = styled.div`
@@ -53,14 +56,22 @@ display: flex;
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
-    width: 100%;
-    height: ${props => props.right ? '50vh' : 'auto'};
-    margin-top: ${props => props.right ? '2rem' : '0'};
+    width: 50%; /* Keep the 50% width to maintain horizontal split */
+    min-height: 50vh; /* Set minimum height for each half */
     
-    .pic {
-        position: relative;
-        width: 70%;
-        margin-top: 2rem;
+    &:nth-child(2) { /* Target the image container */
+        background-color: ${props => props.theme.text}; /* Ensure dark background */
+        
+        .pic {
+            position: relative;
+            width: 80%;
+            max-width: 200px;
+            margin: 0 auto;
+            display: block;
+            bottom: auto;
+            left: 50%;
+            transform: translateX(-50%);
+        }
     }
 }
 `
@@ -84,7 +95,16 @@ justify-content: space-evenly;
 /* Mobile responsiveness */
 @media (max-width: 768px) {
     padding: 1rem;
-    text-align: center;
+    font-size: calc(0.8em + 1vw); /* Slightly smaller text on mobile */
+    justify-content: center; /* Center content vertically */
+    
+    h1, h3, h6 {
+        line-height: 1.4;
+    }
+    
+    &>*:last-child{
+        font-size: calc(0.4rem + 1vw);
+    }
 }
 `
 

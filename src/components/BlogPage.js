@@ -9,6 +9,7 @@ import { Blogs } from '../data/BlogData';
 import AnchorComponent from '../subComponents/Anchor'
 import BigTitle from "../subComponents/BigTitlte"
 import { motion } from 'framer-motion'
+import { Design, Develope, Github, Link, YinYang, PowerBtn, Anchor } from '../components/AllSvgs'
 
 const MainContainer = styled(motion.div)`
 background-image: url(${img});
@@ -80,6 +81,83 @@ text-align: justify;
     text-align: left;
 }
 `
+
+const ServicesGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+  margin-bottom: 3rem;
+`;
+
+const ServiceBox = styled.div`
+  width: 16rem;
+  height: 40vh;
+  background-color: ${props => props.theme.text};
+  color: ${props => props.theme.body};
+  padding: 1.5rem 2rem;
+  border-radius: 0 50px 0 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid ${props => props.theme.body};
+  transition: all 0.2s ease;
+  position: relative;
+  
+  &:hover {
+    background-color: ${props => props.theme.body};
+    color: ${props => props.theme.text};
+    border: 1px solid ${props => props.theme.text};
+  }
+  
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    width: 85%;
+    max-width: 350px;
+    margin-right: 0;
+    margin-bottom: 2rem;
+    height: auto;
+    min-height: 250px;
+    padding: 1.2rem 1.5rem;
+  }
+`;
+
+const ServiceIcon = styled.div`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    top: 0.8rem;
+    right: 0.8rem;
+  }
+`;
+
+const ServiceTitle = styled.h2`
+  font-size: calc(1em + 0.5vw);
+  margin-top: 2rem;
+  
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    font-size: 1.2rem;
+    margin-top: 1.5rem;
+  }
+`;
+
+const ServiceDescription = styled.p`
+  font-size: calc(0.8em + 0.3vw);
+  font-family: 'Karla', sans-serif;
+  font-weight: 500;
+  margin-top: 1rem;
+  
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    margin-top: 0.8rem;
+  }
+`;
 
 const PublicationList = styled.ul`
 list-style-type: none;
@@ -197,7 +275,90 @@ const BlogPage = () => {
                 <SocialIcons />
                 <AnchorComponent number={numbers}/>
                 <Center>
-                    <Heading>Education & Publications</Heading>
+                    <Heading>What I Offer</Heading>
+                    
+                    {/* Services Section */}
+                    <ServicesGrid>
+                        <ServiceBox>
+                            <ServiceIcon>
+                                <Github width={25} height={25} />
+                            </ServiceIcon>
+                            <ServiceTitle>Custom LLMs integrations</ServiceTitle>
+                            <ServiceDescription>
+                                Seamlessly integrate large language models into your applications for enhanced functionality.
+                            </ServiceDescription>
+                        </ServiceBox>
+                        
+                        <ServiceBox>
+                            <ServiceIcon>
+                                <Design width={25} height={25} />
+                            </ServiceIcon>
+                            <ServiceTitle>Agentic RAG</ServiceTitle>
+                            <ServiceDescription>
+                                Advanced retrieval-augmented generation systems with autonomous capabilities.
+                            </ServiceDescription>
+                        </ServiceBox>
+                        
+                        <ServiceBox>
+                            <ServiceIcon>
+                                <YinYang width={25} height={25} />
+                            </ServiceIcon>
+                            <ServiceTitle>Computer Vision</ServiceTitle>
+                            <ServiceDescription>
+                                Machine learning systems that can process, analyze, and understand visual data.
+                            </ServiceDescription>
+                        </ServiceBox>
+                        
+                        <ServiceBox>
+                            <ServiceIcon>
+                                <Design width={25} height={25} />
+                            </ServiceIcon>
+                            <ServiceTitle>Image Processing</ServiceTitle>
+                            <ServiceDescription>
+                                Advanced techniques for enhancing and extracting information from digital images.
+                            </ServiceDescription>
+                        </ServiceBox>
+                        
+                        <ServiceBox>
+                            <ServiceIcon>
+                                <Link width={25} height={25} />
+                            </ServiceIcon>
+                            <ServiceTitle>Data Management and Processing</ServiceTitle>
+                            <ServiceDescription>
+                                Comprehensive solutions for data storage, organization, and analysis at scale.
+                            </ServiceDescription>
+                        </ServiceBox>
+                        
+                        <ServiceBox>
+                            <ServiceIcon>
+                                <Anchor width={25} height={25} />
+                            </ServiceIcon>
+                            <ServiceTitle>Infrastructure as a service</ServiceTitle>
+                            <ServiceDescription>
+                                Cloud-based infrastructure solutions tailored to your specific requirements.
+                            </ServiceDescription>
+                        </ServiceBox>
+                        
+                        <ServiceBox>
+                            <ServiceIcon>
+                                <Develope width={25} height={25} />
+                            </ServiceIcon>
+                            <ServiceTitle>Software as a service</ServiceTitle>
+                            <ServiceDescription>
+                                Custom SaaS solutions designed to meet your business needs.
+                            </ServiceDescription>
+                        </ServiceBox>
+                        
+                        <ServiceBox>
+                            <ServiceIcon>
+                                <Design width={25} height={25} />
+                            </ServiceIcon>
+                            <ServiceTitle>Customized Website Building</ServiceTitle>
+                            <ServiceDescription>
+                                Professional, responsive website development tailored to your specific needs and brand identity.
+                            </ServiceDescription>
+                        </ServiceBox>
+                    </ServicesGrid>
                     
                     {/* Education Section */}
                     <SubHeading>Education</SubHeading>
@@ -223,7 +384,7 @@ const BlogPage = () => {
                     </PublicationList>
                 </Center>
 
-                <BigTitle text="EDUCATION" top="5rem" left="5rem" />
+                <BigTitle text="SERVICES" top="5rem" left="5rem" />
             </Container>
         </MainContainer>
     )

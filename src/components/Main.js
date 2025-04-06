@@ -7,7 +7,6 @@ import PowerButton from '../subComponents/PowerButton'
 import SocialIcons from '../subComponents/SocialIcons'
 import { YinYang } from './AllSvgs'
 import Intro from './Intro'
-;
 
 
 const MainContainer = styled.div`
@@ -22,11 +21,18 @@ h2,h3,h4,h5,h6{
   font-family:'Karla', sans-serif ;
   font-weight:500;
 }
+
+/* Improve overflow handling on mobile */
+@media (max-width: 768px) {
+  overflow: auto;
+  overflow-x: hidden;
+}
 `
 
 const Container = styled.div`
 padding: 2rem;
 
+/* Reduce padding on mobile */
 @media (max-width: 768px) {
   padding: 1rem;
 }
@@ -40,6 +46,7 @@ right: calc(1rem + 2vw);
 text-decoration: none;
 z-index:1;
 
+/* Adjust position on mobile */
 @media (max-width: 768px) {
   top: 1rem;
   right: 1rem;
@@ -55,6 +62,7 @@ transform: rotate(90deg) translate(-50%, -50%);
 text-decoration: none;
 z-index:1;
 
+/* Adjust position and size on mobile */
 @media (max-width: 768px) {
   top: 40%;
   right: 0.5rem;
@@ -70,6 +78,7 @@ transform: translate(-50%, -50%) rotate(-90deg);
 text-decoration: none;
 z-index:1;
 
+/* Adjust position and size on mobile */
 @media (max-width: 768px) {
   top: 40%;
   left: 0.5rem;
@@ -86,6 +95,7 @@ width: 100%;
 display: flex;
 justify-content: space-evenly;
 
+/* Adjust position on mobile */
 @media (max-width: 768px) {
   bottom: 0.5rem;
 }
@@ -144,13 +154,25 @@ transition: all 1s ease;
     padding-top: 1rem;
 }
 
+/* Adjust position and size on mobile */
 @media (max-width: 768px) {
-    top: ${props => props.click ? '90%' :'50%'  };
-    left: ${props => props.click ? '90%' :'50%'  };
-
-    &>:last-child{
-        font-size: 0.8em;
-    }
+  & > :first-child {
+    width: ${props => props.click ? '60px' : '120px'} !important;
+    height: ${props => props.click ? '60px' : '120px'} !important;
+  }
+  
+  top: ${props => props.click ? '85%' :'50%'  };
+  left: ${props => props.click ? '50%' :'50%'  }; /* Keep centered horizontally even when clicked */
+  right: auto; /* Remove any right positioning */
+  transform: translate(-50%, -50%); /* Ensure proper centering */
+  
+  & > :last-child {
+    font-size: 0.8em;
+    padding-top: 0.5rem;
+  }
+  
+  /* Ensure z-index is appropriate */
+  z-index: 5;
 }
 `
 
@@ -226,7 +248,7 @@ const Main = () => {
                 whileHover={{scale: 1.1}}
                 whileTap={{scale: 0.9}}
                 >
-                    Education
+                    What I offer?
                 </motion.h2>
             </BLOG>
             <WORK to="/work" click={+click}>
