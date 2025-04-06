@@ -89,11 +89,14 @@ justify-content: space-evenly;
 `
 
 const Intro = () => {
+    // Check if we're on mobile for animation adaptations
+    const isMobile = window.innerWidth <= 768;
+    
     return (
         <Box
         initial={{height:0}}
-        animate={{height: '55vh'}}
-        transition={{ type: 'spring', duration:2, delay:1 }}
+        animate={{height: isMobile ? 'auto' : '55vh'}}
+        transition={{ type: 'spring', duration: isMobile ? 1.5 : 2, delay:1 }}
         >
             <SubBox>
                 <Text>
@@ -105,8 +108,8 @@ const Intro = () => {
             <SubBox right>
                 <motion.div
                 initial={{opacity:0}}
-        animate={{opacity: 1}}
-        transition={{ duration:1, delay:2 }}
+                animate={{opacity: 1}}
+                transition={{ duration:1, delay: isMobile ? 1.5 : 2 }}
                 >
                     <img className="pic" src={Me} alt="Profile Pic" />
                 </motion.div>

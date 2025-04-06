@@ -26,6 +26,10 @@ h2,h3,h4,h5,h6{
 
 const Container = styled.div`
 padding: 2rem;
+
+@media (max-width: 768px) {
+  padding: 1rem;
+}
 `
 
 const Contact = styled.a`
@@ -35,6 +39,12 @@ top: 2rem;
 right: calc(1rem + 2vw);
 text-decoration: none;
 z-index:1;
+
+@media (max-width: 768px) {
+  top: 1rem;
+  right: 1rem;
+  font-size: 0.8em;
+}
 `
 const BLOG = styled(NavLink)`
 color: ${props => props.theme.text};
@@ -44,16 +54,27 @@ right: calc(1rem + 2vw);
 transform: rotate(90deg) translate(-50%, -50%);
 text-decoration: none;
 z-index:1;
+
+@media (max-width: 768px) {
+  top: 40%;
+  right: 0.5rem;
+  font-size: 0.8em;
+}
 `
 const WORK = styled(NavLink)`
 color: ${props => props.click ? props.theme.body : props.theme.text};
-
 position: absolute;
 top: 50%;
 left: calc(1rem + 2vw);
-transform: translate(-50%, -50%) rotate(-90deg) ;
+transform: translate(-50%, -50%) rotate(-90deg);
 text-decoration: none;
 z-index:1;
+
+@media (max-width: 768px) {
+  top: 40%;
+  left: 0.5rem;
+  font-size: 0.8em;
+}
 `
 
 const BottomBar = styled.div`
@@ -62,20 +83,31 @@ bottom: 1rem;
 left: 0;
 right: 0;
 width: 100%;
-
 display: flex;
 justify-content: space-evenly;
+
+@media (max-width: 768px) {
+  bottom: 0.5rem;
+}
 `
 
 const ABOUT = styled(NavLink)`
 color: ${props => props.click ? props.theme.body : props.theme.text};
 text-decoration: none;
 z-index:1;
+
+@media (max-width: 768px) {
+  font-size: 0.8em;
+}
 `
 const SKILLS = styled(NavLink)`
 color: ${props => props.theme.text};
 text-decoration: none;
 z-index:1;
+
+@media (max-width: 768px) {
+  font-size: 0.8em;
+}
 `
 
 const rotate = keyframes`
@@ -111,6 +143,15 @@ transition: all 1s ease;
     display: ${props => props.click ? 'none' :'inline-block'  };
     padding-top: 1rem;
 }
+
+@media (max-width: 768px) {
+    top: ${props => props.click ? '90%' :'50%'  };
+    left: ${props => props.click ? '90%' :'50%'  };
+
+    &>:last-child{
+        font-size: 0.8em;
+    }
+}
 `
 
 const DarkDiv = styled.div`
@@ -123,6 +164,11 @@ width: ${props => props.click ? '50%' : '0%'};
 height: ${props => props.click ? '100%' : '0%'};
 z-index:1;
 transition: height 0.5s ease, width 1s ease 0.5s;
+
+@media (max-width: 768px) {
+  width: ${props => props.click ? '100%' : '0%'};
+  right: 0;
+}
 `
 
 
@@ -141,7 +187,12 @@ const Main = () => {
             <SocialIcons theme={click ? 'dark' :'light'} />
            
             <Center click={click}>
-                <YinYang  onClick={()=> handleClick()} width={click ? 120 : 200} height={click ? 120 : 200} fill='currentColor' />
+                <YinYang 
+                  onClick={()=> handleClick()} 
+                  width={click ? 120 : window.innerWidth <= 768 ? 150 : 200} 
+                  height={click ? 120 : window.innerWidth <= 768 ? 150 : 200} 
+                  fill='currentColor' 
+                />
                 <span>click here</span>
             </Center>
 

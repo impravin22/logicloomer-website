@@ -87,16 +87,37 @@ const WorkPage = () => {
       if (window.innerWidth > 768) {
         element.style.transform = `translateX(${-window.pageYOffset}px)`;
       } else {
+        // For mobile, ensure the element stays in place
         element.style.transform = 'none';
       }
 
-      return (yinyang.current.style.transform =
-        "rotate(" + -window.pageYOffset + "deg)");
+      // Optimize rotation speed for mobile devices
+      const rotationSpeed = window.innerWidth <= 768 ? 0.5 : 1; // Slower rotation on mobile
+      
+      if (yinyang.current) {
+        yinyang.current.style.transform = 
+          "rotate(" + (-window.pageYOffset * rotationSpeed) + "deg)";
+      }
+    };
+
+    // Add resize listener to handle orientation changes on mobile
+    const handleResize = () => {
+      if (window.innerWidth <= 768 && element) {
+        // Reset transform on mobile resize/rotation
+        element.style.transform = 'none';
+      }
+      rotate(); // Re-apply appropriate transforms
     };
 
     window.addEventListener("scroll", rotate);
+    window.addEventListener("resize", handleResize);
+    
+    // Call once on mount to set initial state
+    rotate();
+    
     return () => {
       window.removeEventListener("scroll", rotate);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
