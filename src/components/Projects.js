@@ -146,11 +146,7 @@ const ProjectTag = styled.span`
   border: 1px solid ${props => props.theme.border};
 `;
 
-const ProjectLinks = styled.div``;
-
-const ProjectLink = styled.span`
-  display: none;
-`;
+// Links removed; no styled components needed
 
 const Projects = () => {
   const ref = useRef(null);
