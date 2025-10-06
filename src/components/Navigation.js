@@ -59,8 +59,9 @@ const NavLink = styled.a`
   color: ${props => props.theme.text};
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.3s ease;
+  transition: color 200ms ease;
   position: relative;
+  cursor: pointer;
 
   &:hover {
     color: ${props => props.theme.accent};
@@ -102,7 +103,8 @@ const ResumeButton = styled.a`
   border-radius: 6px;
   text-decoration: none;
   font-weight: 500;
-  transition: all 0.3s ease;
+  transition: all 250ms cubic-bezier(0.22, 1, 0.36, 1);
+  cursor: pointer;
 
   &:hover {
     background: ${props => props.theme.accentHover};

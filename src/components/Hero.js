@@ -80,7 +80,7 @@ const Button = styled.a`
   border-radius: 8px;
   font-weight: 600;
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: all 250ms cubic-bezier(0.22, 1, 0.36, 1);
   cursor: pointer;
   border: 2px solid transparent;
 
@@ -240,7 +240,7 @@ const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            Pravy
+            Praveen Chittem
           </Name>
           
           <Title

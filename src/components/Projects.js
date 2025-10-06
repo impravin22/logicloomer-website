@@ -49,7 +49,7 @@ const FilterButton = styled.button`
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 200ms ease;
 
   &:hover {
     border-color: ${props => props.theme.accent};
@@ -139,35 +139,8 @@ const ProjectLinks = styled.div`
   gap: 12px;
 `;
 
-const ProjectLink = styled.a`
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  border: 1px solid ${props => props.theme.border};
-
-  &.primary {
-    background: ${props => props.theme.accent};
-    color: white;
-    border-color: ${props => props.theme.accent};
-
-    &:hover {
-      background: ${props => props.theme.accentHover};
-    }
-  }
-
-  &.secondary {
-    background: transparent;
-    color: ${props => props.theme.text};
-    border-color: ${props => props.theme.border};
-
-    &:hover {
-      background: ${props => props.theme.background};
-      border-color: ${props => props.theme.accent};
-    }
-  }
+const ProjectLink = styled.span`
+  display: none;
 `;
 
 const Projects = () => {
@@ -247,14 +220,7 @@ const Projects = () => {
                     <ProjectTag key={tagIndex}>{tag}</ProjectTag>
                   ))}
                 </ProjectTags>
-                <ProjectLinks>
-                  <ProjectLink className="primary" href={project.demo} target="_blank">
-                    Live Demo
-                  </ProjectLink>
-                  <ProjectLink className="secondary" href={project.github} target="_blank">
-                    GitHub
-                  </ProjectLink>
-                </ProjectLinks>
+                {/* Links intentionally removed as requested */}
               </ProjectContent>
             </ProjectCard>
           ))}

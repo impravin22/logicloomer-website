@@ -90,7 +90,8 @@ const SkillTag = styled.span`
   font-size: 12px;
   font-weight: 500;
   border: 1px solid ${props => props.theme.border};
-  transition: all 0.3s ease;
+  transition: all 200ms ease;
+  cursor: pointer;
 
   &:hover {
     background: ${props => props.theme.accent};
@@ -112,7 +113,8 @@ const TechItem = styled(motion.div)`
   border-radius: 8px;
   padding: 20px;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: all 200ms ease;
+  cursor: pointer;
 
   &:hover {
     transform: translateY(-2px);

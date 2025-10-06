@@ -75,7 +75,8 @@ const SkillItem = styled.div`
   border-radius: 8px;
   padding: 20px;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: all 250ms cubic-bezier(0.22, 1, 0.36, 1);
+  cursor: pointer;
 
   &:hover {
     transform: translateY(-4px);
