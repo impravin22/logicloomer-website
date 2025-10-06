@@ -3,39 +3,39 @@
 export const Blogs = [
     {
         id:1,
-        name:"Education",
-        tags:["Master's Degree", "NTUT", "Taiwan"],
+        name:"Master in Electrical Engineering and Computer Science",
+        tags:["Master's Degree", "NTUT", "Taiwan", "HPC", "CUDA"],
         date:"2018-2020",
         imgSrc:"https://i.imgur.com/UzHw3mG.jpg", 
         link:"#",
-        description:"I have masters in Electrical Engineering and Computer Science from National Taipei University of Technology (NTUT), Taiwan."
+        description:"Master's degree from National Taipei University of Technology (NTUT), Taiwan. Thesis: 'GPU Acceleration of Flooding Simulation Using High-Performance Computing' - Published in IEEE conference, achieved 15x speedup using CUDA optimization."
     },
     {
         id:2,
-        name:"YOLO-v4 Object Detection in Aerial Images",
-        tags:["Object Detection", "Remote Sensing", "Deep Learning"],
-        date:"2021",
+        name:"Research Publications & Achievements",
+        tags:["Conference Papers", "IEEE", "Research Impact"],
+        date:"2020-2024",
         imgSrc:"https://i.imgur.com/3QKQVdw.jpg",
-        link:"https://www.mdpi.com/2076-3417/10/11/3999",
-        description:"Published in MDPI Applied Sciences, this paper explores object detection in aerial imagery using advanced computer vision techniques."
+        link:"#",
+        description:"2 peer-reviewed publications in AI/ML conferences. Research focus on GPU-accelerated HPC simulation and real-time object detection with deep learning. Achieved best results in 3 computer vision projects."
     },
     {
         id:3,
-        name:"Design and Implementation of AI-Based Health Monitoring System",
-        tags:["Healthcare", "AI", "Embedded Systems"],
-        date:"2021",
+        name:"Key Professional Achievements",
+        tags:["Technical Leadership", "Sales AI System", "Performance"],
+        date:"2022-2024",
         imgSrc:"https://i.imgur.com/fD7Upnk.jpg",
-        link:"https://dl.acm.org/doi/abs/10.1145/3474906.3474916",
-        description:"Published via ACM, this research focuses on AI applications in healthcare monitoring systems."
+        link:"#",
+        description:"Led development of intelligent sales support platform for ViewSonic. Led cross-functional AI teams and guided peer engineers across departments. Achieved significant performance improvements in multiple AI projects."
     },
     {
         id:4,
-        name:"Deep Learning-Based Approach for Embedded Vision Systems",
-        tags:["Computer Vision", "Embedded Systems", "Deep Learning"],
+        name:"GPU Acceleration of Flooding Simulation",
+        tags:["HPC", "CUDA", "IEEE", "Simulation"],
         date:"2020",
         imgSrc:"https://i.imgur.com/VQ2pOGr.jpg",
         link:"https://ieeexplore.ieee.org/abstract/document/9073516",
-        description:"IEEE publication covering embedded vision systems using deep learning methodologies."
+        description:"IEEE publication covering GPU-accelerated high-performance computing for flooding simulation. Achieved 15x speedup using CUDA optimization techniques."
     }
 ]
  

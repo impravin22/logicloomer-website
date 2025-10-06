@@ -122,7 +122,7 @@ const Intro = () => {
                 <Text>
                     <h1>Hi,</h1>
                     <h3>I'm Pravy.</h3>
-                    <h6>I'm an AI Software Developer specializing in Computer Vision and LLMs.</h6>
+                    <h6>I'm a Sr. AI Software Developer specializing in Multi-Agent Systems, LLMs, and Vector Databases.</h6>
                 </Text>
             </SubBox>
             <SubBox right>

@@ -124,39 +124,39 @@ const MySkillsPage = () => {
 <ParticleComponent theme='light' />
             <Main>
 <Title>
-    <Design width={40} height={40} /> Computer Vision Specialist
+    <Design width={40} height={40} /> AI Systems Specialist
 </Title>
 <Description>
-I specialize in building cutting-edge Computer Vision and LLM applications for real-world problems.
+I specialize in building cutting-edge AI systems including multi-agent systems, LLMs, and vector databases for enterprise applications.
 </Description>
 <Description>
-<strong>Skills</strong>
+<strong>AI Systems</strong>
 <ul>
     <li>
-        Computer Vision
+        Multi-Agent Systems
     </li>
     <li>
         Large Language Models
     </li>
     <li>
-        Sketch/Shape Recognition
+        Vector Databases
     </li>
     <li>
-        Face Recognition
+        Graph Neural Networks
     </li>
 </ul>
 </Description>
 <Description>
-<strong>Tools</strong>
+<strong>ML/DL Frameworks</strong>
 <ul>
     <li>
-       Python, C++
-    </li>
-    <li>
-       TensorFlow, PyTorch
+       PyTorch, TensorFlow, Keras
     </li>
     <li>
        OpenVino, TensorRT
+    </li>
+    <li>
+       CUDA, Multi-GPU Computing
     </li>
 </ul>
 </Description>
@@ -164,21 +164,21 @@ I specialize in building cutting-edge Computer Vision and LLM applications for r
             </Main>
             <Main>
 <Title>
-    <Develope width={40} height={40} /> AI Engineer
+    <Develope width={40} height={40} /> Full-Stack AI Engineer
 </Title>
 <Description>
-I develop scalable and optimized AI systems that deliver high performance solutions for complex problems.
+I develop scalable and optimized AI systems with comprehensive backend infrastructure and deployment expertise.
 </Description>
 <Description>
-<strong>Skills</strong>
+<strong>Programming & Backend</strong>
 <p>
-Machine Learning, Deep Learning, Model Distillation, Unsupervised Learning, Vector Search
+Python, C++, SQL, FastAPI, PostgreSQL, Redis, APIs
 </p>
 </Description>
 <Description>
-<strong>Tools</strong>
+<strong>Infrastructure & Data Engineering</strong>
 <p>
-Docker, Kubernetes, AWS SageMaker, AWS EC2, FastAPI, Streamlit, ReactJS, NodeJS
+Docker, Kubernetes, AWS, Multi-GPU, ETL Pipelines, Qdrant, Data Processing
 </p>
 </Description>
 

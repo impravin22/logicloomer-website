@@ -98,11 +98,11 @@ const AboutPage = () => {
             <img src={astronaut} alt="spaceman" />
         </Spaceman>    
         <Main>
-        Innovative and passionate AI Software Developer with about 5 years of experience in Computer Vision, Machine Learning, and Large Language Models.
+        Research-oriented ML/Deep Learning Engineer with 5+ years in state-of-the-art AI techniques including multi-agent systems, LLMs and vector databases. Expert in end-to-end ML pipelines from problem framing to production deployment.
 <br /> <br/>
-Strong background in data analysis, algorithm development, and market trends. Expertise in crafting scalable Python applications and implementing optimized algorithms for enhanced performance.
+Proven track record in intelligent sales support systems, large-scale data processing, and translating cutting-edge AI research into business applications. Strong foundation in both theoretical AI and practical implementation with distributed computing experience.
 <br/> <br/>
-Currently based in Taipei, Taiwan, working as a Sr. AI Software Developer at ViewSonic. I have proven problem-solving skills and a passion for staying current with industry developments.
+Currently based in Taipei, Taiwan, working as a Sr. AI Software Developer at ViewSonic, leading the development of comprehensive multi-agent AI systems for sales support and intelligent automation.
         </Main>
 
         <BigTitle text="ABOUT" top="10%" left="5%" />
