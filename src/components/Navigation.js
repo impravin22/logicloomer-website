@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
+// framer-motion not used here
 
 const NavContainer = styled.nav`
   position: fixed;

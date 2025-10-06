@@ -110,6 +110,18 @@ const ProjectTitle = styled.h3`
   margin-bottom: 12px;
 `;
 
+const Badge = styled.span`
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  background: ${props => props.theme.success};
+  border-radius: 999px;
+  vertical-align: middle;
+`;
+
 const ProjectDescription = styled.p`
   font-size: 14px;
   color: ${props => props.theme.textSecondary};
@@ -134,10 +146,7 @@ const ProjectTag = styled.span`
   border: 1px solid ${props => props.theme.border};
 `;
 
-const ProjectLinks = styled.div`
-  display: flex;
-  gap: 12px;
-`;
+const ProjectLinks = styled.div``;
 
 const ProjectLink = styled.span`
   display: none;
@@ -213,7 +222,12 @@ const Projects = () => {
                 {getProjectIcon(project.name)}
               </ProjectImage>
               <ProjectContent>
-                <ProjectTitle>{project.name}</ProjectTitle>
+                <ProjectTitle>
+                  {project.name}
+                  {project.name.includes('AI Sales Assistant') && (
+                    <Badge>Lead Developer</Badge>
+                  )}
+                </ProjectTitle>
                 <ProjectDescription>{project.description}</ProjectDescription>
                 <ProjectTags>
                   {project.tags.map((tag, tagIndex) => (

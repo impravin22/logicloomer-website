@@ -37,7 +37,7 @@ const BackgroundPattern = styled.div`
 
 const Main = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [theme, setTheme] = useState(darkTheme);
+  const [theme] = useState(darkTheme);
 
   useEffect(() => {
     // Simulate loading

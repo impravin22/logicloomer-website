@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
+// framer-motion not used here
 
 const FooterContainer = styled.footer`
   background: ${props => props.theme.body};
