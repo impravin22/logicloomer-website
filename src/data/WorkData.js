@@ -4,8 +4,8 @@ export const Work = [
     {
         id:1,
         name:"AI Sales Assistant System - Multi-Agent Architecture",
-        description:"Designed and led comprehensive multi-agent AI system to assist ViewSonic sales teams with product information, competitor analysis, and sales support. Built end-to-end ML pipeline with intelligent agent coordination.",
-        tags:["Multi-Agent Systems","LLMs","FastAPI","Vector Databases"],
+        description:"Lead Developer — Designed and led a comprehensive multi-agent AI system to assist ViewSonic sales teams with product information, competitor analysis, and sales support. Built end-to-end ML pipeline with intelligent agent coordination.",
+        tags:["Lead Developer","Multi-Agent Systems","LLMs","FastAPI","Vector Databases"],
         demo:"#",
         github:"#",
         expandedContent: "Led the development of a sophisticated multi-agent AI system for ViewSonic's sales teams. The system features specialized agents for product information, software features, competitor comparison, and general inquiries. Implemented agent coordination and routing to provide contextually relevant responses for sales scenarios. Built robust data collection pipeline from PostgreSQL, Qdrant databases, Dropbox, and SharePoint APIs. The system uses Qdrant vector database for semantic search capabilities and integrates Google Search API for real-time market intelligence. Deployed using openWebUI for intuitive sales team interaction."
