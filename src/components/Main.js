@@ -1,312 +1,126 @@
-import { motion } from 'framer-motion'
-import React, { useState } from 'react'
-import { NavLink } from 'react-router-dom'
-import styled, { keyframes } from 'styled-components'
-import LogoComponent from '../subComponents/LogoComponent'
-import PowerButton from '../subComponents/PowerButton'
-import SocialIcons from '../subComponents/SocialIcons'
-import { YinYang } from './AllSvgs'
-import Intro from './Intro'
+import React, { useState, useEffect } from 'react';
+import styled, { ThemeProvider } from 'styled-components';
+import { motion } from 'framer-motion';
+import { darkTheme } from './Themes';
+import { GlobalStyle } from './Themes';
 
+// Components
+import Navigation from './Navigation';
+import Hero from './Hero';
+import About from './About';
+import Skills from './Skills';
+import Projects from './Projects';
+import Experience from './Experience';
+import Contact from './Contact';
+import Footer from './Footer';
 
-const MainContainer = styled.div`
-background: ${props => props.theme.body};
-width: 100vw;
-height: 100vh;
-overflow:hidden;
-
-position: relative;
-
-h2,h3,h4,h5,h6{
-  font-family:'Karla', sans-serif ;
-  font-weight:500;
-}
-
-/* Improve overflow handling on mobile */
-@media (max-width: 768px) {
-  overflow: auto;
+const AppContainer = styled.div`
+  min-height: 100vh;
+  background: ${props => props.theme.body};
+  color: ${props => props.theme.text};
+  position: relative;
   overflow-x: hidden;
-}
-`
+`;
 
-const Container = styled.div`
-padding: 2rem;
-
-/* Reduce padding on mobile */
-@media (max-width: 768px) {
-  padding: 1rem;
-}
-`
-
-const Contact = styled.a`
-color: ${props => props.theme.text};
-position: absolute;
-top: 2rem;
-right: calc(1rem + 2vw);
-text-decoration: none;
-z-index:1;
-
-/* Adjust position on mobile */
-@media (max-width: 768px) {
-  top: 1rem;
-  right: 1rem;
-  font-size: 0.8em;
-}
-`
-const BLOG = styled(NavLink)`
-color: ${props => props.theme.text};
-position: absolute;
-top: 50%;
-right: calc(1rem + 2vw);
-transform: rotate(90deg) translate(-50%, -50%);
-text-decoration: none;
-z-index:1;
-
-/* Adjust position and size on mobile */
-@media (max-width: 768px) {
-  top: 40%;
-  right: 0.5rem;
-  font-size: 0.8em;
-}
-`
-const WORK = styled(NavLink)`
-color: ${props => props.click ? props.theme.body : props.theme.text};
-position: absolute;
-top: 50%;
-left: calc(1rem + 2vw);
-transform: translate(-50%, -50%) rotate(-90deg);
-text-decoration: none;
-z-index:1;
-
-/* Adjust position and size on mobile */
-@media (max-width: 768px) {
-  top: 40%;
-  left: 0.5rem;
-  font-size: 0.8em;
-}
-`
-
-const BottomBar = styled.div`
-position: absolute;
-bottom: 1rem;
-left: 0;
-right: 0;
-width: 100%;
-display: flex;
-justify-content: space-evenly;
-
-/* Adjust position on mobile */
-@media (max-width: 768px) {
-  bottom: 0.5rem;
-}
-`
-
-const ABOUT = styled(NavLink)`
-color: ${props => props.click ? props.theme.body : props.theme.text};
-text-decoration: none;
-z-index:1;
-
-@media (max-width: 768px) {
-  font-size: 0.8em;
-}
-`
-const SKILLS = styled(NavLink)`
-color: ${props => props.theme.text};
-text-decoration: none;
-z-index:1;
-
-@media (max-width: 768px) {
-  font-size: 0.8em;
-}
-`
-
-const rotate = keyframes`
-from{
-    transform: rotate(0);
-}
-to{
-    transform: rotate(360deg);
-}
-`
-
-const Center = styled.button`
-position: absolute;
-top: ${props => props.click ? '85%' :'50%'  };
-left: ${props => props.click ? '92%' :'50%'  };
-transform: translate(-50%,-50%);
-border: none;
-outline: none;
-background-color: transparent;
-cursor: pointer;
-
-display: flex;
-flex-direction: column;
-justify-content: center;
-align-items: center;
-transition: all 1s ease;
-
-&>:first-child{
-    animation: ${rotate} infinite 1.5s linear;
-}
-
-&>:last-child{
-    display: ${props => props.click ? 'none' :'inline-block'  };
-    padding-top: 1rem;
-}
-
-/* Adjust position and size on mobile */
-@media (max-width: 768px) {
-  & > :first-child {
-    width: ${props => props.click ? '60px' : '120px'} !important;
-    height: ${props => props.click ? '60px' : '120px'} !important;
-  }
-  
-  top: ${props => props.click ? '85%' :'50%'  };
-  left: ${props => props.click ? '50%' :'50%'  }; /* Keep centered horizontally even when clicked */
-  right: auto; /* Remove any right positioning */
-  transform: translate(-50%, -50%); /* Ensure proper centering */
-  
-  & > :last-child {
-    font-size: 0.8em;
-    padding-top: 0.5rem;
-  }
-  
-  /* Ensure z-index is appropriate */
-  z-index: 5;
-}
-`
-
-const DarkDiv = styled.div`
-position: absolute;
-top: 0;
-background-color: #000;
-bottom: 0;
-right: 50%;
-width: ${props => props.click ? '50%' : '0%'};
-height: ${props => props.click ? '100%' : '0%'};
-z-index:1;
-transition: height 0.5s ease, width 1s ease 0.5s;
-
-@media (max-width: 768px) {
-  width: ${props => props.click ? '100%' : '0%'};
-  right: 0;
-}
-`
-
+const BackgroundPattern = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(88, 166, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
+  z-index: -1;
+  pointer-events: none;
+`;
 
 const Main = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [theme, setTheme] = useState(darkTheme);
 
-    const [click, setClick] = useState(false);
+  useEffect(() => {
+    // Simulate loading
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
 
-    const handleClick = () => setClick(!click);
+    return () => clearTimeout(timer);
+  }, []);
 
+  if (isLoading) {
     return (
-        <MainContainer>
-         <DarkDiv   click={click}/>
-            <Container>
-            <PowerButton />
-            <LogoComponent theme={click ? 'dark' :'light'}/>
-            <SocialIcons theme={click ? 'dark' :'light'} />
-           
-            <Center click={click}>
-                <YinYang 
-                  onClick={()=> handleClick()} 
-                  width={click ? 120 : window.innerWidth <= 768 ? 150 : 200} 
-                  height={click ? 120 : window.innerWidth <= 768 ? 150 : 200} 
-                  fill='currentColor' 
-                />
-                <span>click here</span>
-            </Center>
+      <ThemeProvider theme={theme}>
+        <GlobalStyle />
+        <LoadingScreen />
+      </ThemeProvider>
+    );
+  }
 
-            <Contact target="_blank" href="mailto:impravin22@gmail.com">
-                <motion.h2
-                initial={{
-                    y:-200,
-                    transition: { type:'spring', duration: 1.5, delay:1}
-                }}
-                animate={{
-                    y:0,
-                    transition: { type:'spring', duration: 1.5, delay:1}
-                }}
-                whileHover={{scale: 1.1}}
-                whileTap={{scale: 0.9}}
-                
-                >
-                    Say hi..
-                </motion.h2>
-            </Contact>
-            <BLOG to="/blog">
-                <motion.h2
-                initial={{
-                    y:-200,
-                    transition: { type:'spring', duration: 1.5, delay:1}
-                }}
-                animate={{
-                    y:0,
-                    transition: { type:'spring', duration: 1.5, delay:1}
-                }}
-                whileHover={{scale: 1.1}}
-                whileTap={{scale: 0.9}}
-                >
-                    What I offer?
-                </motion.h2>
-            </BLOG>
-            <WORK to="/work" click={+click}>
-                <motion.h2
-                initial={{
-                    y:-200,
-                    transition: { type:'spring', duration: 1.5, delay:1}
-                }}
-                animate={{
-                    y:0,
-                    transition: { type:'spring', duration: 1.5, delay:1}
-                }}
-                 whileHover={{scale: 1.1}}
-                whileTap={{scale: 0.9}}
-                >
-                    Work
-                </motion.h2>
-            </WORK>
-            <BottomBar>
-            <ABOUT to="/about" click={+click}>
-                <motion.h2
-                initial={{
-                    y:200,
-                    transition: { type:'spring', duration: 1.5, delay:1}
-                }}
-                animate={{
-                    y:0,
-                    transition: { type:'spring', duration: 1.5, delay:1}
-                }}
-                 whileHover={{scale: 1.1}}
-                whileTap={{scale: 0.9}}
-                >
-                    About.
-                </motion.h2>
-            </ABOUT>
-            <SKILLS to="/skills">
-                <motion.h2
-                initial={{
-                    y:200,
-                    transition: { type:'spring', duration: 1.5, delay:1}
-                }}
-                animate={{
-                    y:0,
-                    transition: { type:'spring', duration: 1.5, delay:1}
-                }}
-                 whileHover={{scale: 1.1}}
-                whileTap={{scale: 0.9}}
-                >
-                    My Skills.
-                </motion.h2>
-            </SKILLS>
+  return (
+    <ThemeProvider theme={theme}>
+      <GlobalStyle />
+      <AppContainer>
+        <BackgroundPattern />
+        <Navigation />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Hero />
+          <About />
+          <Skills />
+          <Projects />
+          <Experience />
+          <Contact />
+          <Footer />
+        </motion.div>
+      </AppContainer>
+    </ThemeProvider>
+  );
+};
 
-            </BottomBar>
+const LoadingContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: ${props => props.theme.body};
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+`;
 
-            </Container>
-            {click ? <Intro click={click} /> : null }
-        </MainContainer>
-    )
-}
+const LoadingSpinner = styled.div`
+  width: 50px;
+  height: 50px;
+  border: 3px solid ${props => props.theme.border};
+  border-top: 3px solid ${props => props.theme.accent};
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
 
-export default Main
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
+const LoadingText = styled.div`
+  color: ${props => props.theme.text};
+  font-size: 18px;
+  font-weight: 500;
+`;
+
+const LoadingScreen = () => (
+  <LoadingContainer>
+    <LoadingSpinner />
+    <LoadingText>Loading Portfolio...</LoadingText>
+  </LoadingContainer>
+);
+
+export default Main;
