@@ -135,7 +135,7 @@ const Navigation = () => {
     <NavContainer scrolled={scrolled}>
       <NavContent>
         <Logo onClick={() => scrollToSection('hero')}>
-          Praveen Kumar
+          Pravy
         </Logo>
         
         <NavLinks isOpen={isOpen}>
@@ -154,7 +154,7 @@ const Navigation = () => {
           <NavLink onClick={() => scrollToSection('contact')}>
             Contact
           </NavLink>
-          <ResumeButton href="/Pravy_CV.pdf" target="_blank">
+          <ResumeButton href="/Praveen%20Kumar%20Chittem%20CV.pdf" target="_blank">
             Resume
           </ResumeButton>
         </NavLinks>

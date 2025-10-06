@@ -69,7 +69,7 @@ const Footer = () => {
     <FooterContainer>
       <Container>
         <FooterContent>
-          <Logo>Praveen Kumar Chittem</Logo>
+          <Logo>Pravy</Logo>
           <SocialLinks>
             <SocialLink href="https://github.com/impravin22" target="_blank" rel="noopener noreferrer">
               <i className="fab fa-github"></i>
@@ -80,13 +80,13 @@ const Footer = () => {
             <SocialLink href="mailto:impravin22@gmail.com">
               <i className="fas fa-envelope"></i>
             </SocialLink>
-            <SocialLink href="/Pravy_CV.pdf" target="_blank">
+            <SocialLink href="/Praveen%20Kumar%20Chittem%20CV.pdf" target="_blank">
               <i className="fas fa-file-pdf"></i>
             </SocialLink>
           </SocialLinks>
         </FooterContent>
         <FooterText>
-          © 2024 Praveen Kumar Chittem. All rights reserved. Built with React & Styled Components.
+          © 2024 Pravy. All rights reserved. Built with React & Styled Components.
         </FooterText>
       </Container>
     </FooterContainer>

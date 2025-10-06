@@ -374,7 +374,7 @@ const Contact = () => {
           <SocialLink href="mailto:impravin22@gmail.com">
             <i className="fas fa-envelope"></i>
           </SocialLink>
-          <SocialLink href="/Pravy_CV.pdf" target="_blank">
+          <SocialLink href="/Praveen%20Kumar%20Chittem%20CV.pdf" target="_blank">
             <i className="fas fa-file-pdf"></i>
           </SocialLink>
         </SocialLinks>
