@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/logicloomer-website/static/css/main.58462fbc.css",
-    "main.js": "/logicloomer-website/static/js/main.8c0e3b8b.js",
+    "main.js": "/logicloomer-website/static/js/main.b8f2fa98.js",
     "index.html": "/logicloomer-website/index.html",
     "main.58462fbc.css.map": "/logicloomer-website/static/css/main.58462fbc.css.map",
-    "main.8c0e3b8b.js.map": "/logicloomer-website/static/js/main.8c0e3b8b.js.map"
+    "main.b8f2fa98.js.map": "/logicloomer-website/static/js/main.b8f2fa98.js.map"
   },
   "entrypoints": [
     "static/css/main.58462fbc.css",
-    "static/js/main.8c0e3b8b.js"
+    "static/js/main.b8f2fa98.js"
   ]
 }
