@@ -1,8 +1,14 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import { render, screen } from "@testing-library/react";
+import App from "./App";
 
-test('renders learn react link', () => {
+test("mounts the portfolio with the architect's name as the page h1", () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  expect(
+    screen.getByRole("heading", { level: 1, name: /praveen kumar chittem/i })
+  ).toBeInTheDocument();
+});
+
+test("exposes the primary content sections as labelled landmarks", () => {
+  render(<App />);
+  expect(screen.getAllByRole("region").length).toBeGreaterThanOrEqual(6);
 });

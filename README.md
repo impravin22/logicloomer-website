@@ -29,7 +29,7 @@ This repository contains the code for my personal portfolio website, showcasing 
 
 ## Deployment
 
-The website is deployed using GitHub Pages and can be accessed at [logicloomer.com](https://logicloomer.com).
+The website is deployed using GitHub Pages and can be accessed at [impravin22.github.io/logicloomer-website](https://impravin22.github.io/logicloomer-website).
 
 ### Maintaining the Website
 

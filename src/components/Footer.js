@@ -1,95 +1,43 @@
-import React from 'react';
-import styled from 'styled-components';
-// framer-motion not used here
+import React from "react";
+import styled from "styled-components";
+import { Wrap } from "./_dossier";
 
-const FooterContainer = styled.footer`
-  background: ${props => props.theme.body};
-  border-top: 1px solid ${props => props.theme.border};
-  padding: 40px 20px;
-  text-align: center;
+const FooterRoot = styled.footer`
+  border-top: 1px solid ${(props) => props.theme.rule};
+  padding: 32px 0;
 `;
 
-const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-`;
-
-const FooterContent = styled.div`
+const FooterRow = styled(Wrap)`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 20px;
-  }
+  flex-wrap: wrap;
+  gap: 12px;
+  font-family: ${(props) => props.theme.fontMono};
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: ${(props) => props.theme.text3};
 `;
 
-const Logo = styled.div`
-  font-size: 24px;
-  font-weight: 700;
-  color: ${props => props.theme.text};
-`;
-
-const SocialLinks = styled.div`
-  display: flex;
-  gap: 20px;
-`;
-
-const SocialLink = styled.a`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: ${props => props.theme.background};
-  border: 1px solid ${props => props.theme.border};
-  border-radius: 50%;
-  color: ${props => props.theme.text};
+const TopLink = styled.a`
+  color: inherit;
   text-decoration: none;
-  font-size: 16px;
-  transition: all 0.3s ease;
+  transition: color 0.15s ease;
 
   &:hover {
-    background: ${props => props.theme.accent};
-    color: white;
-    transform: translateY(-2px);
+    color: ${(props) => props.theme.gold};
   }
-`;
-
-const FooterText = styled.p`
-  color: ${props => props.theme.textSecondary};
-  font-size: 14px;
-  margin: 0;
 `;
 
 const Footer = () => {
   return (
-    <FooterContainer>
-      <Container>
-        <FooterContent>
-          <Logo>Pravy</Logo>
-          <SocialLinks>
-            <SocialLink href="https://github.com/impravin22" target="_blank" rel="noopener noreferrer">
-              <i className="fab fa-github"></i>
-            </SocialLink>
-            <SocialLink href="https://linkedin.com/in/praveen-kumar-chittem" target="_blank" rel="noopener noreferrer">
-              <i className="fab fa-linkedin"></i>
-            </SocialLink>
-            <SocialLink href="mailto:impravin22@gmail.com">
-              <i className="fas fa-envelope"></i>
-            </SocialLink>
-            <SocialLink href="/Praveen%20Kumar%20Chittem%20CV.pdf" target="_blank">
-              <i className="fas fa-file-pdf"></i>
-            </SocialLink>
-          </SocialLinks>
-        </FooterContent>
-        <FooterText>
-          © 2024 Pravy. All rights reserved. Built with React & Styled Components.
-        </FooterText>
-      </Container>
-    </FooterContainer>
+    <FooterRoot aria-label="Site footer">
+      <FooterRow>
+        <span>© 2026 Praveen Kumar Chittem</span>
+        <span>Designed &amp; built — Systems Dossier</span>
+        <TopLink href="#top">Back to top ↑</TopLink>
+      </FooterRow>
+    </FooterRoot>
   );
 };
 
