@@ -1,290 +1,271 @@
-import React from 'react';
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
-import profileImg from '../assets/Images/profile-img.png';
+import React from "react";
+import styled from "styled-components";
+import { Wrap, Reveal } from "./_dossier";
 
-const HeroContainer = styled.section`
+const CV_URL = `${process.env.PUBLIC_URL}/Praveen_Chittem_CV_2026.pdf`;
+
+const HeroSection = styled.header`
   min-height: 100vh;
   display: flex;
   align-items: center;
-  padding: 100px 20px 80px;
-  position: relative;
-  overflow: hidden;
+  padding-top: 66px;
 `;
 
-const HeroContent = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
+const Grid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 300px;
   gap: 60px;
   align-items: center;
+  width: 100%;
 
-  @media (max-width: 768px) {
+  @media (max-width: 880px) {
     grid-template-columns: 1fr;
-    gap: 40px;
-    text-align: center;
+    gap: 44px;
   }
 `;
 
-const TextContent = styled.div`
-  z-index: 2;
-`;
-
-const Greeting = styled(motion.div)`
-  font-size: 18px;
-  color: ${props => props.theme.accent};
+const Kicker = styled.p`
+  font-family: ${(p) => p.theme.fontMono};
+  font-size: 13px;
   font-weight: 500;
-  margin-bottom: 16px;
-`;
-
-const Name = styled(motion.h1)`
-  font-size: clamp(48px, 8vw, 72px);
-  font-weight: 800;
-  line-height: 1.1;
-  margin-bottom: 20px;
-  background: linear-gradient(135deg, ${props => props.theme.text} 0%, ${props => props.theme.accent} 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-`;
-
-const Title = styled(motion.h2)`
-  font-size: clamp(24px, 4vw, 36px);
-  color: ${props => props.theme.textSecondary};
-  font-weight: 600;
-  margin-bottom: 24px;
-`;
-
-const Description = styled(motion.p)`
-  font-size: 18px;
-  line-height: 1.7;
-  color: ${props => props.theme.textSecondary};
-  margin-bottom: 32px;
-  max-width: 500px;
-`;
-
-const ButtonGroup = styled(motion.div)`
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: ${(p) => p.theme.text2};
   display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-
-  @media (max-width: 768px) {
-    justify-content: center;
-  }
-`;
-
-const Button = styled.a`
-  display: inline-block;
-  padding: 14px 28px;
-  border-radius: 8px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 250ms cubic-bezier(0.22, 1, 0.36, 1);
-  cursor: pointer;
-  border: 2px solid transparent;
-
-  &.primary {
-    background: ${props => props.theme.accent};
-    color: white;
-    
-    &:hover {
-      background: ${props => props.theme.accentHover};
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(88, 166, 255, 0.3);
-    }
-  }
-
-  &.secondary {
-    background: transparent;
-    color: ${props => props.theme.text};
-    border-color: ${props => props.theme.border};
-    
-    &:hover {
-      background: ${props => props.theme.background};
-      border-color: ${props => props.theme.accent};
-      color: ${props => props.theme.accent};
-    }
-  }
-`;
-
-const ImageContainer = styled(motion.div)`
-  position: relative;
-  display: flex;
-  justify-content: center;
   align-items: center;
-
-  @media (max-width: 768px) {
-    order: -1;
-  }
-`;
-
-const ProfileImage = styled.div`
-  width: 350px;
-  height: 350px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, ${props => props.theme.accent} 0%, #764ba2 100%);
-  padding: 4px;
-  position: relative;
-  overflow: hidden;
+  gap: 11px;
+  margin-bottom: 30px;
 
   &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: ${props => props.theme.background};
+    content: "";
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    z-index: 1;
-  }
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-    position: relative;
-    z-index: 2;
-  }
-
-  @media (max-width: 768px) {
-    width: 280px;
-    height: 280px;
+    background: ${(p) => p.theme.gold};
+    flex: none;
   }
 `;
 
-const FloatingElements = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  z-index: 1;
+const Name = styled.h1`
+  font-weight: 700;
+  font-size: clamp(46px, 8vw, 92px);
+  line-height: 0.97;
+  letter-spacing: -0.04em;
+  color: ${(p) => p.theme.text};
+  margin-bottom: 28px;
 `;
 
-const FloatingElement = styled.div`
-  position: absolute;
-  background: ${props => props.theme.accent};
-  border-radius: 50%;
-  opacity: 0.1;
-  animation: float 6s ease-in-out infinite;
+const Statement = styled.p`
+  font-size: clamp(19px, 2.2vw, 25px);
+  line-height: 1.48;
+  color: ${(p) => p.theme.text2};
+  max-width: 34ch;
+  margin-bottom: 30px;
 
-  &:nth-child(1) {
-    width: 60px;
-    height: 60px;
-    top: 20%;
-    left: 10%;
-    animation-delay: 0s;
-  }
-
-  &:nth-child(2) {
-    width: 40px;
-    height: 40px;
-    top: 60%;
-    right: 20%;
-    animation-delay: 2s;
-  }
-
-  &:nth-child(3) {
-    width: 80px;
-    height: 80px;
-    bottom: 20%;
-    left: 20%;
-    animation-delay: 4s;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-20px) rotate(180deg); }
+  strong {
+    color: ${(p) => p.theme.text};
+    font-weight: 600;
   }
 `;
 
-const Hero = () => {
-  const scrollToContact = () => {
-    const element = document.getElementById('contact');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+const Credo = styled.p`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 38px;
+  font-family: ${(p) => p.theme.fontMono};
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: ${(p) => p.theme.text2};
 
-  const scrollToProjects = () => {
-    const element = document.getElementById('projects');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  &::before {
+    content: "";
+    width: 30px;
+    height: 1px;
+    background: ${(p) => p.theme.gold};
+    flex: none;
+  }
+`;
 
-  return (
-    <HeroContainer id="hero">
-      <FloatingElements>
-        <FloatingElement />
-        <FloatingElement />
-        <FloatingElement />
-      </FloatingElements>
-      
-      <HeroContent>
-        <TextContent>
-          <Greeting
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            Hi, my name is
-          </Greeting>
-          
-          <Name
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            Praveen Chittem
-          </Name>
-          
-          <Title
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            Sr. AI Software Developer
-          </Title>
-          
-          <Description
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-          >
-            Research-oriented ML/Deep Learning Engineer with 5+ years in state-of-the-art AI techniques including multi-agent systems, LLMs and vector databases. Expert in end-to-end ML pipelines from problem framing to production deployment.
-          </Description>
-          
-          <ButtonGroup
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-          >
-            <Button className="primary" onClick={scrollToProjects}>
-              View My Work
-            </Button>
-            <Button className="secondary" onClick={scrollToContact}>
-              Get In Touch
-            </Button>
-          </ButtonGroup>
-        </TextContent>
-        
-        <ImageContainer
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-        >
-          <ProfileImage>
-            <img src={profileImg} alt="Praveen Kumar Chittem" />
-          </ProfileImage>
-        </ImageContainer>
-      </HeroContent>
-    </HeroContainer>
-  );
-};
+const Chips = styled.ul`
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 40px;
+`;
+
+const Chip = styled.li`
+  font-family: ${(p) => p.theme.fontMono};
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: ${(p) => p.theme.text2};
+  border: 1px solid ${(p) => p.theme.rule};
+  background: ${(p) => p.theme.ink2};
+  padding: 9px 14px;
+  border-radius: 7px;
+  transition: border-color 0.25s ease, transform 0.25s ease;
+
+  b {
+    color: ${(p) => p.theme.gold};
+    font-weight: 600;
+  }
+
+  &:hover {
+    border-color: ${(p) => p.theme.rule2};
+    transform: translateY(-2px);
+  }
+`;
+
+const Actions = styled.div`
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+`;
+
+const Btn = styled.a`
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 14px 26px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+  border: 1px solid ${(p) => (p.$primary ? p.theme.gold : p.theme.rule2)};
+  background: ${(p) => (p.$primary ? p.theme.gold : "transparent")};
+  color: ${(p) => (p.$primary ? "#10243A" : p.theme.text)};
+
+  &:hover {
+    transform: translateY(-2px);
+    background: ${(p) => (p.$primary ? p.theme.goldSoft : "transparent")};
+    border-color: ${(p) => p.theme.gold};
+    color: ${(p) => (p.$primary ? "#10243A" : p.theme.gold)};
+  }
+`;
+
+const SpecCard = styled.aside`
+  border: 1px solid ${(p) => p.theme.rule};
+  border-radius: 12px;
+  background: ${(p) => p.theme.ink2};
+  padding: 8px 24px 18px;
+
+  @media (max-width: 880px) {
+    max-width: 440px;
+  }
+`;
+
+const SpecHead = styled.p`
+  font-family: ${(p) => p.theme.fontMono};
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: ${(p) => p.theme.gold};
+  padding: 16px 0 4px;
+`;
+
+const SpecList = styled.dl`
+  margin: 0;
+`;
+
+const SpecRow = styled.div`
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 14px;
+  align-items: baseline;
+  padding: 13px 0;
+  border-top: 1px solid ${(p) => p.theme.rule};
+
+  &:first-of-type {
+    border-top: none;
+  }
+
+  dt {
+    font-family: ${(p) => p.theme.fontMono};
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: ${(p) => p.theme.text3};
+    margin: 0;
+  }
+
+  dd {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: ${(p) => (p.$accent ? p.theme.gold : p.theme.text)};
+  }
+`;
+
+const Hero = () => (
+  <HeroSection id="top">
+    <Wrap>
+      <Grid>
+        <div>
+          <Reveal>
+            <Kicker>AI Systems Architect — Taipei, Taiwan</Kicker>
+          </Reveal>
+          <Reveal delay={0.05}>
+            <Name>Praveen Kumar Chittem</Name>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <Statement>
+              I architect <strong>production AI</strong> end-to-end — from a blank repo to a
+              platform serving <strong>1,300+</strong> users.
+            </Statement>
+          </Reveal>
+          <Reveal delay={0.15}>
+            <Credo>prompts for judgment, code for determinism</Credo>
+          </Reveal>
+          <Reveal delay={0.2}>
+            <Chips>
+              <Chip><b>1,300+</b> users · sole architect</Chip>
+              <Chip><b>2×</b> faster @ parity</Chip>
+              <Chip><b>15×</b> HPC speedup · IEEE</Chip>
+              <Chip><b>8-GPU</b> training cluster</Chip>
+            </Chips>
+          </Reveal>
+          <Reveal delay={0.25}>
+            <Actions>
+              <Btn href="#work" $primary>View work →</Btn>
+              <Btn href={CV_URL} target="_blank" rel="noreferrer noopener">
+                Download résumé ↓
+              </Btn>
+            </Actions>
+          </Reveal>
+        </div>
+
+        <Reveal delay={0.15}>
+          <SpecCard aria-label="At a glance">
+            <SpecHead>{"// At a glance"}</SpecHead>
+            <SpecList>
+              <SpecRow>
+                <dt>Role</dt>
+                <dd>AI Systems Architect</dd>
+              </SpecRow>
+              <SpecRow>
+                <dt>Based</dt>
+                <dd>Taipei, Taiwan</dd>
+              </SpecRow>
+              <SpecRow>
+                <dt>Focus</dt>
+                <dd>LLM &amp; agent orchestration</dd>
+              </SpecRow>
+              <SpecRow>
+                <dt>Stack</dt>
+                <dd>Python · FastAPI · Next.js</dd>
+              </SpecRow>
+              <SpecRow $accent>
+                <dt>Status</dt>
+                <dd>Open to build</dd>
+              </SpecRow>
+            </SpecList>
+          </SpecCard>
+        </Reveal>
+      </Grid>
+    </Wrap>
+  </HeroSection>
+);
 
 export default Hero;

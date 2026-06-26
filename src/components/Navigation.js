@@ -1,171 +1,153 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-// framer-motion not used here
+import React, { useContext } from "react";
+import styled from "styled-components";
+import { ThemeToggleContext } from "./themeContext";
 
-const NavContainer = styled.nav`
+const Bar = styled.nav`
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
-  background: ${props => props.scrolled ? props.theme.navbarBackground : 'transparent'};
-  backdrop-filter: blur(10px);
-  border-bottom: ${props => props.scrolled ? `1px solid ${props.theme.border}` : 'none'};
-  transition: all 0.3s ease;
-  padding: 0 20px;
+  z-index: 40;
+  backdrop-filter: blur(12px);
+  background: ${(props) => props.theme.navbar};
+  border-bottom: 1px solid ${(props) => props.theme.rule};
 `;
 
-const NavContent = styled.div`
-  max-width: 1200px;
+const Inner = styled.div`
+  position: relative;
+  z-index: 1;
+  max-width: 1160px;
   margin: 0 auto;
+  padding: 0 36px;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  height: 70px;
-`;
+  height: 66px;
 
-const Logo = styled.div`
-  font-size: 24px;
-  font-weight: 700;
-  color: ${props => props.theme.text};
-  cursor: pointer;
-  transition: color 0.3s ease;
-
-  &:hover {
-    color: ${props => props.theme.accent};
+  @media (max-width: 600px) {
+    padding: 0 22px;
   }
 `;
 
-const NavLinks = styled.div`
+const Brand = styled.a`
+  font-family: ${(props) => props.theme.fontMono};
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: ${(props) => props.theme.text};
+
+  b {
+    color: ${(props) => props.theme.gold};
+    font-weight: 600;
+  }
+`;
+
+const Links = styled.div`
   display: flex;
-  gap: 32px;
+  gap: 34px;
   align-items: center;
-
-  @media (max-width: 768px) {
-    display: ${props => props.isOpen ? 'flex' : 'none'};
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: ${props => props.theme.background};
-    border-top: 1px solid ${props => props.theme.border};
-    flex-direction: column;
-    padding: 20px;
-    gap: 20px;
-  }
+  font-size: 14px;
+  font-weight: 500;
+  color: ${(props) => props.theme.text2};
 `;
 
 const NavLink = styled.a`
-  color: ${props => props.theme.text};
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 200ms ease;
   position: relative;
-  cursor: pointer;
-
-  &:hover {
-    color: ${props => props.theme.accent};
-  }
+  transition: color 0.2s;
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
-    bottom: -5px;
     left: 0;
-    width: 0;
-    height: 2px;
-    background: ${props => props.theme.accent};
-    transition: width 0.3s ease;
+    bottom: -6px;
+    width: 100%;
+    height: 1px;
+    background: ${(props) => props.theme.gold};
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &:hover {
+    color: ${(props) => props.theme.text};
   }
 
   &:hover::after {
-    width: 100%;
+    transform: scaleX(1);
+  }
+
+  @media (max-width: 760px) {
+    display: none;
   }
 `;
 
-const MobileMenuButton = styled.button`
-  display: none;
-  background: none;
-  border: none;
-  color: ${props => props.theme.text};
-  font-size: 24px;
-  cursor: pointer;
-
-  @media (max-width: 768px) {
-    display: block;
+const ResumeLink = styled(NavLink)`
+  @media (max-width: 760px) {
+    display: inline;
   }
 `;
 
-const ResumeButton = styled.a`
-  background: ${props => props.theme.accent};
-  color: white;
-  padding: 10px 20px;
+const Toggle = styled.button`
+  font-family: ${(props) => props.theme.fontMono};
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  border: 1px solid ${(props) => props.theme.rule};
+  color: ${(props) => props.theme.text2};
+  background: transparent;
+  padding: 8px 13px;
   border-radius: 6px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 250ms cubic-bezier(0.22, 1, 0.36, 1);
   cursor: pointer;
+  transition: 0.2s;
+  text-transform: uppercase;
 
   &:hover {
-    background: ${props => props.theme.accentHover};
-    transform: translateY(-2px);
+    border-color: ${(props) => props.theme.gold};
+    color: ${(props) => props.theme.gold};
   }
 `;
 
+const SECTIONS = [
+  { href: "#profile", label: "Profile" },
+  { href: "#expertise", label: "Expertise" },
+  { href: "#work", label: "Work" },
+  { href: "#experience", label: "Experience" },
+  { href: "#contact", label: "Contact" },
+];
+
 const Navigation = () => {
-  const [scrolled, setScrolled] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-    setIsOpen(false);
-  };
+  const { isDark, toggleTheme } = useContext(ThemeToggleContext);
+  const resumeHref = `${process.env.PUBLIC_URL}/Praveen_Chittem_CV_2026.pdf`;
 
   return (
-    <NavContainer scrolled={scrolled}>
-      <NavContent>
-        <Logo onClick={() => scrollToSection('hero')}>
-          Pravy
-        </Logo>
-        
-        <NavLinks isOpen={isOpen}>
-          <NavLink onClick={() => scrollToSection('about')}>
-            About
-          </NavLink>
-          <NavLink onClick={() => scrollToSection('skills')}>
-            Skills
-          </NavLink>
-          <NavLink onClick={() => scrollToSection('projects')}>
-            Projects
-          </NavLink>
-          <NavLink onClick={() => scrollToSection('experience')}>
-            Experience
-          </NavLink>
-          <NavLink onClick={() => scrollToSection('contact')}>
-            Contact
-          </NavLink>
-          <ResumeButton href="/Praveen%20Kumar%20Chittem%20CV.pdf" target="_blank">
-            Resume
-          </ResumeButton>
-        </NavLinks>
-
-        <MobileMenuButton onClick={() => setIsOpen(!isOpen)}>
-          ☰
-        </MobileMenuButton>
-      </NavContent>
-    </NavContainer>
+    <Bar aria-label="Primary">
+      <Inner>
+        <Brand href="#top">
+          PRAVEEN<b>/</b>CHITTEM
+        </Brand>
+        <Links>
+          {SECTIONS.map((section) => (
+            <NavLink key={section.href} href={section.href}>
+              {section.label}
+            </NavLink>
+          ))}
+          <ResumeLink
+            href={resumeHref}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            Résumé ↗
+          </ResumeLink>
+        </Links>
+        <Toggle
+          type="button"
+          onClick={toggleTheme}
+          aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+        >
+          ◐ Theme
+        </Toggle>
+      </Inner>
+    </Bar>
   );
 };
 
