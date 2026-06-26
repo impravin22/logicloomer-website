@@ -51,7 +51,7 @@ const Nav = styled.nav`
 const Navigation = () => (
   <Bar>
     <Row as="div">
-      <Mark href="#top" aria-label="Pravy — home">
+      <Mark href="#top" aria-label="Pravy, home">
         pravy<span>.</span>
       </Mark>
       <Nav aria-label="Primary">

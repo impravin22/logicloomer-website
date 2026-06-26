@@ -1,14 +1,15 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
 import { Shell, Lnk, Reveal } from "./_dossier";
+import SystemGraph from "./SystemGraph";
 
 const ping = keyframes`
   0% { transform: scale(0.6); opacity: 0.6; }
   80%, 100% { transform: scale(1.5); opacity: 0; }
 `;
 
-const Intro = styled.section`
-  padding: 64px 0 18px;
+const Intro = styled.header`
+  padding: 62px 0 8px;
 `;
 
 const Avail = styled.p`
@@ -18,7 +19,7 @@ const Avail = styled.p`
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 26px;
+  margin-bottom: 24px;
 `;
 
 const Pip = styled.span`
@@ -41,17 +42,16 @@ const Pip = styled.span`
 
 const Name = styled.h1`
   font-weight: 700;
-  font-size: clamp(46px, 8.5vw, 76px);
+  font-size: clamp(48px, 9vw, 82px);
   line-height: 0.98;
-  letter-spacing: -0.035em;
-  margin-bottom: 26px;
+  letter-spacing: -0.04em;
+  margin-bottom: 22px;
 `;
 
 const Blurb = styled.p`
-  font-size: clamp(19px, 2.4vw, 22px);
-  line-height: 1.55;
+  font-size: clamp(19px, 2.4vw, 23px);
+  line-height: 1.5;
   max-width: 34ch;
-  color: ${(p) => p.theme.ink};
 
   b {
     font-weight: 700;
@@ -59,20 +59,20 @@ const Blurb = styled.p`
 `;
 
 const Sub = styled.p`
-  margin-top: 20px;
-  font-size: 18px;
+  margin-top: 18px;
+  font-size: 17px;
   color: ${(p) => p.theme.stone};
-  max-width: 46ch;
+  max-width: 48ch;
   line-height: 1.6;
 `;
 
 const Meta = styled.div`
-  margin-top: 34px;
+  margin-top: 28px;
   display: flex;
-  gap: 10px 22px;
+  gap: 10px 20px;
   flex-wrap: wrap;
   align-items: center;
-  font-size: 15.5px;
+  font-size: 15px;
 
   .where {
     color: ${(p) => p.theme.stone2};
@@ -93,14 +93,14 @@ const Hero = () => (
       </Reveal>
       <Reveal delay={0.08}>
         <Blurb>
-          I build <b>production AI</b> end to end — model selection, orchestration, security,
+          I build <b>production AI</b> end to end: model selection, orchestration, security, and
           the UI it all lands in.
         </Blurb>
       </Reveal>
       <Reveal delay={0.12}>
         <Sub>
-          Most recently I was sole architect of an enterprise AI platform that 1,300+ people use
-          to turn company strategy into how they actually work, day to day.
+          Most recently I was sole architect of an enterprise AI platform that 1,300+ people use to
+          turn company strategy into how they actually work, day to day.
         </Sub>
       </Reveal>
       <Reveal delay={0.16}>
@@ -111,6 +111,9 @@ const Hero = () => (
           </Lnk>
           <span className="where">Taipei, Taiwan</span>
         </Meta>
+      </Reveal>
+      <Reveal delay={0.2}>
+        <SystemGraph />
       </Reveal>
     </Shell>
   </Intro>

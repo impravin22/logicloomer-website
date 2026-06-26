@@ -1,4 +1,4 @@
-// Shared "Instrument Lab" primitives — a narrow content column, calm section
+// Shared "Instrument Lab" primitives: a narrow content column, calm section
 // rhythm, mono eyebrows, a pine underline-grow link, and a reduced-motion-safe reveal.
 import React from "react";
 import styled from "styled-components";
@@ -22,18 +22,47 @@ export const Block = styled.section`
   border-top: 1px solid ${(p) => p.theme.hair};
 `;
 
-export const Eyebrow = styled.p`
-  font-family: ${(p) => p.theme.mono};
-  font-size: 12.5px;
-  letter-spacing: 0.01em;
-  color: ${(p) => p.theme.stone2};
-  margin-bottom: 30px;
+// Oversized section opener with a mono index hung in the left gutter (depth move).
+const OpenerGrid = styled.div`
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 18px;
+  align-items: baseline;
+  margin-bottom: 26px;
 
-  b {
-    color: ${(p) => p.theme.pine};
-    font-weight: 500;
+  .ix {
+    font-family: ${(p) => p.theme.mono};
+    font-size: 12px;
+    color: ${(p) => p.theme.stone2};
+    padding-top: 14px;
+  }
+  h2 {
+    font-weight: 700;
+    font-size: clamp(30px, 4.6vw, 46px);
+    letter-spacing: -0.03em;
+    line-height: 1.04;
+  }
+  .lede {
+    grid-column: 2;
+    color: ${(p) => p.theme.stone};
+    font-size: 16px;
+    margin-top: 6px;
+    max-width: 54ch;
+  }
+
+  @media (max-width: 560px) {
+    grid-template-columns: 40px 1fr;
+    gap: 12px;
   }
 `;
+
+export const Opener = ({ index, title, lede, id }) => (
+  <OpenerGrid>
+    <span className="ix">{index}</span>
+    <h2 id={id}>{title}</h2>
+    {lede ? <p className="lede">{lede}</p> : null}
+  </OpenerGrid>
+);
 
 // pine link with an underline that grows on hover + a tactile feel
 export const Lnk = styled.a`

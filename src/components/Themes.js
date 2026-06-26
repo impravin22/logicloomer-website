@@ -1,6 +1,6 @@
-// Design tokens — "Instrument Lab" identity.
+// Design tokens for the "Instrument Lab" identity.
 // Warm paper, characterful grotesk (Bricolage) + Satoshi body, single pine accent.
-// One committed theme — no light/dark toggle.
+// One committed theme, no light/dark toggle.
 
 export const theme = {
   paper: "#ECEAE3",

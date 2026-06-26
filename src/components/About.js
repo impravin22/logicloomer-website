@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Block, Shell, Eyebrow, Reveal } from "./_dossier";
+import { Block, Shell, Opener, Reveal } from "./_dossier";
 
 const List = styled.dl`
   display: flex;
@@ -33,7 +33,7 @@ const Row = styled.div`
     line-height: 1.55;
   }
 
-  dd .k {
+  dd b {
     color: ${(p) => p.theme.ink};
     font-weight: 500;
   }
@@ -49,9 +49,9 @@ const DOMAINS = [
     term: "AI architecture",
     body: (
       <>
-        AI-native workflows from blank repo to org-wide platform —{" "}
-        <span className="k">elicitation → scoring → deterministic aggregation → narrative</span>.
-        Agent orchestration, RAG, domain-driven design.
+        AI-native workflows from a blank repo to an org-wide platform:{" "}
+        <b>elicitation, scoring, deterministic aggregation, then narrative</b>. Agent
+        orchestration, RAG, domain-driven design.
       </>
     ),
   },
@@ -59,9 +59,8 @@ const DOMAINS = [
     term: "LLM engineering",
     body: (
       <>
-        DSPy signatures with behavioural anchors so scores stop flickering.{" "}
-        <span className="k">LangGraph</span>, structured output, LLM-as-judge evaluation,
-        distillation.
+        DSPy signatures with behavioural anchors so scores stop flickering. <b>LangGraph</b>,
+        structured output, LLM-as-judge evaluation, distillation.
       </>
     ),
   },
@@ -70,7 +69,7 @@ const DOMAINS = [
     body: (
       <>
         Vision-language document pipelines, large-scale object detection, graph neural nets.{" "}
-        <span className="k">Gemini Vision · PyTorch</span>.
+        <b>Gemini Vision · PyTorch</b>.
       </>
     ),
   },
@@ -79,24 +78,20 @@ const DOMAINS = [
     body: (
       <>
         Quantisation, distillation, and an 8-GPU Kubernetes cluster for distributed training.{" "}
-        <span className="k">TensorRT · CUDA · OpenVINO</span>.
+        <b>TensorRT · CUDA · OpenVINO</b>.
       </>
     ),
   },
   {
     term: "Security & safety",
-    body: (
-      <>I treat internal AI like an external product — full OWASP LLM Top 10, AST validation, ethics gating.</>
-    ),
+    body: "I treat internal AI like an external product: full OWASP LLM Top 10, AST validation, ethics gating.",
   },
 ];
 
 const About = () => (
   <Block id="about" aria-labelledby="about-h">
     <Shell>
-      <Eyebrow as="h2" id="about-h">
-        <b>What I do</b> — the layers I actually own
-      </Eyebrow>
+      <Opener index="02" id="about-h" title="What I do" lede="The layers I actually own." />
       <Reveal>
         <List>
           {DOMAINS.map((d) => (
