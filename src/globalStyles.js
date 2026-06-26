@@ -16,7 +16,7 @@ const GlobalStyle = createGlobalStyle`
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* one grain texture — a quiet fingerprint, reused everywhere */
+  /* one grain texture, a quiet fingerprint reused everywhere */
   body::before {
     content: "";
     position: fixed;
