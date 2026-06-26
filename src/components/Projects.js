@@ -1,267 +1,146 @@
 import React from "react";
 import styled from "styled-components";
-import { Section, Idx, Wrap, Reveal } from "./_dossier";
-import { Work } from "../data/WorkData";
+import { Block, Shell, Eyebrow, Reveal } from "./_dossier";
 
-const FEATURED_STATS = [
-  { value: "1,300+", label: "Employees served" },
-  { value: "60+", label: "API endpoints" },
-  { value: "150+", label: "Unit tests" },
+const FEATURED = {
+  tag: "Lead architect · platform",
+  title: "Rapid-OKR — an AI platform 1,300 people rely on",
+  body: "Sole architect, blank repo to production. Three deployable services, a 24-table schema with vector search, an AI coach grounded in retrieval, and the whole OWASP LLM safety surface. Turns company strategy into AI-native workflows for goal-setting and evaluation.",
+};
+
+const WORK = [
+  { title: "AI Sales Assistant", year: "2023", body: "A multi-agent system that gives a sales floor real product answers, fast." },
+  { title: "VLM Document Pipeline", year: "2022", body: "Six layers of vision-language + an AI auditor loop for brand-compliant output." },
+  { title: "Model Distillation", year: "2022", body: "Squeezed a 600M-param teacher into a student that's 2× faster at the same quality." },
+  { title: "Large-Scale Object Detection", year: "2021", body: "Half a million images, mAP 0.82, the whole data-to-deployment loop in PyTorch." },
+  { title: "Blend n Bubbles", year: "2021", body: "A bubble-tea brand I founded and built — because not everything is a model.", href: "https://github.com/impravin22/blendnbubbles" },
 ];
 
-const roleOf = (work) => {
-  const i = work.description.indexOf(" — ");
-  return i > -1 ? work.description.slice(0, i) : work.category;
-};
+const Feat = styled.div`
+  border: 1px solid ${(p) => p.theme.hair};
+  border-radius: ${(p) => p.theme.radius};
+  background: ${(p) => p.theme.card};
+  padding: 26px 26px 24px;
+  margin: 0 -14px 10px;
 
-const linkOf = (work) => {
-  if (work.github && work.github !== "#") return work.github;
-  if (work.demo && work.demo !== "#") return work.demo;
-  return null;
-};
+  .tag {
+    font-family: ${(p) => p.theme.mono};
+    font-size: 11.5px;
+    color: ${(p) => p.theme.pine};
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
 
-const Feature = styled.div`
-  border: 1px solid ${(p) => p.theme.rule2};
-  background: ${(p) => p.theme.ink2};
-  padding: 38px;
-  border-radius: 12px;
-  margin-bottom: 30px;
-  display: grid;
-  grid-template-columns: 1fr 210px;
-  gap: 34px;
-  align-items: center;
+  h3 {
+    font-weight: 700;
+    font-size: clamp(23px, 3.4vw, 30px);
+    letter-spacing: -0.02em;
+    margin: 8px 0 10px;
+    line-height: 1.08;
+  }
 
-  @media (max-width: 760px) {
-    grid-template-columns: 1fr;
-    padding: 28px;
+  p {
+    font-size: 16px;
+    color: ${(p) => p.theme.stone};
+    line-height: 1.6;
+    max-width: 58ch;
   }
 `;
 
-const FeatureTag = styled.p`
-  font-family: ${(p) => p.theme.fontMono};
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: ${(p) => p.theme.gold};
-  margin-bottom: 16px;
-`;
-
-const FeatureTitle = styled.h3`
-  font-weight: 600;
-  font-size: clamp(23px, 3vw, 32px);
-  line-height: 1.1;
-  letter-spacing: -0.022em;
-  color: ${(p) => p.theme.text};
-  margin-bottom: 14px;
-`;
-
-const FeatureDesc = styled.p`
-  color: ${(p) => p.theme.text2};
-  font-size: 15.5px;
-  max-width: 60ch;
-`;
-
-const FeatureStats = styled.dl`
+const WList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  border-left: 1px solid ${(p) => p.theme.rule};
-  padding-left: 26px;
-  margin: 0;
-
-  @media (max-width: 760px) {
-    flex-direction: row;
-    flex-wrap: wrap;
-    border-left: none;
-    border-top: 1px solid ${(p) => p.theme.rule};
-    padding: 20px 0 0;
-    gap: 26px;
-  }
-
-  dt {
-    font-weight: 600;
-    font-size: 30px;
-    line-height: 1;
-    letter-spacing: -0.02em;
-    color: ${(p) => p.theme.gold};
-  }
-
-  dd {
-    margin: 6px 0 0;
-    font-family: ${(p) => p.theme.fontMono};
-    font-size: 11px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: ${(p) => p.theme.text3};
-  }
 `;
 
-const PList = styled.div`
-  border-top: 1px solid ${(p) => p.theme.rule};
-`;
-
-const Row = styled.div`
+const Item = styled.div`
   display: grid;
-  grid-template-columns: 48px 1fr auto;
-  gap: 24px;
-  align-items: center;
-  padding: 26px 16px;
-  border-bottom: 1px solid ${(p) => p.theme.rule};
+  grid-template-columns: 1fr auto;
+  gap: 6px 20px;
+  align-items: baseline;
+  padding: 18px 14px;
+  margin: 0 -14px;
+  border-radius: ${(p) => p.theme.radius};
   color: inherit;
-  cursor: ${(p) => (p.$link ? "pointer" : "default")};
-  transition: background 0.28s ease, padding-left 0.28s ease;
+  text-decoration: none;
+  transition: background 0.2s ${(p) => p.theme.ease}, padding-left 0.2s ${(p) => p.theme.ease};
 
-  &:hover {
-    background: ${(p) => p.theme.ink2};
-    padding-left: 26px;
+  h4 {
+    grid-column: 1;
+    font-family: ${(p) => p.theme.grot};
+    font-weight: 600;
+    font-size: 19px;
+    letter-spacing: -0.015em;
   }
 
-  &:hover .pn {
-    color: ${(p) => p.theme.gold};
+  .yr {
+    grid-column: 2;
+    grid-row: 1;
+    font-family: ${(p) => p.theme.mono};
+    font-size: 13px;
+    color: ${(p) => p.theme.stone2};
   }
 
-  &:hover .arrow {
-    opacity: 1;
-    transform: none;
+  p {
+    grid-column: 1;
+    font-size: 15px;
+    color: ${(p) => p.theme.stone};
+    line-height: 1.5;
   }
 
-  @media (max-width: 680px) {
-    grid-template-columns: 34px 1fr;
+  &[href] {
+    cursor: pointer;
   }
-`;
-
-const Num = styled.span`
-  font-family: ${(p) => p.theme.fontMono};
-  font-size: 13px;
-  color: ${(p) => p.theme.text3};
-  transition: color 0.28s ease;
-`;
-
-const RowTitle = styled.h4`
-  font-weight: 600;
-  font-size: clamp(18px, 2.1vw, 22px);
-  letter-spacing: -0.018em;
-  color: ${(p) => p.theme.text};
-`;
-
-const RowRole = styled.p`
-  font-family: ${(p) => p.theme.fontMono};
-  font-size: 11.5px;
-  letter-spacing: 0.03em;
-  color: ${(p) => p.theme.text3};
-  margin-top: 6px;
-`;
-
-const Tags = styled.div`
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  max-width: 300px;
-
-  span {
-    font-family: ${(p) => p.theme.fontMono};
-    font-size: 10.5px;
-    color: ${(p) => p.theme.text2};
-    border: 1px solid ${(p) => p.theme.rule};
-    padding: 3px 8px;
-    border-radius: 4px;
+  &[href]:hover {
+    background: ${(p) => p.theme.card};
+    padding-left: 18px;
   }
-
-  @media (max-width: 680px) {
-    display: none;
+  &[href]:hover h4 {
+    color: ${(p) => p.theme.pine};
+  }
+  &[href] h4::after {
+    content: " ↗";
+    color: ${(p) => p.theme.pine};
+    font-size: 14px;
   }
 `;
 
-const Arrow = styled.span`
-  color: ${(p) => p.theme.gold};
-  font-size: 17px;
-  opacity: 0;
-  transform: translateX(-8px);
-  transition: opacity 0.28s ease, transform 0.28s ease;
-`;
+const Projects = () => (
+  <Block id="work" aria-labelledby="work-h">
+    <Shell>
+      <Eyebrow as="h2" id="work-h">
+        <b>Selected work</b> — things I've shipped end to end
+      </Eyebrow>
 
-const Meta = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  justify-content: flex-end;
+      <Reveal>
+        <Feat>
+          <span className="tag">{FEATURED.tag}</span>
+          <h3>{FEATURED.title}</h3>
+          <p>{FEATURED.body}</p>
+        </Feat>
+      </Reveal>
 
-  @media (max-width: 680px) {
-    display: none;
-  }
-`;
-
-const Projects = () => {
-  const featured = Work.find((work) => work.id === 1);
-  const rest = Work.filter((work) => work.id !== 1);
-
-  return (
-    <Section id="work" aria-labelledby="work-heading">
-      <Wrap>
-        <Idx>03 — Selected Work</Idx>
-        <h2 id="work-heading" className="sr-only">
-          Selected work
-        </h2>
-
-        {featured && (
-          <Reveal>
-            <Feature>
-              <div>
-                <FeatureTag>★ Featured — Platform</FeatureTag>
-                <FeatureTitle>{featured.name}</FeatureTitle>
-                <FeatureDesc>{featured.description}</FeatureDesc>
-              </div>
-              <FeatureStats>
-                {FEATURED_STATS.map((stat) => (
-                  <div key={stat.label}>
-                    <dt>{stat.value}</dt>
-                    <dd>{stat.label}</dd>
-                  </div>
-                ))}
-              </FeatureStats>
-            </Feature>
-          </Reveal>
-        )}
-
-        <PList>
-          {rest.map((work, index) => {
-            const href = linkOf(work);
-            const num = String(index + 2).padStart(2, "0");
-            return (
-              <Reveal key={work.id} delay={index * 0.04}>
-                <Row
-                  as={href ? "a" : "div"}
-                  href={href || undefined}
-                  target={href ? "_blank" : undefined}
-                  rel={href ? "noreferrer noopener" : undefined}
-                  aria-label={href ? `${work.name} (opens in a new tab)` : undefined}
-                  $link={!!href}
-                >
-                  <Num className="pn">{num}</Num>
-                  <div>
-                    <RowTitle>{work.name}</RowTitle>
-                    <RowRole>{roleOf(work)}</RowRole>
-                  </div>
-                  <Meta>
-                    <Tags>
-                      {work.tags.slice(0, 4).map((tag) => (
-                        <span key={tag}>{tag}</span>
-                      ))}
-                    </Tags>
-                    <Arrow className="arrow" aria-hidden="true">
-                      →
-                    </Arrow>
-                  </Meta>
-                </Row>
-              </Reveal>
-            );
-          })}
-        </PList>
-      </Wrap>
-    </Section>
-  );
-};
+      <WList>
+        {WORK.map((w, i) => {
+          const linked = Boolean(w.href);
+          return (
+            <Reveal key={w.title} delay={i * 0.04}>
+              <Item
+                as={linked ? "a" : "div"}
+                href={w.href}
+                target={linked ? "_blank" : undefined}
+                rel={linked ? "noreferrer noopener" : undefined}
+                aria-label={linked ? `${w.title} (opens in a new tab)` : undefined}
+              >
+                <h4>{w.title}</h4>
+                <span className="yr">{w.year}</span>
+                <p>{w.body}</p>
+              </Item>
+            </Reveal>
+          );
+        })}
+      </WList>
+    </Shell>
+  </Block>
+);
 
 export default Projects;

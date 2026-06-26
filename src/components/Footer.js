@@ -1,44 +1,30 @@
 import React from "react";
 import styled from "styled-components";
-import { Wrap } from "./_dossier";
+import { Shell } from "./_dossier";
 
-const FooterRoot = styled.footer`
-  border-top: 1px solid ${(props) => props.theme.rule};
-  padding: 32px 0;
+const FootRoot = styled.footer`
+  padding: 40px 0 56px;
+  border-top: 1px solid ${(p) => p.theme.hair};
+  margin-top: 48px;
 `;
 
-const FooterRow = styled(Wrap)`
+const Row = styled(Shell)`
   display: flex;
   justify-content: space-between;
-  align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
-  font-family: ${(props) => props.theme.fontMono};
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  color: ${(props) => props.theme.text3};
+  gap: 10px;
+  font-family: ${(p) => p.theme.mono};
+  font-size: 12.5px;
+  color: ${(p) => p.theme.stone2};
 `;
 
-const TopLink = styled.a`
-  color: inherit;
-  text-decoration: none;
-  transition: color 0.15s ease;
-
-  &:hover {
-    color: ${(props) => props.theme.gold};
-  }
-`;
-
-const Footer = () => {
-  return (
-    <FooterRoot aria-label="Site footer">
-      <FooterRow>
-        <span>© 2026 Praveen Kumar Chittem</span>
-        <span>Designed &amp; built — Systems Dossier</span>
-        <TopLink href="#top">Back to top ↑</TopLink>
-      </FooterRow>
-    </FooterRoot>
-  );
-};
+const Footer = () => (
+  <FootRoot>
+    <Row as="div">
+      <span>© 2026 Praveen &ldquo;Pravy&rdquo; Chittem</span>
+      <span>Taipei · Set in Bricolage &amp; Satoshi</span>
+    </Row>
+  </FootRoot>
+);
 
 export default Footer;

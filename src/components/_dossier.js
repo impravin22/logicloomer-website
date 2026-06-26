@@ -1,80 +1,59 @@
-// Shared "Systems Dossier" primitives — reused across every section so the
-// scaffolding (container, section rhythm, mono index labels, scroll reveal)
-// stays consistent.
+// Shared "Instrument Lab" primitives — a narrow content column, calm section
+// rhythm, mono eyebrows, a pine underline-grow link, and a reduced-motion-safe reveal.
 import React from "react";
 import styled from "styled-components";
 import { motion, useReducedMotion } from "framer-motion";
 
-export const Wrap = styled.div`
+export const Shell = styled.div`
   position: relative;
   z-index: 1;
-  max-width: 1160px;
+  max-width: 680px;
   margin: 0 auto;
-  padding: 0 36px;
+  padding: 0 28px;
 
-  @media (max-width: 600px) {
+  @media (max-width: 560px) {
     padding: 0 22px;
   }
 `;
 
-export const Section = styled.section`
+export const Block = styled.section`
   position: relative;
-  padding: 118px 0;
-  border-top: 1px solid ${(props) => props.theme.rule};
+  padding: 56px 0;
+  border-top: 1px solid ${(p) => p.theme.hair};
+`;
 
-  @media (max-width: 768px) {
-    padding: 84px 0;
+export const Eyebrow = styled.p`
+  font-family: ${(p) => p.theme.mono};
+  font-size: 12.5px;
+  letter-spacing: 0.01em;
+  color: ${(p) => p.theme.stone2};
+  margin-bottom: 30px;
+
+  b {
+    color: ${(p) => p.theme.pine};
+    font-weight: 500;
   }
 `;
 
-export const Idx = styled.div`
-  font-family: ${(props) => props.theme.fontMono};
-  font-size: 12px;
+// pine link with an underline that grows on hover + a tactile feel
+export const Lnk = styled.a`
+  color: ${(p) => p.theme.pine};
+  text-decoration: none;
   font-weight: 500;
-  letter-spacing: 0.16em;
-  color: ${(props) => props.theme.gold};
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 34px;
+  background-image: linear-gradient(${(p) => p.theme.pine}, ${(p) => p.theme.pine});
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  padding-bottom: 1px;
+  transition: background-size 0.25s ${(p) => p.theme.ease}, color 0.2s ${(p) => p.theme.ease};
 
-  &::before {
-    content: "";
-    width: 26px;
-    height: 1px;
-    background: ${(props) => props.theme.gold};
+  &:hover {
+    color: ${(p) => p.theme.pineDeep};
+    background-size: 100% 2px;
   }
 `;
 
-export const SectionTitle = styled.h2`
-  font-weight: 600;
-  font-size: clamp(28px, 4vw, 46px);
-  line-height: 1.04;
-  letter-spacing: -0.025em;
-  color: ${(props) => props.theme.text};
-`;
-
-export const Lead = styled.p`
-  color: ${(props) => props.theme.text2};
-  font-size: clamp(16px, 1.6vw, 18px);
-  max-width: 60ch;
-  font-weight: 400;
-`;
-
-// Rail (mono index) + body, the editorial two-column used by Profile / Experience / Contact.
-export const TwoCol = styled.div`
-  display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: 48px;
-
-  @media (max-width: 760px) {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-`;
-
-const REVEAL_EASE = [0.16, 1, 0.3, 1];
+const REVEAL_EASE = [0.2, 0.8, 0.2, 1];
 
 // Scroll-triggered fade + rise. Honours prefers-reduced-motion (renders static).
 export const Reveal = ({ children, delay = 0, className }) => {
@@ -82,10 +61,10 @@ export const Reveal = ({ children, delay = 0, className }) => {
   return (
     <motion.div
       className={className}
-      initial={reduce ? false : { opacity: 0, y: 16 }}
+      initial={reduce ? false : { opacity: 0, y: 14 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.6, ease: REVEAL_EASE, delay }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.55, ease: REVEAL_EASE, delay }}
     >
       {children}
     </motion.div>
