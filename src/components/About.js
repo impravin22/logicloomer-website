@@ -1,73 +1,114 @@
 import React from "react";
 import styled from "styled-components";
-import { Wrap, Section, Idx, TwoCol, Reveal } from "./_dossier";
+import { Block, Shell, Eyebrow, Reveal } from "./_dossier";
 
-const SrOnly = styled.h2`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+const List = styled.dl`
+  display: flex;
+  flex-direction: column;
 `;
 
-const Body = styled.div`
-  p {
-    font-size: clamp(20px, 2.3vw, 26px);
-    line-height: 1.4;
-    color: ${(props) => props.theme.text};
-    max-width: 26ch;
+const Row = styled.div`
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 22px;
+  padding: 18px 0;
+  border-bottom: 1px solid ${(p) => p.theme.hair};
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  dt {
+    font-family: ${(p) => p.theme.grot};
     font-weight: 600;
-    letter-spacing: -0.02em;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  dd {
+    margin: 0;
+    font-size: 15.5px;
+    color: ${(p) => p.theme.stone};
+    line-height: 1.55;
+  }
+
+  dd .k {
+    color: ${(p) => p.theme.ink};
+    font-weight: 500;
+  }
+
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+    gap: 6px;
   }
 `;
 
-const Sub = styled.p`
-  font-size: 16.5px;
-  color: ${(props) => props.theme.text2};
-  max-width: 66ch;
-  margin-top: 24px;
-  line-height: 1.75;
-  font-weight: 400;
-`;
-
-const U = styled.span`
-  color: ${(props) => props.theme.text};
-  border-bottom: 1px solid ${(props) => props.theme.rule2};
-  padding-bottom: 1px;
-  font-weight: 500;
-`;
+const DOMAINS = [
+  {
+    term: "AI architecture",
+    body: (
+      <>
+        AI-native workflows from blank repo to org-wide platform —{" "}
+        <span className="k">elicitation → scoring → deterministic aggregation → narrative</span>.
+        Agent orchestration, RAG, domain-driven design.
+      </>
+    ),
+  },
+  {
+    term: "LLM engineering",
+    body: (
+      <>
+        DSPy signatures with behavioural anchors so scores stop flickering.{" "}
+        <span className="k">LangGraph</span>, structured output, LLM-as-judge evaluation,
+        distillation.
+      </>
+    ),
+  },
+  {
+    term: "Vision & ML",
+    body: (
+      <>
+        Vision-language document pipelines, large-scale object detection, graph neural nets.{" "}
+        <span className="k">Gemini Vision · PyTorch</span>.
+      </>
+    ),
+  },
+  {
+    term: "Optimisation & infra",
+    body: (
+      <>
+        Quantisation, distillation, and an 8-GPU Kubernetes cluster for distributed training.{" "}
+        <span className="k">TensorRT · CUDA · OpenVINO</span>.
+      </>
+    ),
+  },
+  {
+    term: "Security & safety",
+    body: (
+      <>I treat internal AI like an external product — full OWASP LLM Top 10, AST validation, ethics gating.</>
+    ),
+  },
+];
 
 const About = () => (
-  <Section id="profile" aria-labelledby="profile-heading">
-    <SrOnly id="profile-heading">Profile</SrOnly>
-    <Wrap>
-      <TwoCol>
-        <Idx>01 — Profile</Idx>
-        <Reveal>
-          <Body>
-            <p>
-              Six years shipping production AI — owning every layer, from model
-              selection to UI.
-            </p>
-            <Sub>
-              Senior AI Systems Architect who sets the architecture principles
-              and engineering standards teams build against. Recently sole
-              architect of a CEO-office enterprise AI platform turning company
-              strategy into <U>AI-native workflows</U> for 1,300+ users. Deep
-              range across <U>LLM &amp; agent orchestration</U>,{" "}
-              <U>vision-language models</U>, <U>model optimisation</U> and{" "}
-              <U>distributed training</U> — with security and evaluation treated
-              as first-class.
-            </Sub>
-          </Body>
-        </Reveal>
-      </TwoCol>
-    </Wrap>
-  </Section>
+  <Block id="about" aria-labelledby="about-h">
+    <Shell>
+      <Eyebrow as="h2" id="about-h">
+        <b>What I do</b> — the layers I actually own
+      </Eyebrow>
+      <Reveal>
+        <List>
+          {DOMAINS.map((d) => (
+            <Row key={d.term}>
+              <dt>{d.term}</dt>
+              <dd>{d.body}</dd>
+            </Row>
+          ))}
+        </List>
+      </Reveal>
+    </Shell>
+  </Block>
 );
 
 export default About;

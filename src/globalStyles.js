@@ -3,35 +3,43 @@ import { createGlobalStyle } from "styled-components";
 const GlobalStyle = createGlobalStyle`
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-  html { font-size: 16px; scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  html { font-size: 17px; scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
   body {
-    font-family: ${(props) => props.theme.fontSans};
-    background: ${(props) => props.theme.body};
-    color: ${(props) => props.theme.text};
-    line-height: 1.65;
+    font-family: ${(p) => p.theme.body};
+    background: ${(p) => p.theme.paper};
+    color: ${(p) => p.theme.ink};
+    line-height: 1.6;
     font-weight: 400;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    transition: background 0.4s ease, color 0.4s ease;
   }
 
-  h1, h2, h3, h4, h5, h6 { font-weight: 600; line-height: 1.06; letter-spacing: -0.02em; }
+  /* one grain texture — a quiet fingerprint, reused everywhere */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
 
-  code, .mono { font-family: ${(props) => props.theme.fontMono}; }
+  h1, h2, h3, h4, h5, h6 { font-family: ${(p) => p.theme.grot}; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; }
 
-  a { text-decoration: none; color: inherit; transition: color 0.2s ease; }
+  a { text-decoration: none; color: inherit; }
 
-  ::selection { background: ${(props) => props.theme.gold}; color: ${(props) => props.theme.ink}; }
+  ::selection { background: ${(p) => p.theme.pine}; color: ${(p) => p.theme.paper}; }
 
-  ::-webkit-scrollbar { width: 9px; }
-  ::-webkit-scrollbar-track { background: ${(props) => props.theme.body}; }
-  ::-webkit-scrollbar-thumb { background: ${(props) => props.theme.ink3}; border-radius: 6px; }
-  ::-webkit-scrollbar-thumb:hover { background: ${(props) => props.theme.gold}; }
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: ${(p) => p.theme.paper}; }
+  ::-webkit-scrollbar-thumb { background: ${(p) => p.theme.hair}; border-radius: 0; }
+  ::-webkit-scrollbar-thumb:hover { background: ${(p) => p.theme.pine}; }
 
   :focus-visible {
-    outline: 2px solid ${(props) => props.theme.gold};
+    outline: 2px solid ${(p) => p.theme.pine};
     outline-offset: 3px;
     border-radius: 2px;
   }
@@ -46,7 +54,7 @@ const GlobalStyle = createGlobalStyle`
     *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
   }
 
-  @media (max-width: 768px) { html { font-size: 15px; } }
+  @media (max-width: 768px) { html { font-size: 16px; } }
 `;
 
 export default GlobalStyle;
