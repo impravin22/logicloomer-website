@@ -21,8 +21,8 @@ const Row = styled(Shell)`
 const Footer = () => (
   <FootRoot>
     <Row as="div">
-      <span>© 2026 Praveen &ldquo;Pravy&rdquo; Chittem</span>
-      <span>Taipei · Set in Bricolage &amp; Satoshi</span>
+      <span>© 2026 Pravy Chittem</span>
+      <span>Taipei, Taiwan</span>
     </Row>
   </FootRoot>
 );
