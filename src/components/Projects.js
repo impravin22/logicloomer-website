@@ -113,6 +113,38 @@ const PROJECTS = [
   },
 ];
 
+// Open-source builds anyone can read, distinct from the NDA work above.
+const OPEN = [
+  {
+    id: "medbuddy",
+    title: "MedBuddy",
+    line: "A voice-first medication assistant for elderly patients in Taiwan. Ask about a drug in Mandarin on LINE, get a plain-language answer back, spoken and written.",
+    stack: ["DSPy", "Gemini", "LINE"],
+    href: "https://github.com/impravin22/medbuddy",
+  },
+  {
+    id: "market-bot",
+    title: "Pravy's Market Bot",
+    line: "A live agent that runs a CAN SLIM screen over the NSE and posts a morning, evening and weekly digest to Telegram. It schedules itself and skips the holidays.",
+    stack: ["Python", "yfinance", "Telegram"],
+    href: "https://github.com/impravin22/pravys-market-bot",
+  },
+  {
+    id: "outfit",
+    title: "Outfit Recommender",
+    line: "A multi-agent system that reads an outfit photo and gives styling feedback, orchestrated with LangGraph.",
+    stack: ["LangGraph", "Gemini", "Python"],
+    href: "https://github.com/impravin22/outfit-recommender",
+  },
+  {
+    id: "medextract",
+    title: "Medical Summary Builder",
+    line: "Pulls a structured medical history out of long disability-case PDFs into a clean document. Judgment in the model, shape held by a Pydantic schema.",
+    stack: ["LLM", "Pydantic", "PDF"],
+    href: "https://github.com/impravin22/Medical-info-extractor",
+  },
+];
+
 const metaLine = (p) => [p.role, p.year, ...p.stack].filter(Boolean).join(" · ");
 
 const SketchBox = styled.div`
@@ -316,6 +348,74 @@ const ProjectRow = ({ p, open, onToggle }) => {
   );
 };
 
+const OpenWrap = styled.div`
+  margin-top: 34px;
+`;
+
+const OpenHead = styled.h3`
+  font-family: ${(p) => p.theme.mono};
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: ${(p) => p.theme.stone2};
+  padding: 0 6px;
+  margin-bottom: 4px;
+`;
+
+const OpenRow = styled.a`
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 3px 16px;
+  align-items: baseline;
+  padding: 18px 6px;
+  border-bottom: 1px solid ${(p) => p.theme.hair};
+  color: inherit;
+  text-decoration: none;
+  transition: padding-left 0.2s ${(p) => p.theme.ease};
+
+  &:first-of-type {
+    border-top: 1px solid ${(p) => p.theme.hair};
+  }
+  &:hover {
+    padding-left: 10px;
+  }
+  &:hover .go {
+    color: ${(p) => p.theme.pineDeep};
+  }
+
+  h4 {
+    grid-column: 1;
+    font-family: ${(p) => p.theme.grot};
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: -0.02em;
+  }
+  .line {
+    grid-column: 1;
+    color: ${(p) => p.theme.stone};
+    font-size: 14px;
+    line-height: 1.55;
+    max-width: 62ch;
+    margin-top: 2px;
+  }
+  .st {
+    grid-column: 1;
+    font-family: ${(p) => p.theme.mono};
+    font-size: 11.5px;
+    color: ${(p) => p.theme.stone2};
+    margin-top: 6px;
+  }
+  .go {
+    grid-column: 2;
+    grid-row: 1;
+    font-family: ${(p) => p.theme.mono};
+    font-size: 13px;
+    color: ${(p) => p.theme.pine};
+    transition: color 0.15s ${(p) => p.theme.ease};
+  }
+`;
+
 const Projects = () => {
   const [openId, setOpenId] = useState(
     () => (PROJECTS.find((p) => p.defaultOpen) || {}).id || null
@@ -336,6 +436,17 @@ const Projects = () => {
             <ProjectRow key={p.id} p={p} open={openId === p.id} onToggle={toggle} />
           ))}
         </Notes>
+        <OpenWrap>
+          <OpenHead>In the open · code you can actually read</OpenHead>
+          {OPEN.map((o) => (
+            <OpenRow key={o.id} href={o.href} target="_blank" rel="noreferrer noopener">
+              <h4>{o.title}</h4>
+              <span className="line">{o.line}</span>
+              <span className="st">{o.stack.join(" · ")}</span>
+              <span className="go" aria-hidden="true">↗</span>
+            </OpenRow>
+          ))}
+        </OpenWrap>
       </Shell>
     </Block>
   );
