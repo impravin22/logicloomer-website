@@ -1,13 +1,24 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import { ThemeProvider } from "styled-components";
 import theme from "./Themes";
 import Hero from "./Hero";
-import SystemGraph from "./SystemGraph";
+import Orchestrator, { STEP_MS } from "./Orchestrator";
 import Projects from "./Projects";
 import Navigation from "./Navigation";
 import About from "./About";
 import Contact from "./Contact";
+
+// Most tests force the reduced-motion branch so the orchestrator resolves
+// synchronously (full trace, no packet timers) and stays deterministic. The
+// timer/race tests flip mockFlags.reduce to false to exercise the real
+// setTimeout schedule. Prefixed "mock" so jest's hoist guard allows it; the
+// closure defers the read to call time, past the const's initialisation.
+const mockFlags = { reduce: true };
+jest.mock("framer-motion", () => {
+  const actual = jest.requireActual("framer-motion");
+  return { __esModule: true, ...actual, useReducedMotion: () => mockFlags.reduce };
+});
 
 const withTheme = (ui) => render(<ThemeProvider theme={theme}>{ui}</ThemeProvider>);
 
@@ -31,11 +42,79 @@ describe("Hero", () => {
   });
 });
 
-describe("SystemGraph", () => {
-  it("renders an accessible figure and a Replay control", () => {
-    withTheme(<SystemGraph />);
-    expect(screen.getByRole("img", { name: /orchestration/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /replay/i })).toBeInTheDocument();
+describe("Orchestrator", () => {
+  it("offers the request chips and the failure toggle", () => {
+    withTheme(<Orchestrator />);
+    expect(screen.getByRole("button", { name: /summarise a pdf/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /debug a stack trace/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /what is our q3 revenue/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /inject failure/i })).toBeInTheDocument();
+  });
+
+  it("draws every stage of the system", () => {
+    withTheme(<Orchestrator />);
+    ["Request", "Router", "Retriever", "Code-exec", "Analyst", "Validator", "Answer"].forEach(
+      (n) => expect(screen.getByText(n)).toBeInTheDocument()
+    );
+  });
+
+  it("routes a picked request and streams the matching trace", () => {
+    withTheme(<Orchestrator />);
+    fireEvent.click(screen.getByRole("button", { name: /what is our q3 revenue/i }));
+    expect(screen.getByText(/intent classified: analytics/i)).toBeInTheDocument();
+    expect(screen.getByText(/route: analyst/i)).toBeInTheDocument();
+  });
+
+  it("reroutes through a fallback when failure is injected", () => {
+    withTheme(<Orchestrator />);
+    fireEvent.click(screen.getByRole("button", { name: /inject failure/i }));
+    fireEvent.click(screen.getByRole("button", { name: /debug a stack trace/i }));
+    expect(screen.getByText(/timeout injected/i)).toBeInTheDocument();
+    expect(screen.getByText(/fallback to retriever/i)).toBeInTheDocument();
+    expect(screen.getByText(/flagged degraded/i)).toBeInTheDocument();
+  });
+
+  it("matches free-text to the nearest intent", () => {
+    withTheme(<Orchestrator />);
+    fireEvent.change(screen.getByRole("textbox", { name: /type a request/i }), {
+      target: { value: "please debug this python error" },
+    });
+    fireEvent.submit(screen.getByRole("button", { name: /^route$/i }).closest("form"));
+    expect(screen.getByText(/intent classified: code/i)).toBeInTheDocument();
+  });
+
+  it("discards a stale run when a new request fires mid-animation", () => {
+    mockFlags.reduce = false;
+    jest.useFakeTimers();
+    try {
+      withTheme(<Orchestrator />);
+      // the mount kicks off the default "summarise" run; advance one hop in
+      act(() => jest.advanceTimersByTime(STEP_MS + 40));
+      // interrupt with a different request before the first finishes
+      fireEvent.click(screen.getByRole("button", { name: /what is our q3 revenue/i }));
+      act(() => jest.advanceTimersByTime(STEP_MS * 7));
+      // only the second run's trace should have painted; the stale one is gone
+      expect(screen.getByText(/intent classified: analytics/i)).toBeInTheDocument();
+      expect(screen.queryByText(/intent classified: retrieval/i)).toBeNull();
+    } finally {
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
+      mockFlags.reduce = true;
+    }
+  });
+
+  it("cancels pending timers on unmount without a late state update", () => {
+    mockFlags.reduce = false;
+    jest.useFakeTimers();
+    try {
+      const { unmount } = withTheme(<Orchestrator />);
+      act(() => jest.advanceTimersByTime(STEP_MS + 40));
+      unmount();
+      expect(() => act(() => jest.advanceTimersByTime(STEP_MS * 7))).not.toThrow();
+    } finally {
+      jest.useRealTimers();
+      mockFlags.reduce = true;
+    }
   });
 });
 
@@ -74,6 +153,17 @@ describe("Field notes", () => {
       expect.stringContaining("github.com/impravin22/blendnbubbles")
     );
     expect(repo).toHaveAttribute("rel", expect.stringContaining("noopener"));
+  });
+
+  it("links the open-source repos as real, safe proof", () => {
+    withTheme(<Projects />);
+    ["MedBuddy", "Pravy's Market Bot", "Outfit Recommender", "Medical Summary Builder"].forEach(
+      (t) => expect(screen.getByRole("link", { name: new RegExp(t, "i") })).toBeInTheDocument()
+    );
+    const med = screen.getByRole("link", { name: /medbuddy/i });
+    expect(med).toHaveAttribute("href", "https://github.com/impravin22/medbuddy");
+    expect(med).toHaveAttribute("rel", expect.stringContaining("noopener"));
+    expect(med).toHaveAttribute("target", "_blank");
   });
 
   it("never renders a '#' placeholder href", () => {

@@ -1,7 +1,7 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
 import { Shell, Lnk, Reveal } from "./_dossier";
-import SystemGraph from "./SystemGraph";
+import Orchestrator from "./Orchestrator";
 
 const ping = keyframes`
   0% { transform: scale(0.6); opacity: 0.6; }
@@ -113,7 +113,7 @@ const Hero = () => (
         </Meta>
       </Reveal>
       <Reveal delay={0.2}>
-        <SystemGraph />
+        <Orchestrator />
       </Reveal>
     </Shell>
   </Intro>
