@@ -37,6 +37,27 @@ const SKETCHES = {
     ],
     edges: ["M74,60 L104,60", "M178,60 L208,60", "M282,60 L312,60", "M358,44 C358,14 141,14 141,44"],
   },
+  sensai: {
+    label: "On-device sketch recognition pipeline",
+    nodes: [
+      { x: 14, y: 44, w: 76, h: 32, label: "Strokes" },
+      { x: 120, y: 44, w: 88, h: 32, label: "LSTM/GNN" },
+      { x: 238, y: 44, w: 78, h: 32, label: "Compress" },
+      { x: 346, y: 44, w: 60, h: 32, label: "Shape" },
+    ],
+    edges: ["M90,60 L120,60", "M208,60 L238,60", "M316,60 L346,60"],
+  },
+  humanvision: {
+    label: "One frame read for pose, gaze and expression",
+    nodes: [
+      { x: 14, y: 44, w: 62, h: 32, label: "Frame" },
+      { x: 104, y: 44, w: 84, h: 32, label: "Keypoints" },
+      { x: 236, y: 8, w: 100, h: 30, label: "Pose" },
+      { x: 236, y: 45, w: 100, h: 30, label: "Gaze" },
+      { x: 236, y: 82, w: 100, h: 30, label: "Expression" },
+    ],
+    edges: ["M76,60 L104,60", "M188,60 C214,60 214,23 236,23", "M188,60 L236,60", "M188,60 C214,60 214,97 236,97"],
+  },
 };
 
 const PROJECTS = [
@@ -71,6 +92,29 @@ const PROJECTS = [
     outcome: "Reps stopped pinging product teams for answers the system now gives in seconds.",
   },
   {
+    id: "sensai",
+    title: "SensAI Sketch Recognition",
+    what: "Real-time stroke recognition that turns a whiteboard scrawl into a clean shape.",
+    role: "Lead architect",
+    year: "2023",
+    stack: ["LSTM/GNN", "PyTorch", "Edge"],
+    brief: "Give an interactive whiteboard the sense to read a rough hand-drawn box or arrow and snap it to the shape the person meant, without a round trip to a server.",
+    decision: "I modelled a sketch as the sequence of strokes you draw, not a flat bitmap, so an LSTM/GNN reads it the way a person makes it. Then I compressed the model hard enough to run inference on the panel itself.",
+    sketch: "sensai",
+    outcome: "Shipped on ViewSonic interactive whiteboards: draw a rough box, get a crisp shape, all on-device.",
+  },
+  {
+    id: "human-vision",
+    title: "Human-Centric Vision",
+    what: "Pose, gaze and expression read live on low-power edge hardware.",
+    role: "Lead architect",
+    year: "2023",
+    stack: ["ONNX Runtime", "OpenVINO", "DinoV2"],
+    decision: "Constrained edge hardware left no room for a heavy backbone, so I used Lie-algebraic keypoint transforms for pose and distilled DinoV2 down into a RegNet-800 for expression. All three signals run in real time without a GPU.",
+    sketch: "humanvision",
+    outcome: "Pose at 80% and eye-status at 85% real-time accuracy, on device, in C++.",
+  },
+  {
     id: "vlm",
     title: "VLM Document Pipeline",
     what: "Six layers of vision-language with an AI-auditor loop.",
@@ -84,8 +128,10 @@ const PROJECTS = [
     id: "object-detection",
     title: "Large-Scale Object Detection",
     what: "Half a million images, organised and trained to mAP 0.82.",
+    role: "Lead developer",
     year: "2021",
-    stack: ["PyTorch", "Computer vision"],
+    stack: ["PyTorch", "8-GPU K8s", "Hadoop"],
+    decision: "Half a million images will not train on one box. I stood up an 8-GPU Kubernetes cluster with Hadoop pipelines feeding SSD-backed nodes, and ran distributed PyTorch across the lot.",
     outcome: "Built the whole loop from raw data to a deployed detector at mAP 0.82 over 500K images.",
   },
   {
@@ -100,6 +146,26 @@ const PROJECTS = [
         one in production.
       </>
     ),
+  },
+  {
+    id: "lpr",
+    title: "Licence-Plate Recognition",
+    what: "A plate reader quick enough to keep up with a production line.",
+    role: "AI developer",
+    year: "2021",
+    stack: ["TensorRT", "CUDA", "OpenCV"],
+    decision: "TensorRT and CUDA did the heavy lifting so the pipeline stayed in step with the line, no rack of GPUs behind it.",
+    outcome: "Shipped into industrial production, reading plates on the edge in real time.",
+  },
+  {
+    id: "defect",
+    title: "LCD Defect Detection",
+    what: "A model that learned what a good panel looks like, then flagged the ones that were not.",
+    role: "AI developer",
+    year: "2021",
+    stack: ["VAE", "PyTorch", "Docker"],
+    decision: "Defects were rare and never looked the same twice, so labelling them was a losing game. A variational autoencoder trained only on good panels caught the bad ones by how poorly they reconstructed.",
+    outcome: "85% production accuracy, owned end to end from data curation to a containerised deploy.",
   },
   {
     id: "blend",
@@ -429,7 +495,7 @@ const Projects = () => {
           index="01"
           id="work-h"
           title="Field notes"
-          lede="Six systems I took from a blank repo to production. Open one."
+          lede="Systems I have taken from first commit to production. Open one."
         />
         <Notes>
           {PROJECTS.map((p) => (

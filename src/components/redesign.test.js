@@ -132,13 +132,25 @@ describe("Field notes", () => {
     [
       "Rapid-OKR",
       "AI Sales Assistant",
+      "SensAI Sketch Recognition",
+      "Human-Centric Vision",
       "VLM Document Pipeline",
       "Large-Scale Object Detection",
       "Model Distillation",
+      "Licence-Plate Recognition",
+      "LCD Defect Detection",
       "Blend n Bubbles",
     ].forEach(
       (t) => expect(screen.getByRole("heading", { name: new RegExp(t, "i") })).toBeInTheDocument()
     );
+  });
+
+  it("opens a computer-vision note and reveals its decision", () => {
+    withTheme(<Projects />);
+    fireEvent.click(screen.getByRole("button", { name: /SensAI Sketch Recognition/i }));
+    expect(screen.getByText(/sequence of strokes you draw/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /LCD Defect Detection/i }));
+    expect(screen.getByText(/variational autoencoder trained only on good panels/i)).toBeInTheDocument();
   });
 
   it("toggles a row open and reveals its repo link with safe rel", async () => {
