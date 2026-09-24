@@ -99,8 +99,9 @@ const Hero = () => (
       </Reveal>
       <Reveal delay={0.12}>
         <Sub>
-          Most recently I was sole architect of an enterprise AI platform that 1,300+ people use to
-          turn company strategy into how they actually work, day to day.
+          Now I lead a forward-deployed AI pod: we sit with a team, find where the work stalls, and
+          ship the fix into their day. Before that I was sole architect of an enterprise AI platform
+          1,300+ people use every day.
         </Sub>
       </Reveal>
       <Reveal delay={0.16}>

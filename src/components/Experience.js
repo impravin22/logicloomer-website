@@ -4,9 +4,22 @@ import { Block, Shell, Opener, Reveal } from "./_dossier";
 
 const ROLES = [
   {
+    title: "Forward Deployment Pod Lead",
+    org: "ViewSonic · CEO Office",
+    when: "Jul 2026 to now",
+    body: (
+      <>
+        I lead the forward-deployed AI pod. We sit with marketing, supply chain, legal and the
+        business units, find where the work actually stalls, and ship the fix into their day. The{" "}
+        <b>auto issue solver, the one-login MCP gateway and the workflow-health read</b> in Field
+        notes all come out of this pod.
+      </>
+    ),
+  },
+  {
     title: "Senior AI Systems Architect",
     org: "ViewSonic · CEO Office",
-    when: "Mar 2022 to now",
+    when: "Mar 2022 to Jun 2026",
     body: (
       <>
         Sole architect of the enterprise AI platform above, plus the evaluation frameworks behind

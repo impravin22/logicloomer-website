@@ -8,6 +8,7 @@ import Projects from "./Projects";
 import Navigation from "./Navigation";
 import About from "./About";
 import Contact from "./Contact";
+import Experience from "./Experience";
 
 // Most tests force the reduced-motion branch so the orchestrator resolves
 // synchronously (full trace, no packet timers) and stays deterministic. The
@@ -28,6 +29,12 @@ describe("Hero", () => {
     expect(screen.getByRole("heading", { level: 1, name: /pravy/i })).toBeInTheDocument();
     expect(screen.getByText(/production AI/i)).toBeInTheDocument();
     expect(screen.getByText(/open to building the next one/i)).toBeInTheDocument();
+  });
+
+  it("leads with the current forward-deployed role, not the old architect one", () => {
+    withTheme(<Hero />);
+    expect(screen.getByText(/now i lead a forward-deployed AI pod/i)).toBeInTheDocument();
+    expect(screen.queryByText(/most recently i was sole architect/i)).toBeNull();
   });
 
   it("links email (mailto) and GitHub, opened safely", () => {
@@ -119,17 +126,78 @@ describe("Orchestrator", () => {
 });
 
 describe("Field notes", () => {
-  it("opens the featured Rapid-OKR by default with its story", () => {
+  it("opens the featured Auto Issue Solver by default with its human gate", () => {
     withTheme(<Projects />);
-    expect(screen.getByRole("heading", { name: /Rapid-OKR/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Auto Issue Solver/i })).toHaveAttribute(
+      "aria-expanded",
+      "true"
+    );
+    expect(screen.getByText(/reproduce the error with a failing test first/i)).toBeInTheDocument();
+    expect(screen.getByText(/production still needs a human approval/i)).toBeInTheDocument();
+  });
+
+  it("keeps exactly one note open at a time", () => {
+    withTheme(<Projects />);
+    const expanded = () =>
+      screen.getAllByRole("button").filter((b) => b.getAttribute("aria-expanded") === "true");
+    expect(expanded()).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: /Rapid-OKR/i }));
+    expect(expanded()).toHaveLength(1);
+    expect(screen.getByRole("button", { name: /Rapid-OKR/i })).toHaveAttribute(
+      "aria-expanded",
+      "true"
+    );
+    expect(screen.getByText(/prompts for judgment, code for determinism/i)).toBeInTheDocument();
+  });
+
+  it("closes the open note when its header is clicked again, leaving none open", () => {
+    withTheme(<Projects />);
+    const btn = screen.getByRole("button", { name: /Auto Issue Solver/i });
+    fireEvent.click(btn);
+    expect(btn).toHaveAttribute("aria-expanded", "false");
     expect(
-      screen.getByText(/prompts for judgment, code for determinism/i)
-    ).toBeInTheDocument();
+      screen.getAllByRole("button").filter((b) => b.getAttribute("aria-expanded") === "true")
+    ).toHaveLength(0);
+  });
+
+  it("explains the MCP gateway and the workflow read when opened", () => {
+    withTheme(<Projects />);
+    fireEvent.click(screen.getByRole("button", { name: /One-Login MCP Gateway/i }));
+    expect(screen.getByText(/each product plugs in its own credential/i)).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /one login in front of many/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Workflow Intelligence/i }));
+    expect(screen.getByText(/no name ever reaches the analysis/i)).toBeInTheDocument();
+  });
+
+  it("draws an accessible sketch for every note that has one", () => {
+    withTheme(<Projects />);
+    // [note header, the sketch's accessible name]. The exiting panel can linger
+    // for a frame under AnimatePresence, so each sketch is found by its own name.
+    const sketched = [
+      [/Auto Issue Solver/i, /auto-fix loop/i],
+      [/One-Login MCP Gateway/i, /one login in front of many/i],
+      [/Workflow Intelligence/i, /identity stripped at extraction/i],
+      [/Rapid-OKR/i, /rapid-okr data flow/i],
+      [/AI Sales Assistant/i, /multi-agent fan-out/i],
+      [/SensAI Sketch Recognition/i, /sketch recognition pipeline/i],
+      [/Human-Centric Vision/i, /pose, gaze and expression/i],
+      [/VLM Document Pipeline/i, /auditor loop/i],
+    ];
+    sketched.forEach(([note, sketch]) => {
+      const btn = screen.getByRole("button", { name: note });
+      if (btn.getAttribute("aria-expanded") !== "true") fireEvent.click(btn);
+      const img = screen.getByRole("img", { name: sketch });
+      expect(img.querySelectorAll("rect").length).toBeGreaterThan(0);
+      expect(img.querySelectorAll("path").length).toBeGreaterThan(0);
+    });
   });
 
   it("lists every project as a heading", () => {
     withTheme(<Projects />);
     [
+      "Auto Issue Solver",
+      "One-Login MCP Gateway",
+      "Workflow Intelligence",
       "Rapid-OKR",
       "AI Sales Assistant",
       "SensAI Sketch Recognition",
@@ -184,6 +252,30 @@ describe("Field notes", () => {
   });
 });
 
+describe("Experience", () => {
+  it("lists the Pod Lead role first as the only current role", () => {
+    withTheme(<Experience />);
+    const roles = screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent);
+    expect(roles[0]).toBe("Forward Deployment Pod Lead");
+    expect(screen.getAllByText(/to now$/)).toHaveLength(1);
+    expect(screen.getByText("Jul 2026 to now")).toBeInTheDocument();
+  });
+
+  it("closes the architect role at June 2026, with no overlap", () => {
+    withTheme(<Experience />);
+    expect(screen.getByRole("heading", { name: "Senior AI Systems Architect" })).toBeInTheDocument();
+    expect(screen.getByText("Mar 2022 to Jun 2026")).toBeInTheDocument();
+    expect(screen.queryByText("Mar 2022 to now")).toBeNull();
+  });
+
+  it("gives every entry a date range", () => {
+    withTheme(<Experience />);
+    const headings = screen.getAllByRole("heading", { level: 3 });
+    const dates = screen.getAllByText(/\b(19|20)\d{2}\b.* to /);
+    expect(dates).toHaveLength(headings.length);
+  });
+});
+
 describe("Navigation", () => {
   it("links the CV to the bundled PDF in a new tab, with no theme toggle", () => {
     withTheme(<Navigation />);
@@ -195,8 +287,10 @@ describe("Navigation", () => {
 });
 
 describe("About + Contact", () => {
-  it("renders the capability list", () => {
+  it("renders the capability list, forward deployment first", () => {
     withTheme(<About />);
+    const terms = screen.getAllByRole("term").map((t) => t.textContent);
+    expect(terms[0]).toBe("Forward deployment");
     expect(screen.getByText(/AI architecture/i)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /what i do/i })).toBeInTheDocument();
   });

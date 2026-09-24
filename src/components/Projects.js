@@ -7,6 +7,56 @@ const EASE = [0.2, 0.8, 0.2, 1];
 
 // Small pine-on-paper system sketches, same visual language as the hero graph.
 const SKETCHES = {
+  autofix: {
+    label: "Auto-fix loop: logs become a gated fix on dev, and a human approves production",
+    nodes: [
+      { x: 12, y: 44, w: 44, h: 32, label: "Logs" },
+      { x: 70, y: 44, w: 48, h: 32, label: "Issue" },
+      { x: 132, y: 44, w: 50, h: 32, label: "Agent" },
+      { x: 196, y: 44, w: 50, h: 32, label: "Gates" },
+      { x: 260, y: 44, w: 38, h: 32, label: "Dev" },
+      { x: 312, y: 44, w: 50, h: 32, label: "Human" },
+      { x: 376, y: 44, w: 40, h: 32, label: "Prod" },
+    ],
+    edges: [
+      "M56,60 L70,60",
+      "M118,60 L132,60",
+      "M182,60 L196,60",
+      "M246,60 L260,60",
+      "M298,60 L312,60",
+      "M362,60 L376,60",
+      "M221,44 C221,16 157,16 157,44",
+    ],
+  },
+  mcp: {
+    label: "One login in front of many product backends",
+    nodes: [
+      { x: 14, y: 44, w: 68, h: 32, label: "Claude" },
+      { x: 108, y: 44, w: 52, h: 32, label: "SSO" },
+      { x: 186, y: 44, w: 84, h: 32, label: "MCP core" },
+      { x: 300, y: 8, w: 108, h: 30, label: "Rapid-OKR" },
+      { x: 300, y: 45, w: 108, h: 30, label: "Skill portal" },
+      { x: 300, y: 82, w: 108, h: 30, label: "+ next" },
+    ],
+    edges: [
+      "M82,60 L108,60",
+      "M160,60 L186,60",
+      "M270,60 C290,60 286,23 300,23",
+      "M270,60 L300,60",
+      "M270,60 C290,60 286,97 300,97",
+    ],
+  },
+  workflow: {
+    label: "Identity stripped at extraction, then grouped, scored and reported",
+    nodes: [
+      { x: 14, y: 44, w: 62, h: 32, label: "Records" },
+      { x: 94, y: 44, w: 70, h: 32, label: "Strip ID" },
+      { x: 182, y: 44, w: 70, h: 32, label: "Families" },
+      { x: 270, y: 44, w: 56, h: 32, label: "Score" },
+      { x: 344, y: 44, w: 62, h: 32, label: "Report" },
+    ],
+    edges: ["M76,60 L94,60", "M164,60 L182,60", "M252,60 L270,60", "M326,60 L344,60"],
+  },
   rapidokr: {
     label: "Rapid-OKR data flow",
     nodes: [
@@ -62,6 +112,63 @@ const SKETCHES = {
 
 const PROJECTS = [
   {
+    id: "auto-fix",
+    title: "Auto Issue Solver",
+    what: "Production errors turn into tested fixes on dev, with no one writing the code.",
+    role: "Lead architect",
+    year: "2026",
+    stack: ["Claude Code", "GitHub Actions", "AWS"],
+    brief: "Keep a live internal pricing tool healthy without a developer chasing every traceback by hand.",
+    decision: (
+      <>
+        The agent faces every gate a developer does: it has to{" "}
+        <b>reproduce the error with a failing test first</b>, clear lint, format, type and test
+        checks, and answer the code review, all inside a sandbox. It can release to dev on its own;{" "}
+        <b>production still needs a human approval</b> and a release tag.
+      </>
+    ),
+    sketch: "autofix",
+    outcome: "Every six hours it reads the dev and prod logs, files each new error once and works the queue. A person only steps in to approve the release to production.",
+    defaultOpen: true,
+  },
+  {
+    id: "mcp-gateway",
+    title: "One-Login MCP Gateway",
+    what: "Company apps inside Claude, behind a single company login.",
+    role: "Lead architect",
+    year: "2026",
+    stack: ["MCP", "OAuth 2.1", "TypeScript"],
+    brief: "Let people ask Claude about their own goals, reviews and AI progress in plain language, without a new server and a new login for every product.",
+    decision: (
+      <>
+        One server, one login, many products. OAuth 2.1 brokered to Azure AD, and{" "}
+        <b>each product plugs in its own credential</b>, so the core never learns how a backend
+        token is made. Read-only by design: <b>whatever you can see in the app is exactly what
+        Claude sees</b>.
+      </>
+    ),
+    sketch: "mcp",
+    outcome: "Staff query their own platform data straight from Claude, and the next product plugs in without a new deployment.",
+  },
+  {
+    id: "workflow-intel",
+    title: "Workflow Intelligence",
+    what: "Where a company's working time actually goes, answered without a survey.",
+    role: "Lead architect",
+    year: "2026",
+    stack: ["Python", "PostgreSQL", "Playwright"],
+    brief: "Find the workflows worth automating first, from data the company already owns, so the pod works on the right problem.",
+    decision: (
+      <>
+        Strip identity at extraction, not at the report, so <b>no name ever reaches the analysis</b>.
+        Every figure recomputes deterministically from the corpus and a committed grouping file,
+        and <b>every finding cites its evidence</b>.
+      </>
+    ),
+    sketch: "workflow",
+    outcome: "Read 1,000+ work profiles into 34 workflow families and ranked 14 findings to act on or validate first.",
+  },
+  {
     id: "rapid-okr",
     title: "Rapid-OKR",
     what: "An enterprise AI platform 1,300 people rely on.",
@@ -78,7 +185,6 @@ const PROJECTS = [
     ),
     sketch: "rapidokr",
     outcome: "Goal-setting went from weeks of spreadsheets to one guided session, shipped to 1,300+ on AWS ECS.",
-    defaultOpen: true,
   },
   {
     id: "ai-sales",

@@ -46,6 +46,16 @@ const Row = styled.div`
 
 const DOMAINS = [
   {
+    term: "Forward deployment",
+    body: (
+      <>
+        Sit with the team, find the bottleneck in the data, ship the fix, then make it stick.{" "}
+        <b>Claude · Claude Code · MCP</b>, agents wired into CI, and a human sign-off wherever
+        production is at stake.
+      </>
+    ),
+  },
+  {
     term: "AI architecture",
     body: (
       <>
