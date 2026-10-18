@@ -284,6 +284,13 @@ describe("Navigation", () => {
     expect(cv).toHaveAttribute("target", "_blank");
     expect(screen.queryByRole("button")).toBeNull();
   });
+
+  it("links the map page in the same tab", () => {
+    withTheme(<Navigation />);
+    const map = screen.getByRole("link", { name: /^map$/i });
+    expect(map).toHaveAttribute("href", "/journey/");
+    expect(map).not.toHaveAttribute("target");
+  });
 });
 
 describe("About + Contact", () => {

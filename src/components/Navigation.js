@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { Shell, Lnk } from "./_dossier";
 
 const CV_URL = `${process.env.PUBLIC_URL}/Praveen_Chittem_CV_2026.pdf`;
+// The map page is a static page in public/journey/, outside the React app.
+const MAP_URL = `${process.env.PUBLIC_URL}/journey/`;
 
 const Bar = styled.header`
   padding: 34px 0 0;
@@ -58,6 +60,7 @@ const Navigation = () => (
         <a href="#work">Work</a>
         <a href="#about">About</a>
         <a href="#contact">Contact</a>
+        <a href={MAP_URL}>Map</a>
         <Lnk href={CV_URL} target="_blank" rel="noreferrer noopener">
           CV
         </Lnk>
