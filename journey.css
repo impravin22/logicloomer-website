@@ -90,6 +90,8 @@ button { font: inherit; color: inherit; }
    the page has failed, everything stays readable. */
 .armed .intro-title .w { opacity: 0; transform: scale(4); }
 .armed .intro-sub, .armed .intro-cta { opacity: 0; }
+/* Hidden, not just transparent, until revealed, so nothing invisible takes focus. */
+.armed .intro-cta { visibility: hidden; }
 .intro-fail { display: none; font-size: clamp(15px, 1.8vw, 20px); color: var(--paper); }
 .intro-fail a { color: var(--gold2); }
 .failed .intro-fail { display: block; }
@@ -99,6 +101,8 @@ button { font: inherit; color: inherit; }
 .start:active { transform: translateY(2px); box-shadow: 0 3px 0 rgba(0, 0, 0, .5); }
 .intro-hint { color: var(--mute-l); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; }
 .hint-touch { display: none; }
+.intro-skip { display: inline-block; min-height: 24px; padding: 4px 2px; color: var(--gold2); font-size: 15px; text-underline-offset: 3px; }
+.intro-skip:hover { color: var(--paper); }
 @media (hover: none) and (pointer: coarse) {
   .hint-keys { display: none; }
   .hint-touch { display: inline; }

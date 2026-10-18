@@ -26,6 +26,16 @@
   const MILLER_DIVISOR = 0.8;
   const DEG_TO_RAD = Math.PI / 180;
   const ROUTE_SAMPLES_PER_LEG = 80;
+  // Walking pace in world pixels per second, and the shortest and longest a
+  // trip between checkpoints may take, so a short hop never blinks past and an
+  // ocean crossing never drags.
+  const WALK_PACE_PX_S = 180;
+  const TRIP_MIN_S = 3;
+  const TRIP_MAX_S = 7;
+  // The walker boards a ship only on a stretch of open sea at least this long.
+  // On this route the ocean crossings run 570 to 770 px and every strait, gulf
+  // and inland sea 75 px at most, so 200 sits well clear of both.
+  const MIN_SEAWAY_PX = 200;
   const SVG_NS = "http://www.w3.org/2000/svg";
   const RELATIVE_URL = /^\.{1,2}\//;
   const EXTERNAL_REL = "noreferrer noopener";
@@ -230,6 +240,45 @@
       });
       return best;
     });
+  }
+
+  /**
+   * Speed for a trip of `distance` world pixels: the walking pace, slowed or
+   * sped up so the trip takes between TRIP_MIN_S and TRIP_MAX_S seconds.
+   * A change of plan mid-walk never slows the walker down: the result is at
+   * least `currentSpeed`.
+   * @param {number} distance signed distance along the route
+   * @param {number} [currentSpeed] speed the walker already has, if moving
+   * @returns {number} pixels per second, or 0 when there is nowhere to go
+   */
+  function tripSpeed(distance, currentSpeed = 0) {
+    const length = Math.abs(distance);
+    if (!Number.isFinite(length) || length === 0) return 0;
+    const seconds = Math.min(TRIP_MAX_S, Math.max(TRIP_MIN_S, length / WALK_PACE_PX_S));
+    return Math.max(length / seconds, Number.isFinite(currentSpeed) ? currentSpeed : 0);
+  }
+
+  /**
+   * Marks the route samples that belong to a stretch of sea at least
+   * `minLength` long, measured along the route. Shorter stretches are walked.
+   * @param {Array<{d: number}>} route samples from buildRoute
+   * @param {boolean[]} land one flag per sample, true where it is over land
+   * @param {number} [minLength]
+   * @returns {boolean[]} a new array, true where the walker sails
+   */
+  function seaways(route, land, minLength = MIN_SEAWAY_PX) {
+    if (land.length !== route.length) throw new Error("Expected one land flag per route sample.");
+    const sail = route.map(() => false);
+    let start = -1;
+    for (let i = 0; i <= route.length; i++) {
+      const atSea = i < route.length && !land[i];
+      if (atSea && start < 0) start = i;
+      if (!atSea && start >= 0) {
+        if (route[i - 1].d - route[start].d >= minLength) sail.fill(true, start, i);
+        start = -1;
+      }
+    }
+    return sail;
   }
 
   /**
@@ -467,11 +516,17 @@
   return Object.freeze({
     DEFAULT_INSET,
     ROUTE_SAMPLES_PER_LEG,
+    WALK_PACE_PX_S,
+    TRIP_MIN_S,
+    TRIP_MAX_S,
+    MIN_SEAWAY_PX,
     makeProjection,
     analysePath,
     buildRoute,
     stopDistances,
     positionAt,
+    tripSpeed,
+    seaways,
     safeHref,
     el,
     renderCardBody,

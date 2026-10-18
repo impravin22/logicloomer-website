@@ -28,6 +28,7 @@
   const CONFETTI_DELAY_MS = 350;
   const COPY_RESET_MS = 1600;
   const HURRY_FACTOR = 4;
+  const INSTANT_PX_S = 6000; // travel speed with motion off: there in a blink
   const DRAG_THRESHOLD_PX = 4;
   const MIN_ZOOM = 0.4, MAX_ZOOM = 3;
   const WHEEL_ZOOM_RATE = 0.0015; // zoom factor per wheel pixel, as exp(-dy * rate)
@@ -80,18 +81,14 @@
   const WAY = [at(Data.start)].concat(Data.stops.map(at));
   const STOP_COUNT = Data.stops.length;
   const route = Core.buildRoute(WAY, Core.ROUTE_SAMPLES_PER_LEG);
-  // Land or sea per route sample, worked out the first time the walker reaches
-  // it rather than all at once on load (hundreds of hit tests).
-  const landCache = new Map();
-  const isLand = (i) => {
-    if (!COUNTRIES.length) return true;
-    if (!landCache.has(i)) landCache.set(i, !!countryAt(route[i].x, route[i].y));
-    return landCache.get(i);
-  };
+  // Land or sea per route sample (about 640 hit tests, a few milliseconds),
+  // then where the walker sails: only the long stretches of open sea.
+  const land = route.map((s) => !COUNTRIES.length || !!countryAt(s.x, s.y));
+  const sail = Core.seaways(route, land);
   const stopD = Core.stopDistances(route, WAY);
   const posAt = (d) => {
     const p = Core.positionAt(route, d);
-    return { x: p.x, y: p.y, dx: p.dx, land: isLand(p.nearest) };
+    return { x: p.x, y: p.y, dx: p.dx, sailing: sail[p.nearest] };
   };
 
   /* ------------------------------------------------------------------ */
@@ -266,7 +263,7 @@
   const cam = { x: WAY[0].x, y: WAY[0].y, z: 1, tz: 1 };
   let follow = true;
   let userZoom = null; // set by the wheel; cleared when the walker sets off or on double-click
-  const state = { d: 0, target: 0, walking: false, dir: -1, at: 0, pending: 0, visited: new Set([0]), stadium: {}, t: 0, speedMul: 1 };
+  const state = { d: 0, target: 0, walking: false, dir: -1, at: 0, pending: 0, visited: new Set([0]), stadium: {}, t: 0, speedMul: 1, tripSpeed: 0 };
   const isNarrow = () => VW < NARROW_PX;
   const baseZoom = () => Math.max(0.55, Math.min(1.0, VW / 1400));
   let cardOpen = false, hover = null;
@@ -414,7 +411,7 @@
   /* Frame                                                               */
   /* ------------------------------------------------------------------ */
   function stepWalk(hero, dt) {
-    const speed = (motionOn ? (hero.land ? 320 : 440) : 6000) * state.speedMul;
+    const speed = (motionOn ? state.tripSpeed : INSTANT_PX_S) * state.speedMul;
     const sign = Math.sign(state.target - state.d) || 1;
     state.d += sign * speed * dt;
     if (Math.abs(hero.dx) > 0.2) state.dir = sign * Math.sign(hero.dx) || state.dir;
@@ -527,7 +524,7 @@
     drawRoute(heroNow, z);
     drawStops(z);
     ctx.save(); ctx.translate(heroNow.x, heroNow.y); const hs = 1 / Math.sqrt(z); ctx.scale(hs, hs);
-    if (heroNow.land || !state.walking) drawWalker(ctx, state.t, state.dir, state.walking && motionOn);
+    if (!heroNow.sailing || !state.walking) drawWalker(ctx, state.t, state.dir, state.walking && motionOn);
     else drawBoat(ctx, state.t, state.dir);
     ctx.restore();
   }
@@ -563,10 +560,12 @@
       if (i > 0) openCard(i);
       return;
     }
+    if (state.walking && i === state.pending) return; // already on the way there
     arrivalTimers.clear();
     closeCard(false);
     follow = true; userZoom = null;
-    Object.assign(state, { target: stopD[i], walking: true, speedMul: 1, at: -1, pending: i });
+    const tripSpeed = Core.tripSpeed(stopD[i] - state.d, state.walking ? state.tripSpeed : 0);
+    Object.assign(state, { target: stopD[i], walking: true, speedMul: 1, tripSpeed, at: -1, pending: i });
     setHud("EN ROUTE", "to " + WAY[i].name, "Press the button again to hurry.");
     setButton(goBtn, "Hurry", "»");
     announce("Walking to " + WAY[i].name + ".");
@@ -742,7 +741,7 @@
   (function runIntro() {
     const words = intro.querySelectorAll(".intro-title .w");
     const sub = $("introSub"), cta = $("introCta");
-    const reveal = (node) => { node.style.opacity = 1; node.style.transform = "none"; };
+    const reveal = (node) => { node.style.opacity = 1; node.style.transform = "none"; node.style.visibility = "visible"; };
     if (!motionOn) { words.forEach(reveal); reveal(sub); reveal(cta); return; }
     words.forEach((w, i) => {
       introTimers.after(500 + i * 520, () => {
@@ -752,7 +751,7 @@
       });
     });
     introTimers.after(2300, () => { sub.style.transition = "opacity .5s"; sub.style.opacity = 1; });
-    introTimers.after(2600, () => { cta.style.transition = "opacity .5s"; cta.style.opacity = 1; });
+    introTimers.after(2600, () => { cta.style.transition = "opacity .5s"; cta.style.visibility = "visible"; cta.style.opacity = 1; });
   })();
 
   // boot.js shows a fallback on window load unless this line was reached.
