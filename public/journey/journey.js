@@ -545,7 +545,11 @@
 
   function travelTo(index) {
     const i = Math.max(0, Math.min(WAY.length - 1, index));
-    if (i === state.at && !state.walking) { if (i > 0) openCard(i); return; }
+    if (i === state.at && !state.walking) {
+      follow = true; userZoom = null;
+      if (i > 0) openCard(i);
+      return;
+    }
     arrivalTimers.clear();
     closeCard(false);
     follow = true; userZoom = null;
@@ -618,7 +622,8 @@
     if (!cardOpen) return;
     cardOpen = false; card.classList.remove("open"); goBtn.hidden = false;
     setTimeout(() => { if (!cardOpen) card.hidden = true; }, CARD_HIDE_MS);
-    if (refocus) goBtn.focus({ preventScroll: true });
+    // Focus inside the card would drop to <body> once it hides, so move it.
+    if (refocus || card.contains(document.activeElement)) goBtn.focus({ preventScroll: true });
   }
   function next() {
     if (state.walking) { state.speedMul = HURRY_FACTOR; return; }
@@ -649,8 +654,10 @@
   let introDone = false;
   document.addEventListener("keydown", (e) => {
     if (!introDone || e.altKey || e.ctrlKey || e.metaKey) return;
+    // A held key would otherwise walk on and flash every card past.
+    if (e.repeat && e.key !== "Escape") return;
     const onControl = e.target && ["BUTTON", "A", "SUMMARY"].includes(e.target.tagName);
-    const activate = (e.key === "Enter" || e.key === " ") && !onControl && !e.repeat;
+    const activate = (e.key === "Enter" || e.key === " ") && !onControl;
     if (e.key === "ArrowRight" || activate) { e.preventDefault(); next(); }
     else if (e.key === "ArrowLeft") { e.preventDefault(); back(); }
     else if (e.key === "Escape") closeCard(true);
