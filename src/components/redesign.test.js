@@ -277,18 +277,18 @@ describe("Experience", () => {
 });
 
 describe("Navigation", () => {
-  it("links the CV to the bundled PDF in a new tab, with no theme toggle", () => {
+  it("links the CV at the site root in a new tab, with no theme toggle", () => {
     withTheme(<Navigation />);
     const cv = screen.getByRole("link", { name: /^cv$/i });
-    expect(cv).toHaveAttribute("href", expect.stringContaining("Praveen_Chittem_CV_2026.pdf"));
+    expect(cv).toHaveAttribute("href", "../Praveen_Chittem_CV_2026.pdf");
     expect(cv).toHaveAttribute("target", "_blank");
     expect(screen.queryByRole("button")).toBeNull();
   });
 
-  it("links the map page in the same tab", () => {
+  it("links back to the map at the site root in the same tab", () => {
     withTheme(<Navigation />);
     const map = screen.getByRole("link", { name: /^map$/i });
-    expect(map).toHaveAttribute("href", "/journey/");
+    expect(map).toHaveAttribute("href", "../");
     expect(map).not.toHaveAttribute("target");
   });
 });

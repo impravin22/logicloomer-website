@@ -1,4 +1,4 @@
-// Tests for the static map page in public/journey/. The page ships as plain
+// Tests for the static map page in home/, published at the site root. The page ships as plain
 // scripts (no bundler), so its pure core and data are UMD modules that Jest can
 // require directly; the canvas engine is exercised in a real browser instead.
 import crypto from "crypto";
@@ -6,11 +6,11 @@ import fs from "fs";
 import path from "path";
 import vm from "vm";
 
-const JOURNEY_DIR = path.join(__dirname, "..", "..", "public", "journey");
+const HOME_DIR = path.join(__dirname, "..", "..", "home");
 const WORLD_SHA256 = "de3c2c21cf63bdd95a4cfc477a566a4b189579daeb26157e8ecb101000224edd";
 const WORLD_COUNTRY_COUNT = 176;
-const core = require("../../public/journey/journey-core.js");
-const data = require("../../public/journey/journey-data.js");
+const core = require("../../home/journey-core.js");
+const data = require("../../home/journey-data.js");
 
 const STOP_COUNT = 8;
 const waypoints = [data.start, ...data.stops];
@@ -93,10 +93,11 @@ describe("journey data", () => {
     expect(linkedIn?.href).toBe("https://www.linkedin.com/in/praveen-chittem-b78b4a160");
   });
 
-  it("points the CV and the plain site at this site, not an absolute host", () => {
+  it("points the CV and the short version at this site, never up a level", () => {
     const cv = data.contact.links.find((l) => /cv/i.test(l.label));
-    expect(cv.href).toBe("../Praveen_Chittem_CV_2026.pdf");
-    expect(data.contact.links.some((l) => l.href === "../")).toBe(true);
+    expect(cv.href).toBe("./Praveen_Chittem_CV_2026.pdf");
+    expect(data.contact.links.some((l) => l.href === "./in-short/")).toBe(true);
+    data.contact.links.forEach((l) => expect(l.href).not.toMatch(/^\.\.\//));
   });
 
   it("speaks in the first person, never 'Pravy shipped' or 'Pravy joins'", () => {
@@ -119,6 +120,7 @@ describe("safeHref", () => {
   it.each([
     ["https://github.com/impravin22", "https://github.com/impravin22"],
     ["../", "../"],
+    ["./in-short/", "./in-short/"],
     ["./vendor/world.js", "./vendor/world.js"],
     ["HTTPS://github.com", "https://github.com/"],
   ])("allows %s", (input, expected) => {
@@ -315,6 +317,105 @@ describe("route", () => {
   });
 });
 
+describe("tripSpeed", () => {
+  const seconds = (distance) => Math.abs(distance) / core.tripSpeed(distance);
+
+  it("walks a mid-length trip at the normal pace", () => {
+    const distance = core.WALK_PACE_PX_S * 5;
+    expect(core.tripSpeed(distance)).toBeCloseTo(core.WALK_PACE_PX_S);
+  });
+
+  it("gives a short hop a few seconds, never a blink", () => {
+    expect(seconds(20)).toBeCloseTo(core.TRIP_MIN_S);
+  });
+
+  it("caps the longest trip so it never drags", () => {
+    expect(seconds(100000)).toBeCloseTo(core.TRIP_MAX_S);
+  });
+
+  it("is the same speed walking back", () => {
+    expect(core.tripSpeed(-900)).toBe(core.tripSpeed(900));
+  });
+
+  it.each([0, NaN, Infinity, -Infinity])("is 0 for a distance of %s", (distance) => {
+    expect(core.tripSpeed(distance)).toBe(0);
+  });
+
+  it("never slows a walker who changes plan mid-walk", () => {
+    const walking = core.tripSpeed(core.WALK_PACE_PX_S * 6);
+    expect(core.tripSpeed(90, walking)).toBe(walking);
+  });
+
+  it("speeds up when the new trip needs it", () => {
+    const slow = core.tripSpeed(90);
+    expect(core.tripSpeed(100000, slow)).toBeCloseTo(100000 / core.TRIP_MAX_S);
+  });
+
+  it("ignores a current speed that is not a number", () => {
+    expect(core.tripSpeed(20, NaN)).toBeCloseTo(20 / core.TRIP_MIN_S);
+  });
+});
+
+describe("seaways", () => {
+  // A straight route with one sample every 10 px.
+  const routeOf = (n) => Array.from({ length: n }, (_, i) => ({ x: i * 10, y: 0, d: i * 10 }));
+  const L = true, S = false;
+
+  it("sails a long stretch of open sea", () => {
+    const route = routeOf(40);
+    const land = route.map((_, i) => i < 5 || i > 34);
+    const sail = core.seaways(route, land, 200);
+    expect(sail.slice(5, 35).every(Boolean)).toBe(true);
+    expect(sail.slice(0, 5).some(Boolean)).toBe(false);
+    expect(sail.slice(35).some(Boolean)).toBe(false);
+  });
+
+  it("walks across a strait or an inland sea", () => {
+    const route = routeOf(12);
+    const land = [L, L, S, S, S, L, L, S, L, L, L, L];
+    expect(core.seaways(route, land, 200).some(Boolean)).toBe(false);
+  });
+
+  it("sails a stretch exactly as long as the minimum", () => {
+    const route = routeOf(23);
+    const land = route.map((_, i) => i === 0 || i === 22);
+    expect(core.seaways(route, land, 200).filter(Boolean)).toHaveLength(21);
+  });
+
+  it("sails a crossing that runs to the end of the route", () => {
+    const route = routeOf(30);
+    const land = route.map((_, i) => i < 3);
+    const sail = core.seaways(route, land, 200);
+    expect(sail[29]).toBe(true);
+    expect(sail[2]).toBe(false);
+  });
+
+  it("uses the ocean-crossing minimum by default", () => {
+    // One sea run exactly MIN_SEAWAY_PX long, and one 10 px short of it.
+    const steps = core.MIN_SEAWAY_PX / 10;
+    const land = [L, ...Array(steps + 1).fill(S), L, ...Array(steps).fill(S), L];
+    const sail = core.seaways(routeOf(land.length), land);
+    expect(sail.slice(1, steps + 2).every(Boolean)).toBe(true);
+    expect(sail.slice(steps + 3).some(Boolean)).toBe(false);
+  });
+
+  it("returns a fresh array and leaves its inputs alone", () => {
+    const route = routeOf(5);
+    const land = [L, S, S, S, L];
+    const sail = core.seaways(route, land, 1);
+    expect(sail).not.toBe(land);
+    expect(land).toEqual([L, S, S, S, L]);
+  });
+
+  it("refuses land flags that do not match the route", () => {
+    expect(() => core.seaways(routeOf(3), [L, L], 200)).toThrow(/one land flag per route sample/);
+  });
+
+  it("handles an empty route", () => {
+    expect(core.seaways([], [], 200)).toEqual([]);
+  });
+});
+
 describe("goLabel", () => {
   it("names the next checkpoint", () => {
     expect(core.goLabel(waypoints, 0)).toEqual({ text: "March to Amsterdam", symbol: "▸" });
@@ -434,13 +535,13 @@ describe("renderCardBody", () => {
 
   it("opens site-relative links in the same tab", () => {
     const host = render(data.stops[STOP_COUNT - 1]);
-    const plain = [...host.querySelectorAll(".links a")].find((a) => a.getAttribute("href") === "../");
+    const plain = [...host.querySelectorAll(".links a")].find((a) => a.getAttribute("href") === "./in-short/");
     expect(plain.hasAttribute("target")).toBe(false);
   });
 });
 
 describe("journey page markup", () => {
-  const html = fs.readFileSync(path.join(JOURNEY_DIR, "index.html"), "utf8");
+  const html = fs.readFileSync(path.join(HOME_DIR, "index.html"), "utf8");
   const doc = new DOMParser().parseFromString(html, "text/html");
 
   it("is titled with the humbler name", () => {
@@ -485,7 +586,7 @@ describe("journey page markup", () => {
   it("arms the intro from the head so a failed load can fall back", () => {
     expect(doc.head.querySelector('script[src="./boot.js"]')).not.toBeNull();
     const fail = doc.querySelector("#introFail");
-    expect(fail.querySelector('a[href="../"]')).not.toBeNull();
+    expect(fail.querySelector('a[href="./in-short/"]')).not.toBeNull();
   });
 
   it("explains touch controls on phones instead of keys and hover", () => {
@@ -506,21 +607,41 @@ describe("journey page markup", () => {
     expect(doc.querySelectorAll("[style]")).toHaveLength(0);
   });
 
-  it("offers a no-JavaScript fallback that links to the plain site", () => {
-    expect(html).toMatch(/<noscript>[\s\S]*href="\.\.\/"[\s\S]*<\/noscript>/);
+  it("offers a no-JavaScript fallback that links to the short version", () => {
+    expect(html).toMatch(/<noscript>[\s\S]*href="\.\/in-short\/"[\s\S]*<\/noscript>/);
+  });
+
+  it("links every way out to the short version, never up a level", () => {
+    const hud = doc.querySelector(".hud-actions a");
+    expect(hud.getAttribute("href")).toBe("./in-short/");
+    expect(hud.textContent).toBe("In short");
+    const upward = [...doc.querySelectorAll("[href]")].filter((n) => n.getAttribute("href").startsWith("../"));
+    expect(upward).toHaveLength(0);
+  });
+
+  it("offers a way past the map from the intro, after the start button", () => {
+    const cta = doc.querySelector("#introCta");
+    const skip = cta.querySelector("a.intro-skip");
+    expect(skip.getAttribute("href")).toBe("./in-short/");
+    expect(skip.textContent).toMatch(/in short/i);
+    expect(cta.querySelector("#startBtn").compareDocumentPosition(skip) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("uses the favicon published beside it at the site root", () => {
+    expect(doc.querySelector('link[rel="icon"]').getAttribute("href")).toBe("./favicon.svg");
   });
 
   it("never mentions the old name anywhere on the page", () => {
     const files = fs
-      .readdirSync(JOURNEY_DIR)
+      .readdirSync(HOME_DIR)
       .filter((f) => /\.(html|css|js)$/.test(f))
-      .map((f) => fs.readFileSync(path.join(JOURNEY_DIR, f), "utf8"));
+      .map((f) => fs.readFileSync(path.join(HOME_DIR, f), "utf8"));
     files.forEach((text) => expect(text).not.toMatch(/chronicles/i));
   });
 });
 
 describe("vendored world map", () => {
-  const readJourney = (file) => fs.readFileSync(path.join(JOURNEY_DIR, file), "utf8");
+  const readJourney = (file) => fs.readFileSync(path.join(HOME_DIR, file), "utf8");
   const loadWorld = () => {
     const sandbox = {};
     sandbox.window = sandbox;
@@ -531,7 +652,7 @@ describe("vendored world map", () => {
   };
 
   it("is the pinned jsvectormap 1.6.0 file", () => {
-    const hash = crypto.createHash("sha256").update(fs.readFileSync(path.join(JOURNEY_DIR, "vendor", "world.js"))).digest("hex");
+    const hash = crypto.createHash("sha256").update(fs.readFileSync(path.join(HOME_DIR, "vendor", "world.js"))).digest("hex");
     expect(hash).toBe(WORLD_SHA256);
   });
 
