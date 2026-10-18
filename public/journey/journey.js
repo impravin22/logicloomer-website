@@ -34,6 +34,8 @@
   const WHEEL_LINE_PX = 16; // a line-mode wheel step, in pixels
   const FRAME_RATE_REFERENCE = 60; // easing constants below are tuned per 60 Hz frame
   const MAX_FRAME_S = 0.05;
+  const HERO_LIFT_PX = 20; // the walker is drawn above its anchor, so aim a little low
+  const HERO_HEIGHT_PX = 60;
   const MAPF = '"MedievalSharp", "Palatino Linotype", Georgia, serif';
   const INK = "#1B1612", STEEL = "#A9B1BB", STEEL2 = "#7D8792", SKIN = "#F1C9A5";
   const COPPER = "#4E8C6A", SILVER = "#B9BEC4", STONE = "#C9AE78";
@@ -418,6 +420,18 @@
     if (Math.abs(hero.dx) > 0.2) state.dir = sign * Math.sign(hero.dx) || state.dir;
     if ((sign > 0 && state.d >= state.target) || (sign < 0 && state.d <= state.target)) { state.d = state.target; arrive(); }
   }
+  // Screen point to hold the walker's feet at: the middle of whatever the open
+  // card and the HUD plate leave uncovered, whichever edge the card docks to
+  // (right on wide or landscape screens, bottom on phones held upright).
+  const plateEl = $("plate");
+  function heroScreenTarget() {
+    const resting = { x: VW / 2, y: VH / 2 + HERO_LIFT_PX };
+    if (!cardOpen) return resting;
+    const c = card.getBoundingClientRect();
+    if (c.left > VW * 0.3) return { x: c.left / 2, y: resting.y };
+    const top = plateEl.getBoundingClientRect().bottom;
+    return { x: resting.x, y: Math.min(c.top - HERO_LIFT_PX, (top + c.top) / 2 + HERO_HEIGHT_PX / 2) };
+  }
   // Per-frame easing tuned at 60 Hz, rescaled so the camera moves at the same
   // speed on any refresh rate.
   const ease = (perFrame, dt) => (motionOn ? 1 - Math.pow(1 - perFrame, dt * FRAME_RATE_REFERENCE) : 1);
@@ -426,9 +440,8 @@
     cam.tz = userZoom ?? (stop ? Math.min(2.6, (stop.z || 1.6) * (isNarrow() ? 0.8 : 1)) : baseZoom());
     cam.z += (cam.tz - cam.z) * ease(0.05, dt);
     if (follow) {
-      let tx = hero.x, ty = hero.y - 20 / cam.z;
-      if (cardOpen && !isNarrow()) tx += 240 / cam.z;
-      if (cardOpen && isNarrow()) ty += (VH * 0.2) / cam.z;
+      const aim = heroScreenTarget();
+      const tx = hero.x - (aim.x - VW / 2) / cam.z, ty = hero.y - (aim.y - VH / 2) / cam.z;
       const k = ease(0.06, dt);
       cam.x += (tx - cam.x) * k; cam.y += (ty - cam.y) * k;
     }

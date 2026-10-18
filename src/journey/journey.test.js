@@ -488,6 +488,12 @@ describe("journey page markup", () => {
     expect(fail.querySelector('a[href="../"]')).not.toBeNull();
   });
 
+  it("explains touch controls on phones instead of keys and hover", () => {
+    expect(doc.querySelector(".hint-keys").textContent).toMatch(/arrow keys/i);
+    expect(doc.querySelector(".hint-touch").textContent).toMatch(/^Tap the gold button to walk/);
+    expect(doc.querySelector(".hint-touch").textContent).not.toMatch(/hover|arrow/i);
+  });
+
   it("labels the motion toggle by its visible state only", () => {
     expect(doc.querySelector("#motionBtn").hasAttribute("aria-pressed")).toBe(false);
   });
