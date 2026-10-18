@@ -20,6 +20,7 @@
 # local agent scratch: evidence ledgers and browser-check screenshots
 /.maestro/
 /.playwright-mcp/
+
 .env.local
 .env.development.local
 .env.test.local

@@ -1,10 +1,14 @@
 // Tests for the static map page in public/journey/. The page ships as plain
 // scripts (no bundler), so its pure core and data are UMD modules that Jest can
 // require directly; the canvas engine is exercised in a real browser instead.
+import crypto from "crypto";
 import fs from "fs";
 import path from "path";
+import vm from "vm";
 
 const JOURNEY_DIR = path.join(__dirname, "..", "..", "public", "journey");
+const WORLD_SHA256 = "de3c2c21cf63bdd95a4cfc477a566a4b189579daeb26157e8ecb101000224edd";
+const WORLD_COUNTRY_COUNT = 176;
 const core = require("../../public/journey/journey-core.js");
 const data = require("../../public/journey/journey-data.js");
 
@@ -106,11 +110,8 @@ describe("journey data", () => {
   });
 
   it("uses British spelling in the copy", () => {
-    const american = /\b(colou?r|organiz|optimiz|behavior|center|favorite|analyz|customiz|containeriz|recogniz|normaliz|summariz|initializ|utiliz)\w*/i;
-    allCopy.forEach((text) => {
-      const hit = text.match(american);
-      if (hit) expect(hit[0]).toMatch(/colour|centre/i);
-    });
+    const american = /\b(color|organiz|optimiz|behavior|center|favorite|analyz|customiz|containeriz|recogniz|normaliz|summariz|initializ|utiliz|judgment|catalog\b)\w*/i;
+    allCopy.forEach((text) => expect(text).not.toMatch(american));
   });
 });
 
@@ -119,6 +120,7 @@ describe("safeHref", () => {
     ["https://github.com/impravin22", "https://github.com/impravin22"],
     ["../", "../"],
     ["./vendor/world.js", "./vendor/world.js"],
+    ["HTTPS://github.com", "https://github.com/"],
   ])("allows %s", (input, expected) => {
     expect(core.safeHref(input)).toBe(expected);
   });
@@ -131,6 +133,14 @@ describe("safeHref", () => {
     "http://example.com",
     "//evil.example",
     "mailto:someone@example.com",
+    "java\tscript:alert(1)",
+    "\u0000javascript:alert(1)",
+    "vbscript:msgbox(1)",
+    "blob:https://example.com/id",
+    "file:///etc/passwd",
+    "\\\\evil.example",
+    "https://user:pw@evil.example/",
+    "https://github.com@evil.example/",
     "",
     null,
     undefined,
@@ -155,8 +165,16 @@ describe("el", () => {
     expect(node.textContent).toBe('<img src=x onerror="alert(1)">');
   });
 
-  it("refuses inline event-handler attributes", () => {
-    expect(() => core.el(document, "button", { onclick: "alert(1)" })).toThrow(/event handler/i);
+  it.each(["onclick", "ONCLICK", "src", "style", "srcdoc", "formaction", "xlink:href"])(
+    "refuses the %s attribute",
+    (name) => {
+      expect(() => core.el(document, "a", { [name]: "x" })).toThrow(/refusing attribute/i);
+    }
+  );
+
+  it("refuses an unsafe href even through the allowlist", () => {
+    // eslint-disable-next-line no-script-url -- hostile input under test
+    expect(() => core.el(document, "a", { href: "javascript:alert(1)" })).toThrow(/unsafe href/i);
   });
 
   it("skips null, undefined and false children", () => {
@@ -222,6 +240,17 @@ describe("analysePath", () => {
     expect(info.area).toBeCloseTo(100);
     expect(info.cx).toBeCloseTo(5);
     expect(info.cy).toBeCloseTo(5);
+  });
+
+  it.each([
+    ["implicit line-to after a move", "M0,0 10,0 10,10 0,10Z", 5],
+    ["exponent numbers", "M0,0L1e1,0L1e1,1e1L0,1e1Z", 5],
+    ["leading-dot decimals", "M-.5,-.5L9.5,-.5L9.5,9.5L-.5,9.5Z", 4.5],
+  ])("parses %s", (_name, d, centre) => {
+    const info = core.analysePath(d);
+    expect(info.area).toBeCloseTo(100);
+    expect(info.cx).toBeCloseTo(centre);
+    expect(info.cy).toBeCloseTo(centre);
   });
 
   it("returns zero area for an empty or degenerate path", () => {
@@ -314,6 +343,20 @@ describe("renderRail", () => {
   });
 });
 
+describe("railButtonState", () => {
+  const state = { at: 2, visited: new Set([0, 1, 2]) };
+
+  it("marks the current, visited and unvisited checkpoints", () => {
+    expect(core.railButtonState(2, state)).toEqual({ className: "now", current: "step" });
+    expect(core.railButtonState(1, state)).toEqual({ className: "done", current: null });
+    expect(core.railButtonState(5, state)).toEqual({ className: "", current: null });
+  });
+
+  it("marks nothing as current while walking", () => {
+    expect(core.railButtonState(2, { at: -1, visited: state.visited })).toEqual({ className: "done", current: null });
+  });
+});
+
 describe("renderCardBody", () => {
   const extras = { contact: data.contact, sources: data.sources };
   const render = (stop) => {
@@ -375,6 +418,20 @@ describe("renderCardBody", () => {
     expect(labels).toEqual(expect.arrayContaining(["GitHub", "GitLab", "LinkedIn", "CV (PDF)"]));
   });
 
+  it("joins the fact-check sources as 'A, B, C and D'", () => {
+    const text = render(data.stops[STOP_COUNT - 1]).querySelector(".src").textContent;
+    expect(text).toContain("against Wikipedia, bundesliga.com, Football360 and beIN Sports. ");
+  });
+
+  it("keeps the 'and' when an unsafe last source is dropped", () => {
+    const host = document.createElement("div");
+    const sources = [...data.sources.slice(0, 3), { label: "Bad", href: "http://insecure.example" }];
+    host.append(core.renderCardBody(document, data.stops[STOP_COUNT - 1], { contact: data.contact, sources }));
+    const text = host.querySelector(".src").textContent;
+    expect(text).toContain("against Wikipedia, bundesliga.com and Football360. ");
+    expect(text).not.toContain("Bad");
+  });
+
   it("opens site-relative links in the same tab", () => {
     const host = render(data.stops[STOP_COUNT - 1]);
     const plain = [...host.querySelectorAll(".links a")].find((a) => a.getAttribute("href") === "../");
@@ -403,10 +460,36 @@ describe("journey page markup", () => {
 
   it("locks scripts and styles to this site with a CSP", () => {
     const csp = doc.querySelector('meta[http-equiv="Content-Security-Policy"]').getAttribute("content");
-    expect(csp).toContain("script-src 'self'");
-    expect(csp).toContain("object-src 'none'");
-    expect(csp).toContain("base-uri 'none'");
-    expect(csp).not.toContain("unsafe-inline");
+    [
+      "default-src 'self'",
+      "script-src 'self'",
+      "connect-src 'none'",
+      "frame-src 'none'",
+      "object-src 'none'",
+      "base-uri 'none'",
+      "form-action 'none'",
+      "require-trusted-types-for 'script'",
+      "upgrade-insecure-requests",
+    ].forEach((directive) => expect(csp).toContain(directive));
+    expect(csp).not.toMatch(/unsafe-(inline|eval)|data:/);
+  });
+
+  it("declares the CSP before any script or stylesheet", () => {
+    const order = [...doc.head.children].map((n) => n.tagName + (n.getAttribute("http-equiv") ? ":csp" : ""));
+    const cspAt = order.indexOf("META:csp");
+    expect(cspAt).toBeGreaterThanOrEqual(0);
+    expect(cspAt).toBeLessThan(order.indexOf("LINK"));
+    expect(cspAt).toBeLessThan(order.indexOf("SCRIPT"));
+  });
+
+  it("arms the intro from the head so a failed load can fall back", () => {
+    expect(doc.head.querySelector('script[src="./boot.js"]')).not.toBeNull();
+    const fail = doc.querySelector("#introFail");
+    expect(fail.querySelector('a[href="../"]')).not.toBeNull();
+  });
+
+  it("labels the motion toggle by its visible state only", () => {
+    expect(doc.querySelector("#motionBtn").hasAttribute("aria-pressed")).toBe(false);
   });
 
   it("loads only local scripts, with no inline script or style", () => {
@@ -427,5 +510,51 @@ describe("journey page markup", () => {
       .filter((f) => /\.(html|css|js)$/.test(f))
       .map((f) => fs.readFileSync(path.join(JOURNEY_DIR, f), "utf8"));
     files.forEach((text) => expect(text).not.toMatch(/chronicles/i));
+  });
+});
+
+describe("vendored world map", () => {
+  const readJourney = (file) => fs.readFileSync(path.join(JOURNEY_DIR, file), "utf8");
+  const loadWorld = () => {
+    const sandbox = {};
+    sandbox.window = sandbox;
+    vm.createContext(sandbox);
+    vm.runInContext(readJourney("world-shim.js"), sandbox);
+    vm.runInContext(readJourney("vendor/world.js"), sandbox);
+    return sandbox;
+  };
+
+  it("is the pinned jsvectormap 1.6.0 file", () => {
+    const hash = crypto.createHash("sha256").update(fs.readFileSync(path.join(JOURNEY_DIR, "vendor", "world.js"))).digest("hex");
+    expect(hash).toBe(WORLD_SHA256);
+  });
+
+  it("registers every country through the shim with a measurable outline", () => {
+    const world = loadWorld().__WORLD;
+    const codes = Object.keys(world.paths);
+    expect(codes).toHaveLength(WORLD_COUNTRY_COUNT);
+    codes.forEach((code) => {
+      const info = core.analysePath(world.paths[code].path);
+      expect(Number.isFinite(info.area)).toBe(true);
+      expect(info.area).toBeGreaterThan(0);
+      expect(Number.isFinite(info.cx) && Number.isFinite(info.cy)).toBe(true);
+    });
+  });
+
+  it("matches the fallback inset the page uses without it", () => {
+    const inset = loadWorld().__WORLD.insets[0];
+    expect(inset.width).toBe(core.DEFAULT_INSET.width);
+    expect(inset.height).toBe(core.DEFAULT_INSET.height);
+    expect(inset.bbox).toEqual(core.DEFAULT_INSET.bbox);
+  });
+
+  it("keeps only the world map and cannot be replaced", () => {
+    const sandbox = {};
+    sandbox.window = sandbox;
+    vm.createContext(sandbox);
+    vm.runInContext(readJourney("world-shim.js"), sandbox);
+    sandbox.jsVectorMap.addMap("usa", { paths: {} });
+    expect(sandbox.__WORLD).toBeUndefined();
+    expect(Object.isFrozen(sandbox.jsVectorMap)).toBe(true);
   });
 });

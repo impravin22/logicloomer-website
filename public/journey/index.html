@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self'; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; upgrade-insecure-requests">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>The Route So Far · Pravy Chittem</title>
   <meta name="description" content="Eight checkpoints from 2018 to 2026 on a hand-tinted world map: the AI work I shipped at each stop, and the football that happened alongside it.">
@@ -13,6 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Archivo:wdth,wght@62..125,400..900&family=MedievalSharp&display=swap">
   <link rel="stylesheet" href="./journey.css">
+  <script src="./boot.js"></script>
 </head>
 <body>
   <noscript>
@@ -27,6 +28,7 @@
       <p class="intro-k">Anno 2018 to 2026 · a route in eight checkpoints</p>
       <h1 class="intro-title" id="introTitle"><span class="w">The</span> <span class="w g">Route</span> <span class="w">So Far</span></h1>
       <p class="intro-sub" id="introSub">Eight seasons of football, eight stadiums, and the work I shipped along the way.</p>
+      <p class="intro-fail" id="introFail">The map could not load. <a href="../">Read the same story on the main site.</a></p>
       <div class="intro-cta" id="introCta">
         <button class="start" id="startBtn" type="button">Press start</button>
         <p class="intro-hint">Arrow keys to walk · drag to look around<span id="hintCountry"> · hover a country for its name</span></p>
@@ -45,7 +47,7 @@
       </div>
       <div class="hud-actions">
         <a class="hud-btn" href="../">Main site</a>
-        <button class="hud-btn" id="motionBtn" type="button" aria-pressed="true">Motion: on</button>
+        <button class="hud-btn" id="motionBtn" type="button">Motion: on</button>
       </div>
     </div>
     <div class="bottom">

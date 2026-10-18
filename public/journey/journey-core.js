@@ -1,6 +1,7 @@
 // Pure helpers for the map page: projection, path geometry, the route, and the
-// DOM builders for the side card and the progress rail. No globals are read and
-// nothing is drawn here, so Jest can require this file directly.
+// DOM builders for the side card and the progress rail. Nothing is drawn and no
+// page state is read here (only the standard URL class), so Jest can require
+// this file directly.
 (function (root, factory) {
   "use strict";
   const api = factory();
@@ -28,6 +29,10 @@
   const SVG_NS = "http://www.w3.org/2000/svg";
   const RELATIVE_URL = /^\.{1,2}\//;
   const EXTERNAL_REL = "noreferrer noopener";
+  const PATH_COMMAND = /^[A-Za-z]$/;
+  // Attributes el() may set. Anything else (src, style, srcdoc, on*) is refused,
+  // and href must also pass safeHref().
+  const ALLOWED_ATTRIBUTE = /^(class|id|type|role|hidden|target|rel|href|data-[a-z-]+|aria-[a-z-]+)$/;
 
   /**
    * Returns a projector from latitude and longitude to world pixels.
@@ -74,7 +79,7 @@
     };
     while (i < tokens.length) {
       const token = tokens[i];
-      if (/[A-Za-z]/.test(token)) {
+      if (PATH_COMMAND.test(token)) {
         cmd = token;
         i++;
         if (cmd === "Z" || cmd === "z") {
@@ -131,7 +136,9 @@
 
   /**
    * Measures a country outline: total area of all islands and the centroid of
-   * the largest one, in path units.
+   * the largest one, in path units. Arc flags must be comma or space separated
+   * (the compact "0110,0" form is not tokenised); the vendored outlines use
+   * only M, l and Z.
    * @param {string} d SVG path data.
    * @returns {{area: number, cx: number, cy: number}}
    */
@@ -204,6 +211,8 @@
   /**
    * Distance along the route of the sample nearest each waypoint; the last
    * waypoint is pinned to the end of the route.
+   * @param {Array<{x: number, y: number, d: number}>} route From buildRoute().
+   * @param {Array<{x: number, y: number}>} points The waypoints.
    * @returns {number[]}
    */
   function stopDistances(route, points) {
@@ -226,6 +235,8 @@
   /**
    * Interpolated position at a distance along the route, clamped to its ends.
    * `nearest` is the index of the closer neighbouring sample.
+   * @param {Array<{x: number, y: number, d: number}>} route From buildRoute().
+   * @param {number} distance
    * @returns {{x: number, y: number, dx: number, nearest: number}}
    */
   function positionAt(route, distance) {
@@ -245,7 +256,9 @@
   }
 
   /**
-   * Returns the href when it is https or relative to this site, else null.
+   * Returns a link target that is safe to render, else null. Allowed: https
+   * URLs without credentials (returned normalised, so a bare origin gains a
+   * trailing slash) and paths starting with ./ or ../ (returned as given).
    * @param {unknown} href
    * @returns {string|null}
    */
@@ -255,7 +268,8 @@
     if (RELATIVE_URL.test(trimmed)) return trimmed;
     try {
       const url = new URL(trimmed);
-      return url.protocol === "https:" ? url.href : null;
+      if (url.protocol !== "https:" || url.username || url.password) return null;
+      return url.href;
     } catch (error) {
       return null;
     }
@@ -263,7 +277,8 @@
 
   /**
    * Creates an element. String children become text nodes, so data is never
-   * parsed as HTML. Inline event-handler attributes are refused.
+   * parsed as HTML. Only allowlisted attributes are accepted, and an href must
+   * pass safeHref(); anything else throws.
    * @param {Document} doc
    * @param {string} tag
    * @param {Object<string, string|number|boolean|null|undefined>} [attrs]
@@ -273,8 +288,9 @@
   function el(doc, tag, attrs, children) {
     const node = doc.createElement(tag);
     Object.entries(attrs || {}).forEach(([name, value]) => {
-      if (/^on/i.test(name)) throw new Error("Refusing inline event handler attribute: " + name);
+      if (!ALLOWED_ATTRIBUTE.test(name)) throw new Error("Refusing attribute outside the allowlist: " + name);
       if (value === null || value === undefined || value === false) return;
+      if (name === "href" && safeHref(value) === null) throw new Error("Refusing unsafe href");
       node.setAttribute(name, value === true ? "" : String(value));
     });
     [].concat(children ?? []).forEach((child) => {
@@ -343,14 +359,16 @@
     ]);
   }
 
-  function renderContact(doc, contact, sources) {
-    const sourceLinks = [];
-    sources.forEach((s, i) => {
-      const a = link(doc, s.label, s.href);
-      if (!a) return;
-      if (sourceLinks.length) sourceLinks.push(i === sources.length - 1 ? " and " : ", ");
-      sourceLinks.push(a);
+  // "A, B, C and D" from the links that survive safeHref().
+  function joinWithAnd(items) {
+    return items.flatMap((item, i) => {
+      if (i === 0) return [item];
+      return [i === items.length - 1 ? " and " : ", ", item];
     });
+  }
+
+  function renderContact(doc, contact, sources) {
+    const sourceLinks = joinWithAnd(sources.map((s) => link(doc, s.label, s.href)).filter(Boolean));
     return el(doc, "section", { class: "sec" }, [
       el(doc, "p", { class: "label" }, "Write the next episode"),
       el(doc, "div", { class: "email" }, [
@@ -392,22 +410,37 @@
   }
 
   /**
+   * How one rail button looks for the current progress.
+   * @param {number} i Waypoint index.
+   * @param {{at: number, visited: Set<number>}} state
+   * @returns {{className: string, current: string|null}}
+   */
+  function railButtonState(i, state) {
+    const isNow = state.at === i;
+    return { className: isNow ? "now" : state.visited.has(i) ? "done" : "", current: isNow ? "step" : null };
+  }
+
+  /**
    * Builds the progress rail: one button per waypoint, the current one marked
-   * with aria-current.
+   * with aria-current. Built once; later updates go through railButtonState()
+   * so a focused button is never replaced.
+   * @param {Document} doc
+   * @param {Array<{name: string, year: string}>} waypoints
+   * @param {{at: number, visited: Set<number>}} state
    * @returns {HTMLButtonElement[]}
    */
   function renderRail(doc, waypoints, state) {
     return waypoints.map((w, i) => {
-      const isNow = state.at === i;
+      const look = railButtonState(i, state);
       return el(
         doc,
         "button",
         {
           type: "button",
           "data-i": i,
-          class: isNow ? "now" : state.visited.has(i) ? "done" : "",
+          class: look.className,
           "aria-label": w.name + ", " + w.year,
-          "aria-current": isNow ? "step" : null,
+          "aria-current": look.current,
         },
         [
           el(doc, "i", { "aria-hidden": "true" }),
@@ -420,6 +453,8 @@
 
   /**
    * Label for the main button when standing at a waypoint.
+   * @param {Array<{name: string}>} waypoints
+   * @param {number} at Index of the waypoint the walker stands at.
    * @returns {{text: string, symbol: string}}
    */
   function goLabel(waypoints, at) {
@@ -441,6 +476,7 @@
     el,
     renderCardBody,
     renderRail,
+    railButtonState,
     goLabel,
   });
 });

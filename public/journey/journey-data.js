@@ -59,7 +59,7 @@
       when: "Mar 2022 to 2023 · ViewSonic CEO Office",
       venue: "Lusail Stadium · 18 Dec 2022 · World Cup final",
       s1: "Argentina 3", s2: "France 3", res: "3–3 after extra time · Argentina win 4–2 on penalties", mood: "joy",
-      story: "Messi twice, Mbappé a hat-trick in a World Cup final, Martínez's save in the 123rd minute. Messi, 35, finally has the one he was missing. Scaloni's structure did the repeatable work so one man only had to do judgment.",
+      story: "Messi twice, Mbappé a hat-trick in a World Cup final, Martínez's save in the 123rd minute. Messi, 35, finally has the one he was missing. Scaloni's structure did the repeatable work so one man only had to do judgement.",
       more: [
         { label: "22 May 2022:", text: "Norwich 0–5 Spurs. Son shares the Golden Boot with Salah on 23, the first Asian player to win it, ten days after the 3–0 north London derby win. Spurs back in the Champions League." },
         { label: "28 May 2022:", text: "Real Madrid 1–0 Liverpool in Paris, a 14th European Cup. Benzema's Ballon d'Or." },
@@ -128,7 +128,7 @@
         { k: "May to Jun 2026", h: "One-login MCP gateway", what: "Company apps inside Claude behind a single company login. OAuth 2.1 brokered to Azure AD, each product plugging in its own credential, so the core never learns how a backend token is made.", res: "Read-only by design; staff query their own goals, reviews and AI progress from Claude, and the next product plugs in without a new deployment.", chips: ["MCP", "OAuth 2.1", "TypeScript"] },
         { k: "Jun 2026", h: "VLM document pipeline with an auditor loop", what: "Six layers of vision-language turn PPTX, DOCX, PDF and images into brand-compliant decks; an auditor model scores six dimensions and triggers remakes, up to three times.", res: "Manual brand review dropped from every document to the exceptions only.", chips: ["Gemini Vision", "Pydantic v2", "Celery"] },
       ],
-      par: { big: "Repeat the pattern, run up the score.", p: "Kane's 73 came from the same movements every week. The platform went from an empty repo to 1,300 people in six months by reusing one pattern in every module: elicitation, structured scoring, deterministic aggregation, narrative. Prompts for judgment, code for determinism." },
+      par: { big: "Repeat the pattern, run up the score.", p: "Kane's 73 came from the same movements every week. The platform went from an empty repo to 1,300 people in six months by reusing one pattern in every module: elicitation, structured scoring, deterministic aggregation, narrative. Prompts for judgement, code for determinism." },
     },
     {
       id: "newjersey", name: "New Jersey", year: "2026", lat: 40.81, lng: -74.07, z: 1.8, ep: "07", title: "Forward deployed",

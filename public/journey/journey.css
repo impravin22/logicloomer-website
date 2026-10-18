@@ -13,6 +13,8 @@
   color-scheme: light;
 }
 * { box-sizing: border-box; }
+/* Author display rules (flex on the card and intro) must never beat hidden. */
+[hidden] { display: none !important; }
 html, body { height: 100%; }
 body { margin: 0; background: var(--wood); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.5; overflow: hidden; }
 h1, h2, h3, p, ul { margin: 0; }
@@ -30,7 +32,7 @@ button { font: inherit; color: inherit; }
 .stage { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--wood); }
 #map { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
 #map.drag { cursor: grabbing; }
-.fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
+.fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 70; }
 .tip { position: absolute; z-index: 25; pointer-events: none; background: var(--ink); color: var(--paper); font-family: var(--map); font-size: 14px; padding: 4px 9px; border: 1px solid var(--gold); transform: translate(12px, 14px); white-space: nowrap; }
 
 /* HUD */
@@ -77,22 +79,29 @@ button { font: inherit; color: inherit; }
 .intro-inner { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 20px; max-width: 960px; }
 .intro-k { font-family: var(--map); color: var(--gold); font-size: clamp(14px, 2vw, 20px); letter-spacing: .2em; text-transform: uppercase; }
 .intro-title { font-family: var(--display); font-weight: 900; font-size: clamp(40px, 8.5vw, 118px); line-height: 1; display: flex; flex-wrap: wrap; justify-content: center; gap: 0 .25em; }
-.intro-title .w { display: inline-block; opacity: 0; transform: scale(4); }
+.intro-title .w { display: inline-block; }
 .intro-title .w.g { color: var(--gold); }
-.intro-sub { font-size: clamp(15px, 1.8vw, 20px); color: var(--mute-l); max-width: 52ch; opacity: 0; text-wrap: pretty; }
-.intro-cta { display: flex; flex-direction: column; align-items: center; gap: 12px; opacity: 0; }
+.intro-sub { font-size: clamp(15px, 1.8vw, 20px); color: var(--mute-l); max-width: 52ch; text-wrap: pretty; }
+.intro-cta { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+/* boot.js arms the intro so journey.js can animate it in; without JS, or once
+   the page has failed, everything stays readable. */
+.armed .intro-title .w { opacity: 0; transform: scale(4); }
+.armed .intro-sub, .armed .intro-cta { opacity: 0; }
+.intro-fail { display: none; font-size: clamp(15px, 1.8vw, 20px); color: var(--paper); }
+.intro-fail a { color: var(--gold2); }
+.failed .intro-fail { display: block; }
+.failed .intro-cta { display: none; }
 .start { background: var(--gold); color: var(--ink); border: 2px solid var(--paper); box-shadow: 0 7px 0 rgba(0, 0, 0, .5); padding: 14px 30px; font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: .06em; cursor: pointer; min-height: 56px; }
 .start:hover { transform: translateY(-2px); background: var(--gold2); }
 .start:active { transform: translateY(2px); box-shadow: 0 3px 0 rgba(0, 0, 0, .5); }
 .intro-hint { color: var(--mute-l); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; }
-.intro.failed .intro-title .w, .intro.failed .intro-sub { opacity: 1; transform: none; }
-.intro.failed .intro-sub a { color: var(--gold2); }
 .intro.shake .intro-inner { animation: shake .35s linear; }
 @keyframes shake { 0% { transform: translate(0, 0); } 20% { transform: translate(-12px, 6px); } 40% { transform: translate(12px, -6px); } 60% { transform: translate(-8px, 4px); } 80% { transform: translate(8px, -4px); } 100% { transform: translate(0, 0); } }
 
 /* card */
 .card { position: absolute; z-index: 30; top: calc(96px + env(safe-area-inset-top, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(110px + env(safe-area-inset-bottom, 0px)); width: min(500px, calc(100% - 32px)); background: var(--paper); border: 2px solid var(--oxblood); outline: 1px solid var(--gold); outline-offset: -5px; box-shadow: 0 14px 0 rgba(0, 0, 0, .4); display: flex; flex-direction: column; overflow: hidden; transform: translateX(40px); opacity: 0; transition: transform .45s var(--ease), opacity .35s var(--ease); }
 .card.open { transform: none; opacity: 1; }
+.card:not(.open) { pointer-events: none; }
 .card-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 18px 20px 14px; border-bottom: 2px solid var(--oxblood); background: var(--paper); }
 .card-h .k { font-family: var(--map); font-size: 14px; color: var(--oxblood); letter-spacing: .06em; margin-bottom: 4px; }
 .card-h h2 { font-family: var(--display); font-weight: 900; font-size: 28px; line-height: 1; color: var(--ink); text-wrap: balance; }

@@ -4,25 +4,11 @@
 (function () {
   "use strict";
 
+  // If a dependency is missing (or anything below throws), __journeyReady is
+  // never set and boot.js shows the fallback once the window loads.
   const Core = window.JourneyCore;
   const Data = window.JourneyData;
-  if (!Core || !Data) {
-    showLoadError();
-    return;
-  }
-
-  // Shown when a page script failed to load: the intro explains and links to
-  // the plain site instead of sitting there with invisible words.
-  function showLoadError() {
-    const sub = document.getElementById("introSub");
-    const home = document.createElement("a");
-    home.href = "../";
-    home.textContent = "Read the same story on the main site.";
-    sub.replaceChildren("The map could not load. ", home);
-    sub.setAttribute("role", "alert");
-    document.getElementById("introCta").hidden = true;
-    document.getElementById("intro").classList.add("failed");
-  }
+  if (!Core || !Data) return;
 
   if (!CanvasRenderingContext2D.prototype.roundRect) {
     CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
@@ -38,6 +24,16 @@
   const MOTION_KEY = "journey-motion";
   const NARROW_PX = 860;
   const CARD_OPEN_DELAY_MS = 700;
+  const CARD_HIDE_MS = 400; // matches the card's opacity transition
+  const CONFETTI_DELAY_MS = 350;
+  const COPY_RESET_MS = 1600;
+  const HURRY_FACTOR = 4;
+  const DRAG_THRESHOLD_PX = 4;
+  const MIN_ZOOM = 0.4, MAX_ZOOM = 3;
+  const WHEEL_ZOOM_RATE = 0.0015; // zoom factor per wheel pixel, as exp(-dy * rate)
+  const WHEEL_LINE_PX = 16; // a line-mode wheel step, in pixels
+  const FRAME_RATE_REFERENCE = 60; // easing constants below are tuned per 60 Hz frame
+  const MAX_FRAME_S = 0.05;
   const MAPF = '"MedievalSharp", "Palatino Linotype", Georgia, serif';
   const INK = "#1B1612", STEEL = "#A9B1BB", STEEL2 = "#7D8792", SKIN = "#F1C9A5";
   const COPPER = "#4E8C6A", SILVER = "#B9BEC4", STONE = "#C9AE78";
@@ -82,11 +78,18 @@
   const WAY = [at(Data.start)].concat(Data.stops.map(at));
   const STOP_COUNT = Data.stops.length;
   const route = Core.buildRoute(WAY, Core.ROUTE_SAMPLES_PER_LEG);
-  const onLand = route.map((r) => (COUNTRIES.length ? !!countryAt(r.x, r.y) : true));
+  // Land or sea per route sample, worked out the first time the walker reaches
+  // it rather than all at once on load (hundreds of hit tests).
+  const landCache = new Map();
+  const isLand = (i) => {
+    if (!COUNTRIES.length) return true;
+    if (!landCache.has(i)) landCache.set(i, !!countryAt(route[i].x, route[i].y));
+    return landCache.get(i);
+  };
   const stopD = Core.stopDistances(route, WAY);
   const posAt = (d) => {
     const p = Core.positionAt(route, d);
-    return { x: p.x, y: p.y, dx: p.dx, land: onLand[p.nearest] };
+    return { x: p.x, y: p.y, dx: p.dx, land: isLand(p.nearest) };
   };
 
   /* ------------------------------------------------------------------ */
@@ -102,7 +105,6 @@
   const motionBtn = $("motionBtn");
   function paintMotion() {
     motionBtn.textContent = "Motion: " + (motionOn ? "on" : "off");
-    motionBtn.setAttribute("aria-pressed", String(motionOn));
     document.documentElement.classList.toggle("no-motion", !motionOn);
   }
   paintMotion();
@@ -196,7 +198,10 @@
     drawSea(c); drawSerpentAndShip(c); drawCompassAndBanner(c); drawFrame(c);
   }
   drawBg();
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawBg);
+  // The sea layer bakes its lettering, so repaint once the map face arrives.
+  if (document.fonts && document.fonts.load) {
+    document.fonts.load('30px "MedievalSharp"').then(drawBg, () => { /* keep the fallback face */ });
+  }
 
   /* ------------------------------------------------------------------ */
   /* FX layer                                                            */
@@ -258,6 +263,7 @@
 
   const cam = { x: WAY[0].x, y: WAY[0].y, z: 1, tz: 1 };
   let follow = true;
+  let userZoom = null; // set by the wheel; cleared when the walker sets off or on double-click
   const state = { d: 0, target: 0, walking: false, dir: -1, at: 0, pending: 0, visited: new Set([0]), stadium: {}, t: 0, speedMul: 1 };
   const isNarrow = () => VW < NARROW_PX;
   const baseZoom = () => Math.max(0.55, Math.min(1.0, VW / 1400));
@@ -412,15 +418,19 @@
     if (Math.abs(hero.dx) > 0.2) state.dir = sign * Math.sign(hero.dx) || state.dir;
     if ((sign > 0 && state.d >= state.target) || (sign < 0 && state.d <= state.target)) { state.d = state.target; arrive(); }
   }
-  function stepCamera(hero) {
+  // Per-frame easing tuned at 60 Hz, rescaled so the camera moves at the same
+  // speed on any refresh rate.
+  const ease = (perFrame, dt) => (motionOn ? 1 - Math.pow(1 - perFrame, dt * FRAME_RATE_REFERENCE) : 1);
+  function stepCamera(hero, dt) {
     const stop = state.walking ? null : WAY[state.at];
-    cam.tz = stop ? Math.min(2.6, (stop.z || 1.6) * (isNarrow() ? 0.8 : 1)) : baseZoom();
-    cam.z += (cam.tz - cam.z) * (motionOn ? 0.05 : 1);
+    cam.tz = userZoom ?? (stop ? Math.min(2.6, (stop.z || 1.6) * (isNarrow() ? 0.8 : 1)) : baseZoom());
+    cam.z += (cam.tz - cam.z) * ease(0.05, dt);
     if (follow) {
       let tx = hero.x, ty = hero.y - 20 / cam.z;
       if (cardOpen && !isNarrow()) tx += 240 / cam.z;
       if (cardOpen && isNarrow()) ty += (VH * 0.2) / cam.z;
-      cam.x += (tx - cam.x) * (motionOn ? 0.06 : 1); cam.y += (ty - cam.y) * (motionOn ? 0.06 : 1);
+      const k = ease(0.06, dt);
+      cam.x += (tx - cam.x) * k; cam.y += (ty - cam.y) * k;
     }
     cam.x = Math.max(VW / (2 * cam.z) - 200, Math.min(WW - VW / (2 * cam.z) + 200, cam.x));
     cam.y = Math.max(VH / (2 * cam.z) - 200, Math.min(WH - VH / (2 * cam.z) + 200, cam.y));
@@ -488,11 +498,13 @@
   }
   let last = performance.now();
   function frame(now) {
-    const dt = Math.min(0.05, (now - last) / 1000); last = now; state.t += dt;
+    // Schedule first, so one bad frame cannot stop the loop for good.
+    requestAnimationFrame(frame);
+    const dt = Math.max(0, Math.min(MAX_FRAME_S, (now - last) / 1000)); last = now; state.t += dt;
     const hero = posAt(state.d);
     if (state.walking) stepWalk(hero, dt);
     Object.keys(state.stadium).forEach((k) => { const s = state.stadium[k]; if (s.v < 1) s.v = Math.min(1, s.v + dt * (motionOn ? 2.2 : 50)); });
-    stepCamera(hero);
+    stepCamera(hero, dt);
     const z = cam.z;
     ctx.setTransform(DPR * z, 0, 0, DPR * z, DPR * (VW / 2 - cam.x * z), DPR * (VH / 2 - cam.y * z));
     ctx.fillStyle = "#241711"; ctx.fillRect(cam.x - VW / z, cam.y - VH / z, (VW / z) * 2, (VH / z) * 2);
@@ -505,7 +517,6 @@
     if (heroNow.land || !state.walking) drawWalker(ctx, state.t, state.dir, state.walking && motionOn);
     else drawBoat(ctx, state.t, state.dir);
     ctx.restore();
-    requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 
@@ -513,6 +524,19 @@
   /* Travel, HUD, card                                                   */
   /* ------------------------------------------------------------------ */
   const card = $("card"), goBtn = $("goBtn"), contBtn = $("contBtn"), backBtn = $("backBtn"), statusEl = $("status");
+  // Timers that belong to one moment (the intro, an arrival) live in a group,
+  // so a newer action can cancel them before they fire on stale state.
+  function timerGroup() {
+    let ids = [];
+    return {
+      after(ms, fn) {
+        const id = setTimeout(() => { ids = ids.filter((x) => x !== id); fn(); }, ms);
+        ids = ids.concat(id);
+      },
+      clear() { ids.forEach(clearTimeout); ids = []; },
+    };
+  }
+  const introTimers = timerGroup(), arrivalTimers = timerGroup();
   const setHud = (badge, title, where) => { $("hudBadge").textContent = badge; $("hudT").textContent = title; $("hudWhere").textContent = where; };
   const announce = (text) => { statusEl.textContent = text; };
   const setButton = (button, text, symbol) => {
@@ -522,8 +546,9 @@
   function travelTo(index) {
     const i = Math.max(0, Math.min(WAY.length - 1, index));
     if (i === state.at && !state.walking) { if (i > 0) openCard(i); return; }
+    arrivalTimers.clear();
     closeCard(false);
-    follow = true;
+    follow = true; userZoom = null;
     Object.assign(state, { target: stopD[i], walking: true, speedMul: 1, at: -1, pending: i });
     setHud("EN ROUTE", "to " + WAY[i].name, "Press the button again to hurry.");
     setButton(goBtn, "Hurry", "»");
@@ -532,14 +557,16 @@
   }
   function arrive() {
     state.walking = false; state.at = state.pending; state.visited.add(state.at);
-    const w = WAY[state.at];
-    if (state.at > 0) {
-      state.stadium[state.at] = state.stadium[state.at] || { v: 0 };
+    const arrivedAt = state.at, w = WAY[arrivedAt];
+    if (arrivedAt > 0) {
+      state.stadium[arrivedAt] = state.stadium[arrivedAt] || { v: 0 };
       const sx = (w.x - cam.x) * cam.z + VW / 2, sy = (w.y - cam.y) * cam.z + VH / 2;
       impact(0.5, sx, sy);
-      if (w.mood === "joy") setTimeout(() => confetti(sx, sy - 30), 350);
+      if (w.mood === "joy") arrivalTimers.after(CONFETTI_DELAY_MS, () => confetti(sx, sy - 30));
       announce("Arrived at " + w.name + ", " + w.year + ". Episode " + w.ep + ": " + w.title + ".");
-      setTimeout(() => openCard(state.at), motionOn ? CARD_OPEN_DELAY_MS : 0);
+      arrivalTimers.after(motionOn ? CARD_OPEN_DELAY_MS : 0, () => {
+        if (!state.walking && state.at === arrivedAt) openCard(arrivedAt);
+      });
     } else {
       setHud("START", WAY[0].title, WAY[0].where);
       announce("Back at the start: " + WAY[0].title + ".");
@@ -555,13 +582,15 @@
   function wireCopy() {
     const copyBtn = $("copyBtn");
     if (!copyBtn) return;
+    const resetLabel = () => setTimeout(() => { copyBtn.textContent = "Copy"; }, COPY_RESET_MS);
     copyBtn.addEventListener("click", () => {
       const email = $("emailText");
-      const done = () => { copyBtn.textContent = "Copied"; announce("Email address copied."); setTimeout(() => { copyBtn.textContent = "Copy"; }, 1600); };
+      const done = () => { copyBtn.textContent = "Copied"; announce("Email address copied."); resetLabel(); };
       const fallback = () => {
         const range = document.createRange(); range.selectNodeContents(email);
         const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
         copyBtn.textContent = "Select + copy"; announce("Copy blocked by the browser. The address is selected; copy it by hand.");
+        resetLabel();
       };
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(email.textContent).then(done, fallback);
       else fallback();
@@ -569,6 +598,7 @@
   }
   function openCard(i) {
     const s = WAY[i];
+    if (!s || i === 0) return;
     cardOpen = true; card.hidden = false; goBtn.hidden = true;
     requestAnimationFrame(() => card.classList.add("open"));
     setHud("EP." + s.ep, s.name + ", " + s.year, s.title + " · checkpoint " + i + " of " + STOP_COUNT);
@@ -587,11 +617,11 @@
   function closeCard(refocus) {
     if (!cardOpen) return;
     cardOpen = false; card.classList.remove("open"); goBtn.hidden = false;
-    setTimeout(() => { if (!cardOpen) card.hidden = true; }, 400);
+    setTimeout(() => { if (!cardOpen) card.hidden = true; }, CARD_HIDE_MS);
     if (refocus) goBtn.focus({ preventScroll: true });
   }
   function next() {
-    if (state.walking) { state.speedMul = 4; return; }
+    if (state.walking) { state.speedMul = HURRY_FACTOR; return; }
     const n = state.at + 1;
     travelTo(n < WAY.length ? n : 0);
   }
@@ -601,18 +631,29 @@
   backBtn.addEventListener("click", back);
   $("closeBtn").addEventListener("click", () => closeCard(true));
 
+  // The rail is built once and then restyled in place, so a focused rail
+  // button keeps focus when it is activated.
   const rail = $("rail");
-  function paintRail() { rail.replaceChildren(...Core.renderRail(document, WAY, state)); }
+  rail.replaceChildren(...Core.renderRail(document, WAY, state));
+  function paintRail() {
+    Array.from(rail.children).forEach((button, i) => {
+      const look = Core.railButtonState(i, state);
+      button.className = look.className;
+      if (look.current) button.setAttribute("aria-current", look.current);
+      else button.removeAttribute("aria-current");
+    });
+  }
   rail.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) travelTo(Number(b.dataset.i)); });
-  paintRail(); paintGo();
+  paintGo();
 
   let introDone = false;
   document.addEventListener("keydown", (e) => {
-    if (!introDone) return;
+    if (!introDone || e.altKey || e.ctrlKey || e.metaKey) return;
     const onControl = e.target && ["BUTTON", "A", "SUMMARY"].includes(e.target.tagName);
-    if (e.key === "ArrowRight" || ((e.key === "Enter" || e.key === " ") && !onControl)) { e.preventDefault(); next(); }
-    if (e.key === "ArrowLeft") { e.preventDefault(); back(); }
-    if (e.key === "Escape") closeCard(true);
+    const activate = (e.key === "Enter" || e.key === " ") && !onControl && !e.repeat;
+    if (e.key === "ArrowRight" || activate) { e.preventDefault(); next(); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); back(); }
+    else if (e.key === "Escape") closeCard(true);
   });
 
   /* drag to pan, click a stop, hover a country, wheel to zoom */
@@ -622,11 +663,15 @@
     const r = canvas.getBoundingClientRect();
     return { x: (e.clientX - r.left - VW / 2) / cam.z + cam.x, y: (e.clientY - r.top - VH / 2) / cam.z + cam.y, sx: e.clientX - r.left, sy: e.clientY - r.top };
   }
-  canvas.addEventListener("pointerdown", (e) => { drag = { x: e.clientX, y: e.clientY, cx: cam.x, cy: cam.y, moved: false }; canvas.setPointerCapture(e.pointerId); });
+  canvas.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0) return;
+    drag = { x: e.clientX, y: e.clientY, cx: cam.x, cy: cam.y, moved: false };
+    canvas.setPointerCapture(e.pointerId);
+  });
   canvas.addEventListener("pointermove", (e) => {
     if (drag) {
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-      if (Math.hypot(dx, dy) > 4) { drag.moved = true; follow = false; canvas.classList.add("drag"); cam.x = drag.cx - dx / cam.z; cam.y = drag.cy - dy / cam.z; }
+      if (Math.hypot(dx, dy) > DRAG_THRESHOLD_PX) { drag.moved = true; follow = false; canvas.classList.add("drag"); cam.x = drag.cx - dx / cam.z; cam.y = drag.cy - dy / cam.z; }
       return;
     }
     if (e.pointerType !== "mouse") return;
@@ -646,8 +691,13 @@
     drag = null;
   });
   canvas.addEventListener("pointercancel", () => { drag = null; canvas.classList.remove("drag"); });
-  canvas.addEventListener("wheel", (e) => { e.preventDefault(); const f = e.deltaY > 0 ? 0.9 : 1.1; cam.z = Math.max(0.4, Math.min(3, cam.z * f)); cam.tz = cam.z; follow = false; }, { passive: false });
-  canvas.addEventListener("dblclick", () => { follow = true; });
+  canvas.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const dy = e.deltaMode === WheelEvent.DOM_DELTA_LINE ? e.deltaY * WHEEL_LINE_PX : e.deltaY;
+    userZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, (userZoom ?? cam.z) * Math.exp(-dy * WHEEL_ZOOM_RATE)));
+    follow = false;
+  }, { passive: false });
+  canvas.addEventListener("dblclick", () => { follow = true; userZoom = null; });
 
   /* ------------------------------------------------------------------ */
   /* Intro                                                               */
@@ -656,6 +706,7 @@
   function closeIntro() {
     if (introDone) return;
     introDone = true;
+    introTimers.clear();
     stage.inert = false;
     intro.style.transition = motionOn ? "transform .7s cubic-bezier(.76,0,.24,1)" : "none";
     intro.style.transform = "translateY(-100%)";
@@ -663,7 +714,8 @@
       intro.hidden = true;
       goBtn.focus({ preventScroll: true });
       impact(0.5);
-      setTimeout(() => travelTo(1), motionOn ? 600 : 0);
+      // Only start walking if the visitor has not already set off.
+      setTimeout(() => { if (state.at === 0 && !state.walking) travelTo(1); }, motionOn ? 600 : 0);
     }, motionOn ? 700 : 0);
   }
   $("startBtn").addEventListener("click", closeIntro);
@@ -673,13 +725,16 @@
     const reveal = (node) => { node.style.opacity = 1; node.style.transform = "none"; };
     if (!motionOn) { words.forEach(reveal); reveal(sub); reveal(cta); return; }
     words.forEach((w, i) => {
-      setTimeout(() => {
+      introTimers.after(500 + i * 520, () => {
         w.style.transition = "transform .38s cubic-bezier(.2,.8,.2,1), opacity .2s";
         w.style.opacity = 1; w.style.transform = "scale(1)";
         impact(0.9); intro.classList.remove("shake"); void intro.offsetWidth; intro.classList.add("shake");
-      }, 500 + i * 520);
+      });
     });
-    setTimeout(() => { sub.style.transition = "opacity .5s"; sub.style.opacity = 1; }, 2300);
-    setTimeout(() => { cta.style.transition = "opacity .5s"; cta.style.opacity = 1; }, 2600);
+    introTimers.after(2300, () => { sub.style.transition = "opacity .5s"; sub.style.opacity = 1; });
+    introTimers.after(2600, () => { cta.style.transition = "opacity .5s"; cta.style.opacity = 1; });
   })();
+
+  // boot.js shows a fallback on window load unless this line was reached.
+  window.__journeyReady = true;
 })();
