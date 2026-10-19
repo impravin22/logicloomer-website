@@ -2,7 +2,11 @@ import React from "react";
 import styled from "styled-components";
 import { Shell, Lnk } from "./_dossier";
 
-const CV_URL = `${process.env.PUBLIC_URL}/Praveen_Chittem_CV_2026.pdf`;
+// This app is published under /in-short/. The map (home/) is the site's home
+// page and the CV sits beside it, one level up. The app uses a HashRouter, so
+// the document URL never goes deeper than /in-short/ and "../" stays the root.
+const CV_URL = "../Praveen_Chittem_CV_2026.pdf";
+const MAP_URL = "../";
 
 const Bar = styled.header`
   padding: 34px 0 0;
@@ -58,6 +62,7 @@ const Navigation = () => (
         <a href="#work">Work</a>
         <a href="#about">About</a>
         <a href="#contact">Contact</a>
+        <a href={MAP_URL}>Map</a>
         <Lnk href={CV_URL} target="_blank" rel="noreferrer noopener">
           CV
         </Lnk>

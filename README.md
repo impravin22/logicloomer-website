@@ -31,6 +31,17 @@ This repository contains the code for my personal portfolio website, showcasing 
 
 The website is deployed using GitHub Pages and can be accessed at [impravin22.github.io/logicloomer-website](https://impravin22.github.io/logicloomer-website).
 
+### Site layout
+
+| URL | Source | What it is |
+| --- | --- | --- |
+| `/logicloomer-website/` | `home/` | The Route So Far, the interactive map (the home page) |
+| `/logicloomer-website/in-short/` | `src/`, `public/` | The same work on one page, the React app |
+| `/logicloomer-website/Praveen_Chittem_CV_2026.pdf` | `home/` | The CV |
+| `/logicloomer-website/journey/` | `home/journey/` | Redirect from the map's first address |
+
+`npm run build` runs `react-scripts build`, then `scripts/assemble-site.js` lays out `dist/`: `home/` at the root and the React build under `in-short/`. `npm run deploy` publishes `dist/`. `npm start` serves only the React app, so its Map and CV links (which point one level up) do not resolve in development; serve `dist/` under `/logicloomer-website/` to try the whole site. To update the CV, replace `home/Praveen_Chittem_CV_2026.pdf` and keep the filename, so existing links stay valid.
+
 ### Maintaining the Website
 
 To update the website:

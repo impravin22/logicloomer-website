@@ -110,7 +110,7 @@ const SKETCHES = {
   },
 };
 
-const PROJECTS = [
+export const PROJECTS = [
   {
     id: "auto-fix",
     title: "Auto Issue Solver",
@@ -169,16 +169,26 @@ const PROJECTS = [
     outcome: "Read 1,000+ work profiles into 34 workflow families and ranked 14 findings to act on or validate first.",
   },
   {
+    id: "vlm",
+    title: "VLM Document Pipeline",
+    what: "Six layers of vision-language with an AI-auditor loop.",
+    year: "2026",
+    stack: ["Gemini Vision", "Pydantic"],
+    decision: "An auditor model checks every extraction against the schema before it ships, so the output stays brand-compliant without a human in the loop.",
+    sketch: "vlm",
+    outcome: "Manual brand review dropped from every document to the exceptions only.",
+  },
+  {
     id: "rapid-okr",
     title: "Rapid-OKR",
     what: "An enterprise AI platform 1,300 people rely on.",
     role: "Lead architect",
-    year: "2024",
+    year: "2025",
     stack: ["FastAPI", "Next.js", "pgvector", "DSPy"],
     brief: "Turn company strategy into how 1,300 people actually set goals and get evaluated, without a wall of forms.",
     decision: (
       <>
-        I split the system on one rule: <b>prompts for judgment, code for determinism</b>. The LLM
+        I split the system on one rule: <b>prompts for judgement, code for determinism</b>. The LLM
         elicits and scores; a deterministic core aggregates and gates. That is why the output never
         flickers run to run.
       </>
@@ -191,18 +201,41 @@ const PROJECTS = [
     title: "AI Sales Assistant",
     what: "A multi-agent system that gives a sales floor real answers, fast.",
     role: "Lead developer",
-    year: "2023",
+    year: "2025",
     stack: ["Multi-agent", "Qdrant", "FastAPI"],
     decision: "A router that picks the right specialist agent per query beat one do-everything prompt. Accuracy went up, latency came down.",
     sketch: "sales",
     outcome: "Reps stopped pinging product teams for answers the system now gives in seconds.",
   },
   {
+    id: "object-detection",
+    title: "Large-Scale Object Detection",
+    what: "Half a million images, organised and trained to mAP 0.82.",
+    role: "Lead developer",
+    year: "2024",
+    stack: ["PyTorch", "8-GPU K8s", "Hadoop"],
+    decision: "Half a million images will not train on one box. I stood up an 8-GPU Kubernetes cluster with Hadoop pipelines feeding SSD-backed nodes, and ran distributed PyTorch across the lot.",
+    outcome: "Built the whole loop from raw data to a deployed detector at mAP 0.82 over 500K images.",
+  },
+  {
+    id: "distillation",
+    title: "Model Distillation",
+    what: "A 600M-parameter teacher squeezed into a faster student.",
+    year: "2024",
+    stack: ["Optimisation", "NLP"],
+    outcome: (
+      <>
+        Same quality at <b>2× the speed</b>. The model that was too slow for production became the
+        one in production.
+      </>
+    ),
+  },
+  {
     id: "sensai",
     title: "SensAI Sketch Recognition",
     what: "Real-time stroke recognition that turns a whiteboard scrawl into a clean shape.",
     role: "Lead architect",
-    year: "2023",
+    year: "2022",
     stack: ["LSTM/GNN", "PyTorch", "Edge"],
     brief: "Give an interactive whiteboard the sense to read a rough hand-drawn box or arrow and snap it to the shape the person meant, without a round trip to a server.",
     decision: "I modelled a sketch as the sequence of strokes you draw, not a flat bitmap, so an LSTM/GNN reads it the way a person makes it. Then I compressed the model hard enough to run inference on the panel itself.",
@@ -214,44 +247,11 @@ const PROJECTS = [
     title: "Human-Centric Vision",
     what: "Pose, gaze and expression read live on low-power edge hardware.",
     role: "Lead architect",
-    year: "2023",
+    year: "2022",
     stack: ["ONNX Runtime", "OpenVINO", "DinoV2"],
     decision: "Constrained edge hardware left no room for a heavy backbone, so I used Lie-algebraic keypoint transforms for pose and distilled DinoV2 down into a RegNet-800 for expression. All three signals run in real time without a GPU.",
     sketch: "humanvision",
     outcome: "Pose at 80% and eye-status at 85% real-time accuracy, on device, in C++.",
-  },
-  {
-    id: "vlm",
-    title: "VLM Document Pipeline",
-    what: "Six layers of vision-language with an AI-auditor loop.",
-    year: "2022",
-    stack: ["Gemini Vision", "Pydantic"],
-    decision: "An auditor model checks every extraction against the schema before it ships, so the output stays brand-compliant without a human in the loop.",
-    sketch: "vlm",
-    outcome: "Manual brand review dropped from every document to the exceptions only.",
-  },
-  {
-    id: "object-detection",
-    title: "Large-Scale Object Detection",
-    what: "Half a million images, organised and trained to mAP 0.82.",
-    role: "Lead developer",
-    year: "2021",
-    stack: ["PyTorch", "8-GPU K8s", "Hadoop"],
-    decision: "Half a million images will not train on one box. I stood up an 8-GPU Kubernetes cluster with Hadoop pipelines feeding SSD-backed nodes, and ran distributed PyTorch across the lot.",
-    outcome: "Built the whole loop from raw data to a deployed detector at mAP 0.82 over 500K images.",
-  },
-  {
-    id: "distillation",
-    title: "Model Distillation",
-    what: "A 600M-parameter teacher squeezed into a faster student.",
-    year: "2022",
-    stack: ["Optimisation", "NLP"],
-    outcome: (
-      <>
-        Same quality at <b>2× the speed</b>. The model that was too slow for production became the
-        one in production.
-      </>
-    ),
   },
   {
     id: "lpr",
@@ -274,11 +274,21 @@ const PROJECTS = [
     outcome: "85% production accuracy, owned end to end from data curation to a containerised deploy.",
   },
   {
+    id: "smart-manufacturing",
+    title: "Smart Manufacturing Analytics",
+    what: "Models that help large manufacturers hold tighter tolerances on the parts they make.",
+    role: "AI developer",
+    year: "2020",
+    stack: ["Feature engineering", "Boosted trees", "Kubeflow"],
+    decision: "Precision problems live in the process data, so the work started there, not with a bigger model. Feature engineering and statistics first, until the dataset could be trusted; then boosted trees, built from scratch.",
+    outcome: "Trained on a Docker, Kubernetes and Kubeflow cluster and deployed on the client's own site: the first of three production systems at Neurelli.",
+  },
+  {
     id: "blend",
     title: "Blend n Bubbles",
     what: "A bubble-tea brand I founded and built, because not everything is a model.",
     role: "Founder",
-    year: "2021",
+    year: "2025",
     stack: ["React"],
     outcome: "Took it from an idea to a real storefront and brand.",
     href: "https://github.com/impravin22/blendnbubbles",
@@ -311,7 +321,7 @@ const OPEN = [
   {
     id: "medextract",
     title: "Medical Summary Builder",
-    line: "Pulls a structured medical history out of long disability-case PDFs into a clean document. Judgment in the model, shape held by a Pydantic schema.",
+    line: "Pulls a structured medical history out of long disability-case PDFs into a clean document. Judgement in the model, shape held by a Pydantic schema.",
     stack: ["LLM", "Pydantic", "PDF"],
     href: "https://github.com/impravin22/Medical-info-extractor",
   },

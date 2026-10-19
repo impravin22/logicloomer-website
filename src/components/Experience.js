@@ -33,7 +33,7 @@ const ROLES = [
     title: "AI Software Developer",
     org: "Neurelli",
     when: "Aug 2020 to Mar 2022",
-    body: "Shipped industrial computer vision to production: licence-plate recognition on TensorRT/CUDA, and LCD-defect detection via a variational autoencoder, at 85% accuracy in the wild.",
+    body: "Smart manufacturing, from factory data to the production line. Boosted-tree models that help large manufacturers hold precision on their parts, deployed on the client's site; LCD-defect detection with a variational autoencoder, 85% accurate in production; licence-plate recognition at line speed on TensorRT and CUDA. Models trained on a Docker, Kubernetes and Kubeflow cluster.",
   },
   {
     title: "M.Sc. Electrical Engineering & Computer Science",
