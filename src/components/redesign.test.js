@@ -4,7 +4,7 @@ import { ThemeProvider } from "styled-components";
 import theme from "./Themes";
 import Hero from "./Hero";
 import Orchestrator, { STEP_MS } from "./Orchestrator";
-import Projects from "./Projects";
+import Projects, { PROJECTS } from "./Projects";
 import Navigation from "./Navigation";
 import About from "./About";
 import Contact from "./Contact";
@@ -147,7 +147,7 @@ describe("Field notes", () => {
       "aria-expanded",
       "true"
     );
-    expect(screen.getByText(/prompts for judgment, code for determinism/i)).toBeInTheDocument();
+    expect(screen.getByText(/prompts for judgement, code for determinism/i)).toBeInTheDocument();
   });
 
   it("closes the open note when its header is clicked again, leaving none open", () => {
@@ -207,10 +207,47 @@ describe("Field notes", () => {
       "Model Distillation",
       "Licence-Plate Recognition",
       "LCD Defect Detection",
+      "Smart Manufacturing Analytics",
       "Blend n Bubbles",
     ].forEach(
       (t) => expect(screen.getByRole("heading", { name: new RegExp(t, "i") })).toBeInTheDocument()
     );
+  });
+
+  it("lists the work newest first, with Blend n Bubbles kept last as the coda", () => {
+    const coda = PROJECTS[PROJECTS.length - 1];
+    expect(coda.id).toBe("blend");
+    const years = PROJECTS.slice(0, -1).map((p) => Number(p.year));
+    years.forEach((year) => expect(year).toBeGreaterThanOrEqual(2020));
+    expect(years).toEqual([...years].sort((a, b) => b - a));
+  });
+
+  it("pins each project's year to the dates on the map", () => {
+    const yearOf = Object.fromEntries(PROJECTS.map((p) => [p.id, p.year]));
+    expect(yearOf).toMatchObject({
+      "rapid-okr": "2025",
+      "ai-sales": "2025",
+      vlm: "2026",
+      "object-detection": "2024",
+      distillation: "2024",
+      sensai: "2022",
+      "human-vision": "2022",
+      "smart-manufacturing": "2020",
+      blend: "2025",
+    });
+  });
+
+  it("opens the smart-manufacturing note on the data-first decision", () => {
+    withTheme(<Projects />);
+    fireEvent.click(screen.getByRole("button", { name: /Smart Manufacturing Analytics/i }));
+    expect(screen.getByText(/feature engineering and statistics first/i)).toBeInTheDocument();
+    expect(screen.getByText(/first of three production systems at Neurelli/i)).toBeInTheDocument();
+  });
+
+  it("spells judgement the British way in the open-source notes", () => {
+    withTheme(<Projects />);
+    expect(screen.getByText(/Judgement in the model, shape held by a Pydantic schema/)).toBeInTheDocument();
+    expect(screen.queryByText(/judgment/i)).toBeNull();
   });
 
   it("opens a computer-vision note and reveals its decision", () => {
@@ -268,6 +305,12 @@ describe("Experience", () => {
     expect(screen.queryByText("Mar 2022 to now")).toBeNull();
   });
 
+  it("describes the Neurelli years as smart manufacturing, not only vision", () => {
+    withTheme(<Experience />);
+    expect(screen.getByText(/^Smart manufacturing, from factory data to the production line/)).toBeInTheDocument();
+    expect(screen.getByText(/Kubeflow/)).toBeInTheDocument();
+  });
+
   it("gives every entry a date range", () => {
     withTheme(<Experience />);
     const headings = screen.getAllByRole("heading", { level: 3 });
@@ -300,6 +343,11 @@ describe("About + Contact", () => {
     expect(terms[0]).toBe("Forward deployment");
     expect(screen.getByText(/AI architecture/i)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /what i do/i })).toBeInTheDocument();
+  });
+
+  it("counts smart-manufacturing models among the vision and ML work", () => {
+    withTheme(<About />);
+    expect(screen.getByText(/smart-manufacturing models deployed in the plant/i)).toBeInTheDocument();
   });
 
   it("copies the email on click and never invents a LinkedIn link", async () => {

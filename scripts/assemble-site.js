@@ -10,7 +10,7 @@ const REPO = path.join(__dirname, "..");
 const APP_SUBPATH = "in-short";
 const OUTPUT_NAME = "dist";
 // Files the map at the root borrows from the app build instead of keeping a copy.
-const SHARED_FROM_APP = Object.freeze(["favicon.svg"]);
+const SHARED_FROM_APP = Object.freeze(["favicon.svg", "favicon.ico", "apple-touch-icon.png"]);
 // File types home/ may publish. Anything else (a stray .env, a design file)
 // stops the build rather than going public by accident.
 const HOME_FILE_TYPES = new Set([".html", ".js", ".css", ".pdf", ".md", ".txt"]);
@@ -51,6 +51,9 @@ function checkLayout({ homeDir, appBuildDir, outDir }) {
   SHARED_FROM_APP.forEach((file) => {
     if (fs.existsSync(path.join(homeDir, file))) {
       throw new Error(`${homeDir} must not contain ${file}; it is copied from the app build.`);
+    }
+    if (!fs.existsSync(path.join(appBuildDir, file))) {
+      throw new Error(`No ${file} in ${appBuildDir}; the map at the root borrows it from the app build.`);
     }
   });
   if (path.basename(outDir) !== OUTPUT_NAME) {

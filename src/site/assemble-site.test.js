@@ -36,7 +36,7 @@ const fixture = () => {
   write(path.join(dirs.homeDir, CV), "%PDF-");
   write(path.join(dirs.appBuildDir, "index.html"), "app");
   write(path.join(dirs.appBuildDir, "static", "js", "main.js"), "bundle");
-  write(path.join(dirs.appBuildDir, "favicon.svg"), "<svg/>");
+  SHARED_FROM_APP.forEach((file) => write(path.join(dirs.appBuildDir, file), `shared ${file}`));
   return dirs;
 };
 
@@ -100,10 +100,18 @@ describe("assembleSite", () => {
     expect(exists(dirs.outDir)).toBe(false);
   });
 
-  it("refuses a home file that a shared app file would overwrite", () => {
+  it.each(SHARED_FROM_APP)("refuses a home %s that the shared app file would overwrite", (file) => {
     const dirs = fixture();
-    write(path.join(dirs.homeDir, SHARED_FROM_APP[0]));
-    expect(() => assembleSite(dirs)).toThrow(new RegExp(SHARED_FROM_APP[0]));
+    write(path.join(dirs.homeDir, file));
+    expect(() => assembleSite(dirs)).toThrow(`must not contain ${file}`);
+  });
+
+  it.each(SHARED_FROM_APP)("stops before deleting anything when the app build lacks %s", (file) => {
+    const dirs = fixture();
+    write(path.join(dirs.outDir, "previous.txt"), "kept");
+    fs.rmSync(path.join(dirs.appBuildDir, file));
+    expect(() => assembleSite(dirs)).toThrow(`No ${file} in`);
+    expect(read(dirs.outDir, "previous.txt")).toBe("kept");
   });
 
   it.each([
@@ -127,7 +135,7 @@ describe("assembleSite refuses what should never be published", () => {
     const dirs = { homeDir: path.join(outDir, "..keep", "home"), appBuildDir: path.join(outDir, "..keep", "build"), outDir };
     write(path.join(dirs.homeDir, "index.html"), "map");
     write(path.join(dirs.appBuildDir, "index.html"), "app");
-    write(path.join(dirs.appBuildDir, "favicon.svg"), "<svg/>");
+    SHARED_FROM_APP.forEach((file) => write(path.join(dirs.appBuildDir, file)));
     expect(() => assembleSite(dirs)).toThrow(/overlaps/);
     expect(read(dirs.homeDir, "index.html")).toBe("map");
   });

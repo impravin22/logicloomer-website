@@ -78,7 +78,8 @@ const DOMAINS = [
     term: "Vision & ML",
     body: (
       <>
-        Vision-language document pipelines, large-scale object detection, graph neural nets.{" "}
+        Vision-language document pipelines, large-scale object detection, graph neural nets, LCD
+        defect detection, and smart-manufacturing models deployed in the plant.{" "}
         <b>Gemini Vision · PyTorch</b>.
       </>
     ),

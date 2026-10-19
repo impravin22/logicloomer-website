@@ -11,6 +11,7 @@ const WORLD_SHA256 = "de3c2c21cf63bdd95a4cfc477a566a4b189579daeb26157e8ecb101000
 const WORLD_COUNTRY_COUNT = 176;
 const core = require("../../home/journey-core.js");
 const data = require("../../home/journey-data.js");
+const { SHARED_FROM_APP } = require("../../scripts/assemble-site.js");
 
 const STOP_COUNT = 8;
 const waypoints = [data.start, ...data.stops];
@@ -70,6 +71,16 @@ describe("journey data", () => {
         expect(p.chips.length).toBeGreaterThan(0);
       });
     });
+  });
+
+  it("opens the Neurelli years with the 2020 smart-manufacturing work", () => {
+    const rio = data.stops.find((s) => s.id === "rio");
+    expect(rio.when).toBe("Aug 2020 to Mar 2022 · Neurelli, New Taipei");
+    const [first] = rio.projects;
+    expect(first.k).toBe("2020 to 2021");
+    expect(first.h).toMatch(/^Smart manufacturing/);
+    expect(first.chips).toEqual(["Feature engineering", "Boosted trees", "Kubeflow"]);
+    expect(rio.par.p).toMatch(/three production systems/i);
   });
 
   it("marks only the last checkpoint as the final one", () => {
@@ -627,8 +638,14 @@ describe("journey page markup", () => {
     expect(cta.querySelector("#startBtn").compareDocumentPosition(skip) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("uses the favicon published beside it at the site root", () => {
-    expect(doc.querySelector('link[rel="icon"]').getAttribute("href")).toBe("./favicon.svg");
+  it("uses the icons published beside it at the site root, borrowed from the app", () => {
+    const hrefs = [...doc.querySelectorAll('link[rel="icon"], link[rel="apple-touch-icon"]')].map((l) => l.getAttribute("href"));
+    expect(hrefs).toEqual(["./favicon.ico", "./favicon.svg", "./apple-touch-icon.png"]);
+    hrefs.forEach((href) => {
+      const file = href.slice(2);
+      expect(SHARED_FROM_APP).toContain(file);
+      expect(fs.existsSync(path.join(HOME_DIR, "..", "public", file))).toBe(true);
+    });
   });
 
   it("never mentions the old name anywhere on the page", () => {

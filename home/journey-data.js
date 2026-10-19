@@ -39,7 +39,7 @@
     },
     {
       id: "rio", name: "Rio de Janeiro", year: "2021", lat: -22.91, lng: -43.23, z: 1.6, ep: "02", title: "First ship",
-      when: "Aug 2020 to Mar 2022 · Neurelli, Taipei",
+      when: "Aug 2020 to Mar 2022 · Neurelli, New Taipei",
       venue: "Maracanã · 10 Jul 2021 · Copa América final",
       s1: "Argentina 1", s2: "Brazil 0", res: "Full time · Trophy", mood: "joy",
       story: "Di María, 22nd minute, in Brazil's own stadium. Messi's first senior trophy with Argentina at 34, after four lost finals. A month later he leaves Barcelona in tears for PSG.",
@@ -49,10 +49,11 @@
         { label: "Nov 2021:", text: "Conte arrives at Spurs. Messi's seventh Ballon d'Or." },
       ],
       projects: [
+        { k: "2020 to 2021", h: "Smart manufacturing: tighter tolerances from the factory's own data", what: "Large manufacturers needed more precise parts. Feature engineering and statistics turned raw process data into a dataset a model could trust; boosted trees, built from scratch, did the predicting.", res: "Trained on a Docker, Kubernetes and Kubeflow cluster, then deployed on the client's own site. The first models I put in a factory rather than a notebook.", chips: ["Feature engineering", "Boosted trees", "Kubeflow"] },
         { k: "May to Jul 2021", h: "LCD defect detection that only learned \"good\"", what: "A variational autoencoder trained on good panels only; defects show up as poor reconstructions, so nobody has to label the rare ones.", res: "85% production accuracy, owned from data curation to containerised deploy.", chips: ["VAE", "PyTorch", "Docker"] },
         { k: "Aug 2021 to Feb 2022", h: "Licence-plate recognition at line speed", what: "A plate reader for an industrial production line, accelerated with TensorRT and CUDA.", res: "Shipped to production, reading plates on the edge in real time, no GPU rack behind it.", chips: ["TensorRT", "CUDA", "OpenCV"] },
       ],
-      par: { big: "The first one takes the longest.", p: "Messi needed sixteen years and four lost finals before the Maracanã. The first production ship took three months of unglamorous work: curate the data, train, optimise, containerise, deploy. The second one took longer only because it had to keep pace with a production line." },
+      par: { big: "The first one takes the longest.", p: "Messi needed sixteen years and four lost finals before the Maracanã. Smart manufacturing was my apprenticeship: learn the factory before the model, get the data right, then ship where the parts are made. Three production systems in under two years, none of them a demo." },
     },
     {
       id: "lusail", name: "Lusail", year: "2022", lat: 25.42, lng: 51.49, z: 1.9, ep: "03", title: "On the edge",
