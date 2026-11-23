@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/logicloomer-website/static/css/main.95d4a3bf.css",
+    "main.js": "/logicloomer-website/static/js/main.04dfb4db.js",
+    "index.html": "/logicloomer-website/index.html",
+    "main.95d4a3bf.css.map": "/logicloomer-website/static/css/main.95d4a3bf.css.map",
+    "main.04dfb4db.js.map": "/logicloomer-website/static/js/main.04dfb4db.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.95d4a3bf.css",
+    "static/js/main.04dfb4db.js"
+  ]
+}

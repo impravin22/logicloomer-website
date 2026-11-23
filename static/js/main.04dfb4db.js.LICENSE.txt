@@ -1,3 +1,5 @@
+/*! @license Threads, from React Bits (https://github.com/DavidHDev/react-bits). Copyright (c) 2026 David Haz. MIT + Commons Clause. */
+
 /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
 
 /**
