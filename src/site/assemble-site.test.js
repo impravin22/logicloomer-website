@@ -1,13 +1,15 @@
 // Tests for scripts/assemble-site.js, which lays out the deployable site: the
-// map from home/ at the root, and the React build under /in-short/.
+// React build (the portfolio) at the root, and the map from home/ under /map/.
 import fs from "fs";
 import os from "os";
 import path from "path";
 
-const { assembleSite, APP_SUBPATH, SHARED_FROM_APP } = require("../../scripts/assemble-site.js");
+const { assembleSite, MAP_SUBPATH, SHARED_FROM_APP } = require("../../scripts/assemble-site.js");
 
 const REPO = path.join(__dirname, "..", "..");
 const CV = "Pravy_CV.pdf";
+// Addresses that have moved; each keeps a redirect page, published from public/.
+const OLD_ADDRESSES = ["journey", "in-short"];
 
 const write = (file, text = "x") => {
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -32,34 +34,41 @@ const fixture = () => {
     outDir: path.join(tmp, "dist"),
   };
   write(path.join(dirs.homeDir, "index.html"), "map");
-  write(path.join(dirs.homeDir, "journey", "index.html"), "moved");
-  write(path.join(dirs.homeDir, CV), "%PDF-");
+  write(path.join(dirs.homeDir, "vendor", "world.js"), "world");
   write(path.join(dirs.appBuildDir, "index.html"), "app");
   write(path.join(dirs.appBuildDir, "static", "js", "main.js"), "bundle");
+  write(path.join(dirs.appBuildDir, CV), "%PDF-");
+  OLD_ADDRESSES.forEach((name) => write(path.join(dirs.appBuildDir, name, "index.html"), `moved from ${name}`));
   SHARED_FROM_APP.forEach((file) => write(path.join(dirs.appBuildDir, file), `shared ${file}`));
   return dirs;
 };
 
 describe("assembleSite", () => {
-  it("puts the map at the root and the app under the sub-path", () => {
+  it("puts the portfolio at the root and the map under its sub-path", () => {
     const dirs = fixture();
     assembleSite(dirs);
-    expect(read(dirs.outDir, "index.html")).toBe("map");
-    expect(read(dirs.outDir, APP_SUBPATH, "index.html")).toBe("app");
-    expect(read(dirs.outDir, APP_SUBPATH, "static", "js", "main.js")).toBe("bundle");
+    expect(read(dirs.outDir, "index.html")).toBe("app");
+    expect(read(dirs.outDir, "static", "js", "main.js")).toBe("bundle");
+    expect(read(dirs.outDir, MAP_SUBPATH, "index.html")).toBe("map");
+    expect(read(dirs.outDir, MAP_SUBPATH, "vendor", "world.js")).toBe("world");
   });
 
-  it("publishes the CV and the old map address from the root", () => {
+  it("publishes the CV and both old addresses from the root", () => {
     const dirs = fixture();
     assembleSite(dirs);
     expect(read(dirs.outDir, CV)).toBe("%PDF-");
-    expect(read(dirs.outDir, "journey", "index.html")).toBe("moved");
+    OLD_ADDRESSES.forEach((name) => expect(read(dirs.outDir, name, "index.html")).toBe(`moved from ${name}`));
   });
 
-  it("copies the shared app files to the root for the map", () => {
+  it("copies the shared app files beside the map", () => {
     const dirs = fixture();
     assembleSite(dirs);
-    SHARED_FROM_APP.forEach((file) => expect(read(dirs.outDir, file)).toBe(read(dirs.appBuildDir, file)));
+    SHARED_FROM_APP.forEach((file) => expect(read(dirs.outDir, MAP_SUBPATH, file)).toBe(read(dirs.appBuildDir, file)));
+  });
+
+  it("says where each part went", () => {
+    const dirs = fixture();
+    expect(assembleSite(dirs)).toEqual({ outDir: dirs.outDir, mapDir: path.join(dirs.outDir, MAP_SUBPATH) });
   });
 
   it("clears the previous output before assembling", () => {
@@ -76,8 +85,8 @@ describe("assembleSite", () => {
     write(path.join(dirs.appBuildDir, ".DS_Store"));
     assembleSite(dirs);
     expect(exists(dirs.outDir, ".DS_Store")).toBe(false);
-    expect(exists(dirs.outDir, "vendor", ".DS_Store")).toBe(false);
-    expect(exists(dirs.outDir, APP_SUBPATH, ".DS_Store")).toBe(false);
+    expect(exists(dirs.outDir, MAP_SUBPATH, ".DS_Store")).toBe(false);
+    expect(exists(dirs.outDir, MAP_SUBPATH, "vendor", ".DS_Store")).toBe(false);
   });
 
   it("refuses to run without an app build", () => {
@@ -87,16 +96,17 @@ describe("assembleSite", () => {
     expect(exists(dirs.outDir)).toBe(false);
   });
 
-  it("refuses to run without a home page", () => {
+  it("refuses to run without the map page", () => {
     const dirs = fixture();
     fs.rmSync(path.join(dirs.homeDir, "index.html"));
-    expect(() => assembleSite(dirs)).toThrow(/home page/);
+    expect(() => assembleSite(dirs)).toThrow(/No map page/);
+    expect(exists(dirs.outDir)).toBe(false);
   });
 
-  it("refuses a home folder that would collide with the app sub-path", () => {
+  it("refuses an app build that would collide with the map's sub-path", () => {
     const dirs = fixture();
-    write(path.join(dirs.homeDir, APP_SUBPATH, "index.html"));
-    expect(() => assembleSite(dirs)).toThrow(new RegExp(APP_SUBPATH));
+    write(path.join(dirs.appBuildDir, MAP_SUBPATH, "index.html"));
+    expect(() => assembleSite(dirs)).toThrow(`must not contain ${MAP_SUBPATH}/`);
     expect(exists(dirs.outDir)).toBe(false);
   });
 
@@ -155,7 +165,7 @@ describe("assembleSite refuses what should never be published", () => {
     expect(() => assembleSite(dirs)).toThrow(/Refusing to publish the link/);
   });
 
-  it.each([".env", "design.psd", "notes.docx"])("refuses %s in the home folder", (name) => {
+  it.each([".env", "design.psd", "notes.docx", "old-cv.pdf"])("refuses %s in the home folder", (name) => {
     const dirs = fixture();
     write(path.join(dirs.homeDir, name));
     expect(() => assembleSite(dirs)).toThrow(/not a site file type/);
@@ -165,7 +175,7 @@ describe("assembleSite refuses what should never be published", () => {
   it("accepts every file in the real home folder", () => {
     const dirs = { ...fixture(), homeDir: path.join(REPO, "home") };
     expect(() => assembleSite(dirs)).not.toThrow();
-    expect(exists(dirs.outDir, "vendor", "world.js")).toBe(true);
+    expect(exists(dirs.outDir, MAP_SUBPATH, "vendor", "world.js")).toBe(true);
   });
 });
 
@@ -173,8 +183,9 @@ describe("site layout in the repo", () => {
   const pkg = JSON.parse(read(REPO, "package.json"));
   const pdfsIn = (dir) => fs.readdirSync(path.join(REPO, dir)).filter((f) => /\.pdf$/i.test(f));
 
-  it("builds the app for the same sub-path the assembler uses", () => {
-    expect(pkg.homepage).toBe(`https://impravin22.github.io/logicloomer-website/${APP_SUBPATH}`);
+  it("builds the app for the site root, where the assembler puts it", () => {
+    expect(pkg.homepage).toBe("https://impravin22.github.io/logicloomer-website");
+    expect(MAP_SUBPATH).toBe("map");
   });
 
   it("assembles after the app build and deploys the assembled folder", () => {
@@ -183,10 +194,19 @@ describe("site layout in the repo", () => {
   });
 
   it("keeps exactly one CV in the repo, published from the root", () => {
-    expect(pdfsIn("home")).toEqual([CV]);
-    expect(pdfsIn("public")).toEqual([]);
+    expect(pdfsIn("public")).toEqual([CV]);
+    expect(pdfsIn("home")).toEqual([]);
     expect(pdfsIn(".")).toEqual([]);
-    expect(fs.readFileSync(path.join(REPO, "home", CV)).subarray(0, 5).toString("latin1")).toBe("%PDF-");
+    expect(fs.readFileSync(path.join(REPO, "public", CV)).subarray(0, 5).toString("latin1")).toBe("%PDF-");
+  });
+
+  it.each(OLD_ADDRESSES)("keeps a redirect page for the old address %s, published from the root", (name) => {
+    expect(exists(REPO, "public", name, "index.html")).toBe(true);
+    expect(exists(REPO, "home", name)).toBe(false);
+  });
+
+  it("keeps the map's sub-path free in public/, so nothing collides with the map", () => {
+    expect(exists(REPO, "public", MAP_SUBPATH)).toBe(false);
   });
 
   it("keeps the assembled folder out of git", () => {

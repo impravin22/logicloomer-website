@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Block, Shell, Primary, Ghost, role, NewTab } from "./_dossier";
-import { CV_URL, EMAIL, GITHUB_URL } from "./site";
+import { CV_URL, EMAIL, GITHUB_URL, MAP_URL } from "./site";
 import { PROJECTS } from "./projects/data";
 import { useMotion } from "./motion";
 import Systems from "./hero/Systems";
@@ -167,6 +167,21 @@ const Sub = styled.p`
   }
 `;
 
+// The way on from this page: the same years, drawn as a map.
+const Onward = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: ${(p) => p.theme.space.sm} ${(p) => p.theme.space.md};
+  margin-top: ${(p) => p.theme.space.lg};
+
+  p {
+    ${role("small")}
+    max-width: 36ch;
+    color: ${(p) => p.theme.stone2};
+  }
+`;
+
 // The one action, and the two quieter ones beside it.
 const HeroActions = () => (
   <Actions>
@@ -186,7 +201,8 @@ const HeroActions = () => (
 
 /**
  * The first screen: the page's one sentence over the threads, the one
- * action and the newest systems; then who is speaking.
+ * action and the newest systems; then who is speaking, and the way on to the
+ * map.
  *
  * @param {{projects: Array<object>}} props Defaults to the page's own notes,
  *     of which the newest few are listed.
@@ -241,6 +257,10 @@ const Hero = ({ projects = PROJECTS }) => {
             and ship the fix into their day. Before that I was sole architect of an enterprise AI
             platform <b>1,300+ people</b> use every day.
           </Sub>
+          <Onward>
+            <Ghost href={MAP_URL}>See the graphical route</Ghost>
+            <p>Eight checkpoints from 2018 to 2026, on a map you can walk.</p>
+          </Onward>
         </Shell>
       </Block>
     </>

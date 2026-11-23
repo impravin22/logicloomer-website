@@ -1,10 +1,11 @@
 // The page's fixed addresses, named once.
 //
-// This app is published under /in-short/. The map (home/) is the site's home
-// page and the CV sits beside it, one level up. The app uses a HashRouter, so
-// the document URL never goes deeper than /in-short/ and "../" stays the root.
-export const CV_URL = "../Pravy_CV.pdf";
-export const MAP_URL = "../";
+// This app is the site's home page. The CV sits beside it, and the map (home/
+// in the repo) is published one level down, under map/. The app uses a
+// HashRouter, so the document URL never goes deeper than the root and "./"
+// stays the root.
+export const CV_URL = "./Pravy_CV.pdf";
+export const MAP_URL = "./map/";
 
 export const EMAIL = "impravin22@gmail.com";
 export const GITHUB_URL = "https://github.com/impravin22";

@@ -327,15 +327,15 @@ describe("Navigation", () => {
   it("links the CV at the site root in a new tab, with no theme toggle", () => {
     withTheme(<Navigation />);
     const cv = screen.getByRole("link", { name: /^cv\s?, opens in a new tab$/i });
-    expect(cv).toHaveAttribute("href", "../Pravy_CV.pdf");
+    expect(cv).toHaveAttribute("href", "./Pravy_CV.pdf");
     expect(cv).toHaveAttribute("target", "_blank");
     expect(screen.queryByRole("button")).toBeNull();
   });
 
-  it("links back to the map at the site root in the same tab", () => {
+  it("links on to the map, one level down, in the same tab", () => {
     withTheme(<Navigation />);
     const map = screen.getByRole("link", { name: /^map$/i });
-    expect(map).toHaveAttribute("href", "../");
+    expect(map).toHaveAttribute("href", "./map/");
     expect(map).not.toHaveAttribute("target");
   });
 });

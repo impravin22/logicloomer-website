@@ -5,7 +5,7 @@ import Main from "./Main";
 import { PROJECTS, OPEN } from "./projects/data";
 import { CV_URL, EMAIL, GITHUB_URL, GITLAB_URL, MAP_URL, PHONE, PHONE_URL } from "./site";
 
-// The whole /in-short/ page, as Main renders it: its outline, its links, what
+// The whole portfolio page, as Main renders it: its outline, its links, what
 // it does when the sandbox fails, and how the sandbox treats hostile text.
 
 // Force the reduced-motion branch, as in redesign.test.js, so a run resolves

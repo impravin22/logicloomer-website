@@ -8,7 +8,7 @@ import Systems from "./Systems";
 import { MotionProvider } from "../motion";
 import { PROJECTS } from "../projects/data";
 import { PLATES } from "../plates/specs";
-import { CV_URL, EMAIL, GITHUB_URL } from "../site";
+import { CV_URL, EMAIL, GITHUB_URL, MAP_URL } from "../site";
 
 // The first screen: the page's one heading, its actions, the control that
 // stops the moving background, and the newest systems with the chart of the
@@ -110,8 +110,8 @@ describe("Hero actions", () => {
     const cv = screen.getByRole("link", { name: inNewTab("Read the CV") });
 
     // Assert
-    expect(CV_URL).toBe("../Pravy_CV.pdf");
-    expect(cv).toHaveAttribute("href", "../Pravy_CV.pdf");
+    expect(CV_URL).toBe("./Pravy_CV.pdf");
+    expect(cv).toHaveAttribute("href", "./Pravy_CV.pdf");
     expect(cv).toHaveAttribute("target", "_blank");
     expect(relTokens(cv)).toEqual(expect.arrayContaining(["noreferrer", "noopener"]));
   });
@@ -127,6 +127,33 @@ describe("Hero actions", () => {
     expect(github).toHaveAttribute("href", GITHUB_URL);
     expect(github).toHaveAttribute("target", "_blank");
     expect(relTokens(github)).toEqual(expect.arrayContaining(["noreferrer", "noopener"]));
+  });
+});
+
+describe("The way on to the map", () => {
+  it("invites the reader to the graphical route with one link, in the same tab", () => {
+    // Arrange
+    withTheme(<Hero />);
+
+    // Act
+    const routes = screen.getAllByRole("link", { name: "See the graphical route" });
+
+    // Assert
+    expect(MAP_URL).toBe("./map/");
+    expect(routes).toHaveLength(1);
+    expect(routes[0]).toHaveAttribute("href", MAP_URL);
+    expect(routes[0]).not.toHaveAttribute("target");
+  });
+
+  it("says in one line what the graphical route is", () => {
+    // Arrange
+    const ui = <Hero />;
+
+    // Act
+    withTheme(ui);
+
+    // Assert
+    expect(screen.getByText("Eight checkpoints from 2018 to 2026, on a map you can walk.")).toBeInTheDocument();
   });
 });
 

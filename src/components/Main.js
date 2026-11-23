@@ -55,7 +55,7 @@ const PageDown = () => (
 );
 
 /**
- * The /in-short/ page: the theme, then every section behind one boundary,
+ * The site's home page: the theme, then every section behind one boundary,
  * with one answer for all of them to "is the background motion paused?".
  *
  * @returns {React.ReactElement}
