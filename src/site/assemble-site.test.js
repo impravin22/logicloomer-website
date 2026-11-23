@@ -7,7 +7,7 @@ import path from "path";
 const { assembleSite, APP_SUBPATH, SHARED_FROM_APP } = require("../../scripts/assemble-site.js");
 
 const REPO = path.join(__dirname, "..", "..");
-const CV = "Praveen_Chittem_CV_2026.pdf";
+const CV = "Pravy_CV.pdf";
 
 const write = (file, text = "x") => {
   fs.mkdirSync(path.dirname(file), { recursive: true });

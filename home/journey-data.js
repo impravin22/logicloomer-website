@@ -186,7 +186,7 @@
       { label: "GitHub", href: "https://github.com/impravin22" },
       { label: "GitLab", href: "https://gitlab.com/impravin22" },
       { label: "LinkedIn", href: "https://www.linkedin.com/in/praveen-chittem-b78b4a160" },
-      { label: "CV (PDF)", href: "./Praveen_Chittem_CV_2026.pdf" },
+      { label: "CV (PDF)", href: "./Pravy_CV.pdf" },
       { label: "The same work, in short", href: "./in-short/" },
     ],
     factCheck: "2026 football facts checked on 18 Oct 2026 against",

@@ -106,7 +106,7 @@ describe("journey data", () => {
 
   it("points the CV and the short version at this site, never up a level", () => {
     const cv = data.contact.links.find((l) => /cv/i.test(l.label));
-    expect(cv.href).toBe("./Praveen_Chittem_CV_2026.pdf");
+    expect(cv.href).toBe("./Pravy_CV.pdf");
     expect(data.contact.links.some((l) => l.href === "./in-short/")).toBe(true);
     data.contact.links.forEach((l) => expect(l.href).not.toMatch(/^\.\.\//));
   });

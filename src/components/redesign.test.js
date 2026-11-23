@@ -136,18 +136,22 @@ describe("Field notes", () => {
     expect(screen.getByText(/production still needs a human approval/i)).toBeInTheDocument();
   });
 
-  it("keeps exactly one note open at a time", () => {
+  it("opens and closes each note on its own", () => {
     withTheme(<Projects />);
     const expanded = () =>
       screen.getAllByRole("button").filter((b) => b.getAttribute("aria-expanded") === "true");
     expect(expanded()).toHaveLength(1);
     fireEvent.click(screen.getByRole("button", { name: /Rapid-OKR/i }));
-    expect(expanded()).toHaveLength(1);
+    expect(expanded()).toHaveLength(2);
     expect(screen.getByRole("button", { name: /Rapid-OKR/i })).toHaveAttribute(
       "aria-expanded",
       "true"
     );
-    expect(screen.getByText(/prompts for judgement, code for determinism/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Auto Issue Solver/i })).toHaveAttribute(
+      "aria-expanded",
+      "true"
+    );
+    expect(screen.getByText(/prompts for judgement, code for determinism/i)).toBeVisible();
   });
 
   it("closes the open note when its header is clicked again, leaving none open", () => {
@@ -322,8 +326,8 @@ describe("Experience", () => {
 describe("Navigation", () => {
   it("links the CV at the site root in a new tab, with no theme toggle", () => {
     withTheme(<Navigation />);
-    const cv = screen.getByRole("link", { name: /^cv$/i });
-    expect(cv).toHaveAttribute("href", "../Praveen_Chittem_CV_2026.pdf");
+    const cv = screen.getByRole("link", { name: /^cv\s?, opens in a new tab$/i });
+    expect(cv).toHaveAttribute("href", "../Pravy_CV.pdf");
     expect(cv).toHaveAttribute("target", "_blank");
     expect(screen.queryByRole("button")).toBeNull();
   });

@@ -1,11 +1,12 @@
 import React from "react";
 import styled from "styled-components";
-import { Block, Shell, Opener, Reveal } from "./_dossier";
+import { Block, Shell, Opener, role } from "./_dossier";
 
+// Newest first.
 const ROLES = [
   {
     title: "Forward Deployment Pod Lead",
-    org: "ViewSonic · CEO Office",
+    org: "ViewSonic, CEO Office",
     when: "Jul 2026 to now",
     body: (
       <>
@@ -18,7 +19,7 @@ const ROLES = [
   },
   {
     title: "Senior AI Systems Architect",
-    org: "ViewSonic · CEO Office",
+    org: "ViewSonic, CEO Office",
     when: "Mar 2022 to Jun 2026",
     body: (
       <>
@@ -47,69 +48,65 @@ const ROLES = [
   },
 ];
 
+// Four roles, two by two, newest first, parted by space alone.
 const List = styled.div`
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: ${(p) => p.theme.layout.gap};
+  row-gap: ${(p) => p.theme.space.xl};
+
+  @media (min-width: ${(p) => p.theme.bp.grid2}) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: ${(p) => p.theme.space["2xl"]};
+  }
 `;
 
 const Row = styled.div`
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 4px 20px;
-  padding: 16px 0;
-  border-bottom: 1px solid ${(p) => p.theme.hair};
-
-  &:last-child {
-    border-bottom: none;
-  }
 
   h3 {
-    font-family: ${(p) => p.theme.grot};
-    font-weight: 600;
-    font-size: 18px;
-    letter-spacing: -0.015em;
+    ${role("title")}
+  }
+  .facts {
+    ${role("small")}
+    margin-top: ${(p) => p.theme.space.xs};
+    display: flex;
+    flex-wrap: wrap;
+    gap: ${(p) => p.theme.space["2xs"]} ${(p) => p.theme.space.md};
   }
   .org {
-    font-size: 15px;
     color: ${(p) => p.theme.pine};
     font-weight: 500;
   }
   .when {
-    font-family: ${(p) => p.theme.mono};
-    font-size: 13px;
     color: ${(p) => p.theme.stone2};
-    text-align: right;
   }
-  p {
-    grid-column: 1 / -1;
-    font-size: 15px;
+  p:not(.facts) {
     color: ${(p) => p.theme.stone};
-    line-height: 1.55;
-    margin-top: 6px;
+    margin-top: ${(p) => p.theme.space.sm};
     max-width: 62ch;
   }
   p b {
     color: ${(p) => p.theme.ink};
-    font-weight: 600;
+    font-weight: 500;
   }
 `;
 
 const Experience = () => (
-  <Block id="experience" aria-labelledby="exp-h">
+  <Block id="experience" aria-labelledby="exp-h" $gap="l">
     <Shell>
-      <Opener index="03" id="exp-h" title="Where I've been" />
-      <Reveal>
-        <List>
-          {ROLES.map((r) => (
-            <Row key={r.title}>
-              <h3>{r.title}</h3>
-              <span className="when">{r.when}</span>
+      <Opener id="exp-h" title="Where I've been" />
+      <List>
+        {ROLES.map((r) => (
+          <Row key={r.title}>
+            <h3>{r.title}</h3>
+            <p className="facts">
               <span className="org">{r.org}</span>
-              <p>{r.body}</p>
-            </Row>
-          ))}
-        </List>
-      </Reveal>
+              <span className="when">{r.when}</span>
+            </p>
+            <p>{r.body}</p>
+          </Row>
+        ))}
+      </List>
     </Shell>
   </Block>
 );

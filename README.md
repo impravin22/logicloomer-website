@@ -18,6 +18,7 @@ This repository contains the code for my personal portfolio website, showcasing 
 - **React Router** - For navigation
 - **React Particles** - For background particle effects
 - **GitHub Pages** - For hosting
+- **React Bits, Threads** - The moving threads behind the hero and the closing section of `/in-short/`, used as published, with a licence notice added, under its MIT + Commons Clause licence (`src/components/vendor/react-bits/`). The built site carries the notice in the bundle's `.LICENSE.txt` file
 
 ## Sections
 
@@ -37,10 +38,10 @@ The website is deployed using GitHub Pages and can be accessed at [impravin22.gi
 | --- | --- | --- |
 | `/logicloomer-website/` | `home/` | The Route So Far, the interactive map (the home page) |
 | `/logicloomer-website/in-short/` | `src/`, `public/` | The same work on one page, the React app |
-| `/logicloomer-website/Praveen_Chittem_CV_2026.pdf` | `home/` | The CV |
+| `/logicloomer-website/Pravy_CV.pdf` | `home/` | The CV |
 | `/logicloomer-website/journey/` | `home/journey/` | Redirect from the map's first address |
 
-`npm run build` runs `react-scripts build`, then `scripts/assemble-site.js` lays out `dist/`: `home/` at the root and the React build under `in-short/`. `npm run deploy` publishes `dist/`. `npm start` serves only the React app, so its Map and CV links (which point one level up) do not resolve in development; serve `dist/` under `/logicloomer-website/` to try the whole site. To update the CV, replace `home/Praveen_Chittem_CV_2026.pdf` and keep the filename, so existing links stay valid.
+`npm run build` runs `react-scripts build`, then `scripts/assemble-site.js` lays out `dist/`: `home/` at the root and the React build under `in-short/`. `npm run deploy` publishes `dist/`. `npm start` serves only the React app, so its Map and CV links (which point one level up) do not resolve in development; serve `dist/` under `/logicloomer-website/` to try the whole site. To update the CV, replace `home/Pravy_CV.pdf` and keep the filename, so existing links stay valid.
 
 ### Maintaining the Website
 
