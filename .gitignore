@@ -8,14 +8,22 @@
 # testing
 /coverage
 
-# production
+# production: the app build, and the assembled site that gets deployed
 /build
+/dist
 
 # misc
 .DS_Store
 
 # local-only design mockups (never commit — preview scaffolding)
 /proposed-*.html
+/src/preview/
+
+# local agent scratch: evidence ledgers, design-lint records and browser-check screenshots
+/.maestro/
+/.hallmark/
+/.playwright-mcp/
+
 .env.local
 .env.development.local
 .env.test.local

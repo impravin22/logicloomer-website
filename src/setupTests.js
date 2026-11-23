@@ -35,3 +35,7 @@ if (!window.ResizeObserver) {
   window.ResizeObserver = MockObserver;
   global.ResizeObserver = MockObserver;
 }
+
+// jsdom has no canvas. The hero's WebGL background asks for a context and
+// must be told there is none, rather than log that it is not implemented.
+HTMLCanvasElement.prototype.getContext = () => null;

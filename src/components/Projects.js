@@ -1,624 +1,143 @@
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Block, Shell, Opener, Lnk } from "./_dossier";
+import { Block, Shell, Opener, role } from "./_dossier";
+import { PROJECTS, OPEN } from "./projects/data";
+import ProjectCard from "./projects/ProjectCard";
+import OpenSourceCard from "./projects/OpenSourceCard";
+import Legend from "./plates/Legend";
+import { useChartDensity } from "./plates/useChartDensity";
 
-const EASE = [0.2, 0.8, 0.2, 1];
+export { PROJECTS } from "./projects/data";
 
-// Small pine-on-paper system sketches, same visual language as the hero graph.
-const SKETCHES = {
-  autofix: {
-    label: "Auto-fix loop: logs become a gated fix on dev, and a human approves production",
-    nodes: [
-      { x: 12, y: 44, w: 44, h: 32, label: "Logs" },
-      { x: 70, y: 44, w: 48, h: 32, label: "Issue" },
-      { x: 132, y: 44, w: 50, h: 32, label: "Agent" },
-      { x: 196, y: 44, w: 50, h: 32, label: "Gates" },
-      { x: 260, y: 44, w: 38, h: 32, label: "Dev" },
-      { x: 312, y: 44, w: 50, h: 32, label: "Human" },
-      { x: 376, y: 44, w: 40, h: 32, label: "Prod" },
-    ],
-    edges: [
-      "M56,60 L70,60",
-      "M118,60 L132,60",
-      "M182,60 L196,60",
-      "M246,60 L260,60",
-      "M298,60 L312,60",
-      "M362,60 L376,60",
-      "M221,44 C221,16 157,16 157,44",
-    ],
-  },
-  mcp: {
-    label: "One login in front of many product backends",
-    nodes: [
-      { x: 14, y: 44, w: 68, h: 32, label: "Claude" },
-      { x: 108, y: 44, w: 52, h: 32, label: "SSO" },
-      { x: 186, y: 44, w: 84, h: 32, label: "MCP core" },
-      { x: 300, y: 8, w: 108, h: 30, label: "Rapid-OKR" },
-      { x: 300, y: 45, w: 108, h: 30, label: "Skill portal" },
-      { x: 300, y: 82, w: 108, h: 30, label: "+ next" },
-    ],
-    edges: [
-      "M82,60 L108,60",
-      "M160,60 L186,60",
-      "M270,60 C290,60 286,23 300,23",
-      "M270,60 L300,60",
-      "M270,60 C290,60 286,97 300,97",
-    ],
-  },
-  workflow: {
-    label: "Identity stripped at extraction, then grouped, scored and reported",
-    nodes: [
-      { x: 14, y: 44, w: 62, h: 32, label: "Records" },
-      { x: 94, y: 44, w: 70, h: 32, label: "Strip ID" },
-      { x: 182, y: 44, w: 70, h: 32, label: "Families" },
-      { x: 270, y: 44, w: 56, h: 32, label: "Score" },
-      { x: 344, y: 44, w: 62, h: 32, label: "Report" },
-    ],
-    edges: ["M76,60 L94,60", "M164,60 L182,60", "M252,60 L270,60", "M326,60 L344,60"],
-  },
-  rapidokr: {
-    label: "Rapid-OKR data flow",
-    nodes: [
-      { x: 14, y: 24, w: 72, h: 32, label: "Next.js" },
-      { x: 160, y: 24, w: 120, h: 32, label: "FastAPI · DDD" },
-      { x: 160, y: 64, w: 120, h: 32, label: "Dagster" },
-      { x: 340, y: 24, w: 68, h: 32, label: "pgvector" },
-    ],
-    edges: ["M86,40 L160,40", "M86,40 C120,40 120,80 160,80", "M280,40 L340,40", "M280,80 C312,80 312,40 340,40"],
-  },
-  sales: {
-    label: "Multi-agent fan-out",
-    nodes: [
-      { x: 14, y: 44, w: 72, h: 32, label: "Router" },
-      { x: 200, y: 8, w: 118, h: 30, label: "Product" },
-      { x: 200, y: 45, w: 118, h: 30, label: "Competitor" },
-      { x: 200, y: 82, w: 118, h: 30, label: "General" },
-    ],
-    edges: ["M86,60 C140,60 150,23 200,23", "M86,60 L200,60", "M86,60 C140,60 150,97 200,97"],
-  },
-  vlm: {
-    label: "Vision-language pipeline with auditor loop",
-    nodes: [
-      { x: 14, y: 44, w: 60, h: 32, label: "Image" },
-      { x: 104, y: 44, w: 74, h: 32, label: "VLM ×6" },
-      { x: 208, y: 44, w: 74, h: 32, label: "Schema" },
-      { x: 312, y: 44, w: 92, h: 32, label: "Auditor" },
-    ],
-    edges: ["M74,60 L104,60", "M178,60 L208,60", "M282,60 L312,60", "M358,44 C358,14 141,14 141,44"],
-  },
-  sensai: {
-    label: "On-device sketch recognition pipeline",
-    nodes: [
-      { x: 14, y: 44, w: 76, h: 32, label: "Strokes" },
-      { x: 120, y: 44, w: 88, h: 32, label: "LSTM/GNN" },
-      { x: 238, y: 44, w: 78, h: 32, label: "Compress" },
-      { x: 346, y: 44, w: 60, h: 32, label: "Shape" },
-    ],
-    edges: ["M90,60 L120,60", "M208,60 L238,60", "M316,60 L346,60"],
-  },
-  humanvision: {
-    label: "One frame read for pose, gaze and expression",
-    nodes: [
-      { x: 14, y: 44, w: 62, h: 32, label: "Frame" },
-      { x: 104, y: 44, w: 84, h: 32, label: "Keypoints" },
-      { x: 236, y: 8, w: 100, h: 30, label: "Pose" },
-      { x: 236, y: 45, w: 100, h: 30, label: "Gaze" },
-      { x: 236, y: 82, w: 100, h: 30, label: "Expression" },
-    ],
-    edges: ["M76,60 L104,60", "M188,60 C214,60 214,23 236,23", "M188,60 L236,60", "M188,60 C214,60 214,97 236,97"],
-  },
-};
-
-const PROJECTS = [
-  {
-    id: "auto-fix",
-    title: "Auto Issue Solver",
-    what: "Production errors turn into tested fixes on dev, with no one writing the code.",
-    role: "Lead architect",
-    year: "2026",
-    stack: ["Claude Code", "GitHub Actions", "AWS"],
-    brief: "Keep a live internal pricing tool healthy without a developer chasing every traceback by hand.",
-    decision: (
-      <>
-        The agent faces every gate a developer does: it has to{" "}
-        <b>reproduce the error with a failing test first</b>, clear lint, format, type and test
-        checks, and answer the code review, all inside a sandbox. It can release to dev on its own;{" "}
-        <b>production still needs a human approval</b> and a release tag.
-      </>
-    ),
-    sketch: "autofix",
-    outcome: "Every six hours it reads the dev and prod logs, files each new error once and works the queue. A person only steps in to approve the release to production.",
-    defaultOpen: true,
-  },
-  {
-    id: "mcp-gateway",
-    title: "One-Login MCP Gateway",
-    what: "Company apps inside Claude, behind a single company login.",
-    role: "Lead architect",
-    year: "2026",
-    stack: ["MCP", "OAuth 2.1", "TypeScript"],
-    brief: "Let people ask Claude about their own goals, reviews and AI progress in plain language, without a new server and a new login for every product.",
-    decision: (
-      <>
-        One server, one login, many products. OAuth 2.1 brokered to Azure AD, and{" "}
-        <b>each product plugs in its own credential</b>, so the core never learns how a backend
-        token is made. Read-only by design: <b>whatever you can see in the app is exactly what
-        Claude sees</b>.
-      </>
-    ),
-    sketch: "mcp",
-    outcome: "Staff query their own platform data straight from Claude, and the next product plugs in without a new deployment.",
-  },
-  {
-    id: "workflow-intel",
-    title: "Workflow Intelligence",
-    what: "Where a company's working time actually goes, answered without a survey.",
-    role: "Lead architect",
-    year: "2026",
-    stack: ["Python", "PostgreSQL", "Playwright"],
-    brief: "Find the workflows worth automating first, from data the company already owns, so the pod works on the right problem.",
-    decision: (
-      <>
-        Strip identity at extraction, not at the report, so <b>no name ever reaches the analysis</b>.
-        Every figure recomputes deterministically from the corpus and a committed grouping file,
-        and <b>every finding cites its evidence</b>.
-      </>
-    ),
-    sketch: "workflow",
-    outcome: "Read 1,000+ work profiles into 34 workflow families and ranked 14 findings to act on or validate first.",
-  },
-  {
-    id: "rapid-okr",
-    title: "Rapid-OKR",
-    what: "An enterprise AI platform 1,300 people rely on.",
-    role: "Lead architect",
-    year: "2024",
-    stack: ["FastAPI", "Next.js", "pgvector", "DSPy"],
-    brief: "Turn company strategy into how 1,300 people actually set goals and get evaluated, without a wall of forms.",
-    decision: (
-      <>
-        I split the system on one rule: <b>prompts for judgment, code for determinism</b>. The LLM
-        elicits and scores; a deterministic core aggregates and gates. That is why the output never
-        flickers run to run.
-      </>
-    ),
-    sketch: "rapidokr",
-    outcome: "Goal-setting went from weeks of spreadsheets to one guided session, shipped to 1,300+ on AWS ECS.",
-  },
-  {
-    id: "ai-sales",
-    title: "AI Sales Assistant",
-    what: "A multi-agent system that gives a sales floor real answers, fast.",
-    role: "Lead developer",
-    year: "2023",
-    stack: ["Multi-agent", "Qdrant", "FastAPI"],
-    decision: "A router that picks the right specialist agent per query beat one do-everything prompt. Accuracy went up, latency came down.",
-    sketch: "sales",
-    outcome: "Reps stopped pinging product teams for answers the system now gives in seconds.",
-  },
-  {
-    id: "sensai",
-    title: "SensAI Sketch Recognition",
-    what: "Real-time stroke recognition that turns a whiteboard scrawl into a clean shape.",
-    role: "Lead architect",
-    year: "2023",
-    stack: ["LSTM/GNN", "PyTorch", "Edge"],
-    brief: "Give an interactive whiteboard the sense to read a rough hand-drawn box or arrow and snap it to the shape the person meant, without a round trip to a server.",
-    decision: "I modelled a sketch as the sequence of strokes you draw, not a flat bitmap, so an LSTM/GNN reads it the way a person makes it. Then I compressed the model hard enough to run inference on the panel itself.",
-    sketch: "sensai",
-    outcome: "Shipped on ViewSonic interactive whiteboards: draw a rough box, get a crisp shape, all on-device.",
-  },
-  {
-    id: "human-vision",
-    title: "Human-Centric Vision",
-    what: "Pose, gaze and expression read live on low-power edge hardware.",
-    role: "Lead architect",
-    year: "2023",
-    stack: ["ONNX Runtime", "OpenVINO", "DinoV2"],
-    decision: "Constrained edge hardware left no room for a heavy backbone, so I used Lie-algebraic keypoint transforms for pose and distilled DinoV2 down into a RegNet-800 for expression. All three signals run in real time without a GPU.",
-    sketch: "humanvision",
-    outcome: "Pose at 80% and eye-status at 85% real-time accuracy, on device, in C++.",
-  },
-  {
-    id: "vlm",
-    title: "VLM Document Pipeline",
-    what: "Six layers of vision-language with an AI-auditor loop.",
-    year: "2022",
-    stack: ["Gemini Vision", "Pydantic"],
-    decision: "An auditor model checks every extraction against the schema before it ships, so the output stays brand-compliant without a human in the loop.",
-    sketch: "vlm",
-    outcome: "Manual brand review dropped from every document to the exceptions only.",
-  },
-  {
-    id: "object-detection",
-    title: "Large-Scale Object Detection",
-    what: "Half a million images, organised and trained to mAP 0.82.",
-    role: "Lead developer",
-    year: "2021",
-    stack: ["PyTorch", "8-GPU K8s", "Hadoop"],
-    decision: "Half a million images will not train on one box. I stood up an 8-GPU Kubernetes cluster with Hadoop pipelines feeding SSD-backed nodes, and ran distributed PyTorch across the lot.",
-    outcome: "Built the whole loop from raw data to a deployed detector at mAP 0.82 over 500K images.",
-  },
-  {
-    id: "distillation",
-    title: "Model Distillation",
-    what: "A 600M-parameter teacher squeezed into a faster student.",
-    year: "2022",
-    stack: ["Optimisation", "NLP"],
-    outcome: (
-      <>
-        Same quality at <b>2× the speed</b>. The model that was too slow for production became the
-        one in production.
-      </>
-    ),
-  },
-  {
-    id: "lpr",
-    title: "Licence-Plate Recognition",
-    what: "A plate reader quick enough to keep up with a production line.",
-    role: "AI developer",
-    year: "2021",
-    stack: ["TensorRT", "CUDA", "OpenCV"],
-    decision: "TensorRT and CUDA did the heavy lifting so the pipeline stayed in step with the line, no rack of GPUs behind it.",
-    outcome: "Shipped into industrial production, reading plates on the edge in real time.",
-  },
-  {
-    id: "defect",
-    title: "LCD Defect Detection",
-    what: "A model that learned what a good panel looks like, then flagged the ones that were not.",
-    role: "AI developer",
-    year: "2021",
-    stack: ["VAE", "PyTorch", "Docker"],
-    decision: "Defects were rare and never looked the same twice, so labelling them was a losing game. A variational autoencoder trained only on good panels caught the bad ones by how poorly they reconstructed.",
-    outcome: "85% production accuracy, owned end to end from data curation to a containerised deploy.",
-  },
-  {
-    id: "blend",
-    title: "Blend n Bubbles",
-    what: "A bubble-tea brand I founded and built, because not everything is a model.",
-    role: "Founder",
-    year: "2021",
-    stack: ["React"],
-    outcome: "Took it from an idea to a real storefront and brand.",
-    href: "https://github.com/impravin22/blendnbubbles",
-  },
-];
-
-// Open-source builds anyone can read, distinct from the NDA work above.
-const OPEN = [
-  {
-    id: "medbuddy",
-    title: "MedBuddy",
-    line: "A voice-first medication assistant for elderly patients in Taiwan. Ask about a drug in Mandarin on LINE, get a plain-language answer back, spoken and written.",
-    stack: ["DSPy", "Gemini", "LINE"],
-    href: "https://github.com/impravin22/medbuddy",
-  },
-  {
-    id: "market-bot",
-    title: "Pravy's Market Bot",
-    line: "A live agent that runs a CAN SLIM screen over the NSE and posts a morning, evening and weekly digest to Telegram. It schedules itself and skips the holidays.",
-    stack: ["Python", "yfinance", "Telegram"],
-    href: "https://github.com/impravin22/pravys-market-bot",
-  },
-  {
-    id: "outfit",
-    title: "Outfit Recommender",
-    line: "A multi-agent system that reads an outfit photo and gives styling feedback, orchestrated with LangGraph.",
-    stack: ["LangGraph", "Gemini", "Python"],
-    href: "https://github.com/impravin22/outfit-recommender",
-  },
-  {
-    id: "medextract",
-    title: "Medical Summary Builder",
-    line: "Pulls a structured medical history out of long disability-case PDFs into a clean document. Judgment in the model, shape held by a Pydantic schema.",
-    stack: ["LLM", "Pydantic", "PDF"],
-    href: "https://github.com/impravin22/Medical-info-extractor",
-  },
-];
-
-const metaLine = (p) => [p.role, p.year, ...p.stack].filter(Boolean).join(" · ");
-
-const SketchBox = styled.div`
-  border: 1px solid ${(p) => p.theme.hair};
-  border-radius: 6px;
-  background: rgba(29, 110, 79, 0.02);
-  padding: 12px;
-  margin-top: 6px;
-  max-width: 440px;
-
-  svg {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-  .n rect {
-    fill: ${(p) => p.theme.card};
-    stroke: ${(p) => p.theme.pine};
-    stroke-width: 1.3;
-  }
-  .n text {
-    font-family: ${(p) => p.theme.mono};
-    font-size: 11px;
-    fill: ${(p) => p.theme.ink};
-  }
-  .e {
-    fill: none;
-    stroke: ${(p) => p.theme.pine};
-    stroke-width: 1.3;
-    opacity: 0.5;
-  }
-`;
-
-const MiniSketch = ({ spec }) => (
-  <SketchBox role="img" aria-label={spec.label}>
-    <svg viewBox="0 0 420 120" xmlns="http://www.w3.org/2000/svg">
-      {spec.edges.map((d, i) => (
-        <path key={`e${i}`} className="e" d={d} />
-      ))}
-      {spec.nodes.map((n, i) => (
-        <g className="n" key={`n${i}`}>
-          <rect x={n.x} y={n.y} width={n.w} height={n.h} rx="4" />
-          <text x={n.x + n.w / 2} y={n.y + n.h / 2 + 4} textAnchor="middle">
-            {n.label}
-          </text>
-        </g>
-      ))}
-    </svg>
-  </SketchBox>
-);
-
-const Notes = styled.div`
-  margin-top: 4px;
-`;
-
-const Row = styled.div`
-  border-bottom: 1px solid ${(p) => p.theme.hair};
-`;
-
-const Head = styled.button`
-  width: 100%;
-  text-align: left;
-  background: none;
-  border: 0;
-  cursor: pointer;
+// Two across from a tablet up, one on a phone. A card is wide enough to carry
+// a real chart, and keeps its own height: one that opens never moves a card
+// above it.
+const CardGrid = styled.ul`
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 4px 16px;
-  align-items: baseline;
-  padding: 20px 6px;
-  font-family: inherit;
-  color: inherit;
-  transition: padding-left 0.2s ${(p) => p.theme.ease};
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: ${(p) => p.theme.layout.gap};
+  row-gap: ${(p) => p.theme.space["2xl"]};
+  align-items: start;
 
-  &:hover {
-    padding-left: 10px;
-  }
-
-  h3 {
-    grid-column: 1;
-    font-weight: 600;
-    font-size: 20px;
-    letter-spacing: -0.02em;
-  }
-  .what {
-    grid-column: 1;
-    color: ${(p) => p.theme.stone};
-    font-size: 15px;
-  }
-  .mrow {
-    grid-column: 1;
-    font-family: ${(p) => p.theme.mono};
-    font-size: 11.5px;
-    color: ${(p) => p.theme.stone2};
-    margin-top: 4px;
-  }
-  .chev {
-    grid-column: 2;
-    grid-row: 1;
-    color: ${(p) => p.theme.pine};
-    font-family: ${(p) => p.theme.mono};
-    font-size: 14px;
-    transition: transform 0.25s ${(p) => p.theme.ease};
-    transform: rotate(${(p) => (p.$open ? "90deg" : "0deg")});
+  @media (min-width: ${(p) => p.theme.bp.grid2}) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 `;
 
-const Beats = styled.div`
-  padding: 0 6px 16px;
-
-  .b {
-    display: block;
-    font-family: ${(p) => p.theme.mono};
-    font-size: 10.5px;
-    color: ${(p) => p.theme.pine};
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin: 14px 0 5px;
-  }
-  p {
-    color: ${(p) => p.theme.stone};
-    font-size: 15px;
-    line-height: 1.6;
-    max-width: 60ch;
-  }
-  p b {
-    color: ${(p) => p.theme.ink};
-    font-weight: 600;
-  }
-  p.out {
-    color: ${(p) => p.theme.ink};
-    font-weight: 500;
-  }
-  .repo {
-    display: inline-block;
-    margin-top: 14px;
-  }
+const Empty = styled.p`
+  ${role("lead")}
+  color: ${(p) => p.theme.stone};
+  max-width: 46ch;
 `;
-
-const ProjectRow = ({ p, open, onToggle }) => {
-  const reduce = useReducedMotion();
-  return (
-    <Row>
-      <Head
-        type="button"
-        $open={open}
-        aria-expanded={open}
-        onClick={() => onToggle(p.id)}
-      >
-        <h3>{p.title}</h3>
-        <span className="what">{p.what}</span>
-        <span className="mrow">{metaLine(p)}</span>
-        <span className="chev" aria-hidden="true">›</span>
-      </Head>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            id={`note-${p.id}`}
-            key="panel"
-            initial={reduce ? false : { height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
-            transition={{ duration: reduce ? 0 : 0.34, ease: EASE }}
-            style={{ overflow: "hidden" }}
-          >
-            <Beats>
-              {p.brief && (
-                <>
-                  <span className="b">The brief</span>
-                  <p>{p.brief}</p>
-                </>
-              )}
-              {p.decision && (
-                <>
-                  <span className="b">The decision that mattered</span>
-                  <p>{p.decision}</p>
-                </>
-              )}
-              {p.sketch && (
-                <>
-                  <span className="b">The shape</span>
-                  <MiniSketch spec={SKETCHES[p.sketch]} />
-                </>
-              )}
-              {p.outcome && (
-                <>
-                  <span className="b">The outcome</span>
-                  <p className="out">{p.outcome}</p>
-                </>
-              )}
-              {p.href && (
-                <Lnk className="repo" href={p.href} target="_blank" rel="noreferrer noopener">
-                  View repo ↗
-                </Lnk>
-              )}
-            </Beats>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </Row>
-  );
-};
 
 const OpenWrap = styled.div`
-  margin-top: 34px;
-`;
+  margin-top: ${(p) => p.theme.gap.s};
 
-const OpenHead = styled.h3`
-  font-family: ${(p) => p.theme.mono};
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: ${(p) => p.theme.stone2};
-  padding: 0 6px;
-  margin-bottom: 4px;
-`;
-
-const OpenRow = styled.a`
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 3px 16px;
-  align-items: baseline;
-  padding: 18px 6px;
-  border-bottom: 1px solid ${(p) => p.theme.hair};
-  color: inherit;
-  text-decoration: none;
-  transition: padding-left 0.2s ${(p) => p.theme.ease};
-
-  &:first-of-type {
-    border-top: 1px solid ${(p) => p.theme.hair};
+  > h3 {
+    ${role("section")}
   }
-  &:hover {
-    padding-left: 10px;
-  }
-  &:hover .go {
-    color: ${(p) => p.theme.pineDeep};
-  }
-
-  h4 {
-    grid-column: 1;
-    font-family: ${(p) => p.theme.grot};
-    font-weight: 600;
-    font-size: 17px;
-    letter-spacing: -0.02em;
-  }
-  .line {
-    grid-column: 1;
+  > p {
+    ${role("lead")}
     color: ${(p) => p.theme.stone};
-    font-size: 14px;
-    line-height: 1.55;
-    max-width: 62ch;
-    margin-top: 2px;
-  }
-  .st {
-    grid-column: 1;
-    font-family: ${(p) => p.theme.mono};
-    font-size: 11.5px;
-    color: ${(p) => p.theme.stone2};
-    margin-top: 6px;
-  }
-  .go {
-    grid-column: 2;
-    grid-row: 1;
-    font-family: ${(p) => p.theme.mono};
-    font-size: 13px;
-    color: ${(p) => p.theme.pine};
-    transition: color 0.15s ${(p) => p.theme.ease};
+    margin-top: ${(p) => p.theme.space.md};
+    margin-bottom: ${(p) => p.theme.space.xl};
   }
 `;
 
-const Projects = () => {
-  const [openId, setOpenId] = useState(
-    () => (PROJECTS.find((p) => p.defaultOpen) || {}).id || null
+// A card takes one cell of the two-across grid, unless it is set across the
+// row already: the lead, and a card with no chart.
+const takesOneCell = (project) => !project.defaultOpen && Boolean(project.sketch);
+
+/**
+ * The cards that would sit alone on a row: the last card of each run of
+ * one-cell cards whose count is odd. They are set across the row, as the lead
+ * is, so the grid never shows an empty cell.
+ *
+ * @param {Array<object>} projects The cards, in the order they are drawn.
+ * @returns {Set<string>} The ids of the cards to set across their row.
+ */
+export const aloneOnTheirRow = (projects) => {
+  const walked = projects.reduce(
+    (seen, project, index) => {
+      if (!takesOneCell(project)) return { alone: seen.alone, run: 0 };
+      const run = seen.run + 1;
+      const next = projects[index + 1];
+      const endsRun = !next || !takesOneCell(next);
+      return { alone: endsRun && run % 2 === 1 ? [...seen.alone, project.id] : seen.alone, run };
+    },
+    { alone: [], run: 0 }
   );
-  const toggle = (id) => setOpenId((cur) => (cur === id ? null : id));
+  return new Set(walked.alone);
+};
+
+const defaultOpenIds = (projects) =>
+  new Set(projects.filter((project) => project.defaultOpen).map((project) => project.id));
+
+/**
+ * Field notes: the work as a grid of cards, each led by its system design
+ * chart, then the open-source builds.
+ *
+ * @param {{projects: Array<object>, repos: Array<object>}} props Default to the
+ *     page's own data; tests and the preview pass their own.
+ * @returns {React.ReactElement}
+ */
+const Projects = ({ projects = PROJECTS, repos = OPEN }) => {
+  const [openIds, setOpenIds] = useState(() => defaultOpenIds(projects));
+  const density = useChartDensity();
+  const wideIds = useMemo(() => aloneOnTheirRow(projects), [projects]);
+
+  // Each note opens and closes on its own. A fresh Set every time: state is
+  // never changed in place. One function for the life of the section, so a
+  // card that did not change is not drawn again.
+  const toggle = useCallback(
+    (id) =>
+      setOpenIds((current) => {
+        const next = new Set(current);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        return next;
+      }),
+    []
+  );
 
   return (
-    <Block id="work" aria-labelledby="work-h">
+    <Block id="work" aria-labelledby="work-h" $gap="s">
       <Shell>
         <Opener
-          index="01"
           id="work-h"
           title="Field notes"
           lede="Systems I have taken from first commit to production. Open one."
         />
-        <Notes>
-          {PROJECTS.map((p) => (
-            <ProjectRow key={p.id} p={p} open={openId === p.id} onToggle={toggle} />
-          ))}
-        </Notes>
-        <OpenWrap>
-          <OpenHead>In the open · code you can actually read</OpenHead>
-          {OPEN.map((o) => (
-            <OpenRow key={o.id} href={o.href} target="_blank" rel="noreferrer noopener">
-              <h4>{o.title}</h4>
-              <span className="line">{o.line}</span>
-              <span className="st">{o.stack.join(" · ")}</span>
-              <span className="go" aria-hidden="true">↗</span>
-            </OpenRow>
-          ))}
-        </OpenWrap>
+        {projects.length === 0 ? (
+          <Empty>No field notes yet. They appear here when a project is added.</Empty>
+        ) : (
+          <>
+            <Legend />
+            <CardGrid role="list">
+              {projects.map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  open={openIds.has(project.id)}
+                  onToggle={toggle}
+                  density={density}
+                  wide={wideIds.has(project.id)}
+                />
+              ))}
+            </CardGrid>
+          </>
+        )}
+        {repos.length > 0 ? (
+          <OpenWrap>
+            <h3>In the open</h3>
+            <p>Code you can actually read.</p>
+            <CardGrid role="list">
+              {repos.map((repo) => (
+                <OpenSourceCard key={repo.id} repo={repo} density={density} />
+              ))}
+            </CardGrid>
+          </OpenWrap>
+        ) : null}
       </Shell>
     </Block>
   );

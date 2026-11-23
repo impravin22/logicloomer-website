@@ -1,101 +1,161 @@
-// Shared "Instrument Lab" primitives: a narrow content column, calm section
-// rhythm, mono eyebrows, a pine underline-grow link, and a reduced-motion-safe reveal.
+// Shared primitives: one wide container on a twelve-column grid, type roles,
+// an underlined link, the page's two buttons, and the surfaces a chart or a
+// field sits on.
 import React from "react";
-import styled from "styled-components";
-import { motion, useReducedMotion } from "framer-motion";
+import styled, { css, ThemeProvider } from "styled-components";
+
+// A type role sets size, leading, tracking, weight and width together, and
+// may name its face. Components pick a role; none of them sets tracking by
+// hand.
+export const role = (name) => css`
+  ${(p) => (p.theme.type[name].face ? `font-family: ${p.theme.type[name].face};` : "")}
+  font-size: ${(p) => p.theme.type[name].size};
+  line-height: ${(p) => p.theme.type[name].line};
+  letter-spacing: ${(p) => p.theme.type[name].track};
+  font-weight: ${(p) => p.theme.type[name].weight};
+  font-stretch: ${(p) => p.theme.type[name].width};
+`;
 
 export const Shell = styled.div`
-  position: relative;
-  z-index: 1;
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 0 28px;
-
-  @media (max-width: 560px) {
-    padding: 0 22px;
-  }
+  width: 100%;
+  max-width: ${(p) => p.theme.layout.container};
+  margin-inline: auto;
+  padding-inline: ${(p) => p.theme.layout.gutter};
 `;
 
+export const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: ${(p) => p.theme.layout.gap};
+`;
+
+// Sections part by space alone. $gap picks the step: "s", "m" (default) or "l".
 export const Block = styled.section`
   position: relative;
-  padding: 56px 0;
-  border-top: 1px solid ${(p) => p.theme.hair};
+  padding-top: ${(p) => p.theme.gap[p.$gap || "m"]};
 `;
 
-// Oversized section opener with a mono index hung in the left gutter (depth move).
-const OpenerGrid = styled.div`
-  display: grid;
-  grid-template-columns: 64px 1fr;
-  gap: 18px;
-  align-items: baseline;
-  margin-bottom: 26px;
+const OpenerHead = styled.div`
+  margin-bottom: ${(p) => p.theme.space.xl};
 
-  .ix {
-    font-family: ${(p) => p.theme.mono};
-    font-size: 12px;
-    color: ${(p) => p.theme.stone2};
-    padding-top: 14px;
-  }
   h2 {
-    font-weight: 700;
-    font-size: clamp(30px, 4.6vw, 46px);
-    letter-spacing: -0.03em;
-    line-height: 1.04;
+    ${role("section")}
+    max-width: 30ch;
   }
   .lede {
-    grid-column: 2;
+    ${role("lead")}
     color: ${(p) => p.theme.stone};
-    font-size: 16px;
-    margin-top: 6px;
-    max-width: 54ch;
+    margin-top: ${(p) => p.theme.space.md};
+    max-width: 52ch;
   }
 
-  @media (max-width: 560px) {
-    grid-template-columns: 40px 1fr;
-    gap: 12px;
+  @media (min-width: ${(p) => p.theme.bp.stage}) {
+    margin-bottom: ${(p) => p.theme.space["2xl"]};
   }
 `;
 
-export const Opener = ({ index, title, lede, id }) => (
-  <OpenerGrid>
-    <span className="ix">{index}</span>
+// A section's heading and, at most, one line under it.
+export const Opener = ({ title, lede, id }) => (
+  <OpenerHead>
     <h2 id={id}>{title}</h2>
     {lede ? <p className="lede">{lede}</p> : null}
-  </OpenerGrid>
+  </OpenerHead>
 );
 
-// pine link with an underline that grows on hover + a tactile feel
+// a text link: underlined at rest, the accent on hover
 export const Lnk = styled.a`
   color: ${(p) => p.theme.pine};
-  text-decoration: none;
   font-weight: 500;
-  background-image: linear-gradient(${(p) => p.theme.pine}, ${(p) => p.theme.pine});
-  background-size: 100% 1px;
-  background-position: 0 100%;
-  background-repeat: no-repeat;
-  padding-bottom: 1px;
-  transition: background-size 0.25s ${(p) => p.theme.ease}, color 0.2s ${(p) => p.theme.ease};
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.32em;
+  transition: color ${(p) => p.theme.dur.short} ${(p) => p.theme.ease};
 
   &:hover {
     color: ${(p) => p.theme.pineDeep};
-    background-size: 100% 2px;
+  }
+  &:active {
+    color: ${(p) => p.theme.ink};
   }
 `;
 
-const REVEAL_EASE = [0.2, 0.8, 0.2, 1];
+// What the page's two buttons share: a pill tall enough to press. A label
+// too long for a narrow screen wraps inside it; it is never cut off when the
+// reader sets the text larger.
+const pill = css`
+  display: inline-flex;
+  align-items: center;
+  min-height: ${(p) => p.theme.layout.primary};
+  padding: ${(p) => p.theme.space.xs} ${(p) => p.theme.space.lg};
+  border-radius: ${(p) => p.theme.pill};
+  font-weight: 500;
+  text-align: center;
+  overflow-wrap: anywhere;
 
-// Scroll-triggered fade + rise. Honours prefers-reduced-motion (renders static).
-export const Reveal = ({ children, delay = 0, className }) => {
-  const reduce = useReducedMotion();
-  return (
-    <motion.div
-      className={className}
-      initial={reduce ? false : { opacity: 0, y: 14 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.55, ease: REVEAL_EASE, delay }}
-    >
-      {children}
-    </motion.div>
-  );
+  &:active {
+    transform: translateY(1px);
+  }
+  @media (min-width: ${(p) => p.theme.bp.grid2}) {
+    white-space: nowrap;
+  }
+`;
+
+// The page's filled button: a pill in the accent.
+export const Primary = styled.a`
+  ${pill}
+  background: ${(p) => p.theme.accent};
+  color: ${(p) => p.theme.onPine};
+  transition: background-color ${(p) => p.theme.dur.short} ${(p) => p.theme.ease};
+
+  &:hover {
+    background: ${(p) => p.theme.accentSoft};
+  }
+`;
+
+// A quieter action: an outlined pill. Its ground is solid, so anything
+// moving behind it passes behind its label and never through it.
+export const Ghost = styled.a`
+  ${pill}
+  border: 1px solid ${(p) => p.theme.rim};
+  background: ${(p) => p.theme.paper};
+  color: ${(p) => p.theme.ink};
+  transition:
+    border-color ${(p) => p.theme.dur.short} ${(p) => p.theme.ease},
+    color ${(p) => p.theme.dur.short} ${(p) => p.theme.ease};
+
+  &:hover {
+    border-color: ${(p) => p.theme.accent};
+    color: ${(p) => p.theme.accent};
+  }
+`;
+
+const PlateBox = styled.div`
+  background: ${(p) => p.theme.paper};
+  color: ${(p) => p.theme.ink};
+  border-radius: ${(p) => p.theme.radiusPlate};
+  min-width: 0;
+
+  /* each surface names the ring that shows on it */
+  & :focus-visible {
+    outline-color: ${(p) => p.theme.focus};
+  }
+`;
+
+// A surface: "well" (a chart's ground) or "field" (the sandbox). Inside it
+// the theme's colour keys are re-mapped (theme.surfaces), so a child styled
+// with theme.paper or theme.pine draws correctly without a second set of styles.
+// Each surface has one theme function, made once, so it hands its children the
+// same theme on every render.
+const TONES = {
+  well: (outer) => ({ ...outer, ...outer.surfaces.well }),
+  field: (outer) => ({ ...outer, ...outer.surfaces.field }),
 };
+
+export const PlateSurface = ({ children, className, tone = "well" }) => (
+  <ThemeProvider theme={TONES[tone] || TONES.well}>
+    <PlateBox className={className}>{children}</PlateBox>
+  </ThemeProvider>
+);
+
+// Said after the name of a link that opens a new tab, for screen readers only.
+export const NewTab = () => <span className="sr-only">, opens in a new tab</span>;
