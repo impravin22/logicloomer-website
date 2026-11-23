@@ -3,32 +3,53 @@ import { createGlobalStyle } from "styled-components";
 const GlobalStyle = createGlobalStyle`
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-  html { font-size: 17px; scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  html {
+    font-size: 100%;
+    scroll-behavior: smooth;
+    /* anchors land clear of the sticky nav */
+    scroll-padding-top: ${(p) => p.theme.space["3xl"]};
+    scrollbar-color: ${(p) => p.theme.stone2} ${(p) => p.theme.paper};
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* clip, not hidden: hidden would break the sticky nav */
+  html, body { overflow-x: clip; }
 
   body {
     font-family: ${(p) => p.theme.body};
+    font-size: ${(p) => p.theme.type.body.size};
     background: ${(p) => p.theme.paper};
     color: ${(p) => p.theme.ink};
-    line-height: 1.6;
+    line-height: ${(p) => p.theme.type.body.line};
     font-weight: 400;
-    overflow-x: hidden;
+    caret-color: ${(p) => p.theme.focus};
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3, h4, h5, h6 { font-family: ${(p) => p.theme.grot}; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: ${(p) => p.theme.grot};
+    font-synthesis: none;
+    overflow-wrap: break-word;
+    min-width: 0;
+    text-wrap: balance;
+  }
+
+  p { text-wrap: pretty; }
 
   a { text-decoration: none; color: inherit; }
 
-  ::selection { background: ${(p) => p.theme.pine}; color: ${(p) => p.theme.paper}; }
+  button, input { font: inherit; }
 
-  ::-webkit-scrollbar { width: 10px; }
-  ::-webkit-scrollbar-track { background: ${(p) => p.theme.paper}; }
-  ::-webkit-scrollbar-thumb { background: ${(p) => p.theme.hair}; border-radius: 0; }
-  ::-webkit-scrollbar-thumb:hover { background: ${(p) => p.theme.pine}; }
+  svg { display: block; }
 
+  [hidden] { display: none !important; }
+
+  ::selection { background: ${(p) => p.theme.focus}; color: ${(p) => p.theme.paper}; }
+
+  /* Instant, never animated. Each surface sets its own ring colour. */
   :focus-visible {
-    outline: 2px solid ${(p) => p.theme.pine};
+    outline: 2px solid ${(p) => p.theme.focus};
     outline-offset: 3px;
     border-radius: 2px;
   }
@@ -40,10 +61,12 @@ const GlobalStyle = createGlobalStyle`
 
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
   }
-
-  @media (max-width: 768px) { html { font-size: 16px; } }
 `;
 
 export default GlobalStyle;

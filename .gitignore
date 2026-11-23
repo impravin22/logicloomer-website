@@ -17,9 +17,11 @@
 
 # local-only design mockups (never commit — preview scaffolding)
 /proposed-*.html
+/src/preview/
 
-# local agent scratch: evidence ledgers and browser-check screenshots
+# local agent scratch: evidence ledgers, design-lint records and browser-check screenshots
 /.maestro/
+/.hallmark/
 /.playwright-mcp/
 
 .env.local

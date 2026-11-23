@@ -1,19 +1,20 @@
-// Lays out the deployable site after `react-scripts build`: the map page in
-// home/ goes to the root, and the React build goes under /in-short/. The React
-// app's `homepage` in package.json must end in the same sub-path (a test keeps
-// the two in step).
+// Lays out the deployable site after `react-scripts build`: the React build
+// (the portfolio) goes to the root, and the map page in home/ goes under
+// /map/. The React app's `homepage` in package.json must be the site root (a
+// test keeps the two in step).
 
 const fs = require("fs");
 const path = require("path");
 
 const REPO = path.join(__dirname, "..");
-const APP_SUBPATH = "in-short";
+const MAP_SUBPATH = "map";
 const OUTPUT_NAME = "dist";
-// Files the map at the root borrows from the app build instead of keeping a copy.
+// Files the map borrows from the app build instead of keeping a copy.
 const SHARED_FROM_APP = Object.freeze(["favicon.svg", "favicon.ico", "apple-touch-icon.png"]);
-// File types home/ may publish. Anything else (a stray .env, a design file)
-// stops the build rather than going public by accident.
-const HOME_FILE_TYPES = new Set([".html", ".js", ".css", ".pdf", ".md", ".txt"]);
+// File types home/ may publish. Anything else (a stray .env, a design file, a
+// PDF: the CV is published from public/) stops the build rather than going
+// public by accident.
+const HOME_FILE_TYPES = new Set([".html", ".js", ".css", ".md", ".txt"]);
 const IGNORED_NAMES = new Set([".DS_Store"]);
 
 const keep = (source) => !IGNORED_NAMES.has(path.basename(source));
@@ -35,7 +36,7 @@ function listTree(dir) {
 
 /**
  * Checks the folders themselves: both sources exist, nothing collides with the
- * app sub-path or the shared files, and the output overlaps neither source.
+ * map's sub-path or the shared files, and the output overlaps neither source.
  * @param {{homeDir: string, appBuildDir: string, outDir: string}} dirs
  */
 function checkLayout({ homeDir, appBuildDir, outDir }) {
@@ -43,17 +44,17 @@ function checkLayout({ homeDir, appBuildDir, outDir }) {
     throw new Error(`No app build in ${appBuildDir}. Run react-scripts build first.`);
   }
   if (!fs.existsSync(path.join(homeDir, "index.html"))) {
-    throw new Error(`No home page at ${path.join(homeDir, "index.html")}.`);
+    throw new Error(`No map page at ${path.join(homeDir, "index.html")}.`);
   }
-  if (fs.existsSync(path.join(homeDir, APP_SUBPATH))) {
-    throw new Error(`${homeDir} must not contain ${APP_SUBPATH}/, which is where the app goes.`);
+  if (fs.existsSync(path.join(appBuildDir, MAP_SUBPATH))) {
+    throw new Error(`${appBuildDir} must not contain ${MAP_SUBPATH}/, which is where the map goes.`);
   }
   SHARED_FROM_APP.forEach((file) => {
     if (fs.existsSync(path.join(homeDir, file))) {
       throw new Error(`${homeDir} must not contain ${file}; it is copied from the app build.`);
     }
     if (!fs.existsSync(path.join(appBuildDir, file))) {
-      throw new Error(`No ${file} in ${appBuildDir}; the map at the root borrows it from the app build.`);
+      throw new Error(`No ${file} in ${appBuildDir}; the map borrows it from the app build.`);
     }
   });
   if (path.basename(outDir) !== OUTPUT_NAME) {
@@ -88,27 +89,27 @@ function checkContents({ homeDir, appBuildDir }) {
  * Replaces `outDir` with the assembled site. Every check runs before anything
  * is deleted, so a bad call never leaves a half-built or emptied folder.
  * @param {{homeDir: string, appBuildDir: string, outDir: string}} dirs
- * @returns {{outDir: string, appDir: string}}
+ * @returns {{outDir: string, mapDir: string}}
  */
 function assembleSite(dirs) {
   checkLayout(dirs);
   checkContents(dirs);
   const { homeDir, appBuildDir, outDir } = dirs;
-  const appDir = path.join(outDir, APP_SUBPATH);
+  const mapDir = path.join(outDir, MAP_SUBPATH);
   fs.rmSync(outDir, { recursive: true, force: true });
-  fs.cpSync(homeDir, outDir, { recursive: true, filter: keep });
-  fs.cpSync(appBuildDir, appDir, { recursive: true, filter: keep });
-  SHARED_FROM_APP.forEach((file) => fs.copyFileSync(path.join(appBuildDir, file), path.join(outDir, file)));
-  return { outDir, appDir };
+  fs.cpSync(appBuildDir, outDir, { recursive: true, filter: keep });
+  fs.cpSync(homeDir, mapDir, { recursive: true, filter: keep });
+  SHARED_FROM_APP.forEach((file) => fs.copyFileSync(path.join(appBuildDir, file), path.join(mapDir, file)));
+  return { outDir, mapDir };
 }
 
 if (require.main === module) {
-  const { outDir, appDir } = assembleSite({
+  const { outDir, mapDir } = assembleSite({
     homeDir: path.join(REPO, "home"),
     appBuildDir: path.join(REPO, "build"),
     outDir: path.join(REPO, OUTPUT_NAME),
   });
-  process.stdout.write(`Assembled ${path.relative(REPO, outDir)}/: the map at the root, the app in ${path.relative(REPO, appDir)}/\n`);
+  process.stdout.write(`Assembled ${path.relative(REPO, outDir)}/: the portfolio at the root, the map in ${path.relative(REPO, mapDir)}/\n`);
 }
 
-module.exports = Object.freeze({ assembleSite, APP_SUBPATH, SHARED_FROM_APP });
+module.exports = Object.freeze({ assembleSite, MAP_SUBPATH, SHARED_FROM_APP });

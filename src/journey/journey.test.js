@@ -1,4 +1,4 @@
-// Tests for the static map page in home/, published at the site root. The page ships as plain
+// Tests for the static map page in home/, published under /map/. The page ships as plain
 // scripts (no bundler), so its pure core and data are UMD modules that Jest can
 // require directly; the canvas engine is exercised in a real browser instead.
 import crypto from "crypto";
@@ -104,11 +104,11 @@ describe("journey data", () => {
     expect(linkedIn?.href).toBe("https://www.linkedin.com/in/praveen-chittem-b78b4a160");
   });
 
-  it("points the CV and the short version at this site, never up a level", () => {
+  it("points the CV and the portfolio one level up, at the site root, and never higher", () => {
     const cv = data.contact.links.find((l) => /cv/i.test(l.label));
-    expect(cv.href).toBe("./Praveen_Chittem_CV_2026.pdf");
-    expect(data.contact.links.some((l) => l.href === "./in-short/")).toBe(true);
-    data.contact.links.forEach((l) => expect(l.href).not.toMatch(/^\.\.\//));
+    expect(cv.href).toBe("../Pravy_CV.pdf");
+    expect(data.contact.links.some((l) => l.href === "../")).toBe(true);
+    data.contact.links.forEach((l) => expect(l.href).not.toMatch(/^\.\.\/\.\.\//));
   });
 
   it("speaks in the first person, never 'Pravy shipped' or 'Pravy joins'", () => {
@@ -131,7 +131,7 @@ describe("safeHref", () => {
   it.each([
     ["https://github.com/impravin22", "https://github.com/impravin22"],
     ["../", "../"],
-    ["./in-short/", "./in-short/"],
+    ["../Pravy_CV.pdf", "../Pravy_CV.pdf"],
     ["./vendor/world.js", "./vendor/world.js"],
     ["HTTPS://github.com", "https://github.com/"],
   ])("allows %s", (input, expected) => {
@@ -546,7 +546,7 @@ describe("renderCardBody", () => {
 
   it("opens site-relative links in the same tab", () => {
     const host = render(data.stops[STOP_COUNT - 1]);
-    const plain = [...host.querySelectorAll(".links a")].find((a) => a.getAttribute("href") === "./in-short/");
+    const plain = [...host.querySelectorAll(".links a")].find((a) => a.getAttribute("href") === "../");
     expect(plain.hasAttribute("target")).toBe(false);
   });
 });
@@ -597,7 +597,7 @@ describe("journey page markup", () => {
   it("arms the intro from the head so a failed load can fall back", () => {
     expect(doc.head.querySelector('script[src="./boot.js"]')).not.toBeNull();
     const fail = doc.querySelector("#introFail");
-    expect(fail.querySelector('a[href="./in-short/"]')).not.toBeNull();
+    expect(fail.querySelector('a[href="../"]')).not.toBeNull();
   });
 
   it("explains touch controls on phones instead of keys and hover", () => {
@@ -619,26 +619,26 @@ describe("journey page markup", () => {
   });
 
   it("offers a no-JavaScript fallback that links to the short version", () => {
-    expect(html).toMatch(/<noscript>[\s\S]*href="\.\/in-short\/"[\s\S]*<\/noscript>/);
+    expect(html).toMatch(/<noscript>[\s\S]*href="\.\.\/"[\s\S]*<\/noscript>/);
   });
 
-  it("links every way out to the short version, never up a level", () => {
+  it("links every way out to the portfolio, one level up and never higher", () => {
     const hud = doc.querySelector(".hud-actions a");
-    expect(hud.getAttribute("href")).toBe("./in-short/");
+    expect(hud.getAttribute("href")).toBe("../");
     expect(hud.textContent).toBe("In short");
-    const upward = [...doc.querySelectorAll("[href]")].filter((n) => n.getAttribute("href").startsWith("../"));
-    expect(upward).toHaveLength(0);
+    const aboveTheSite = [...doc.querySelectorAll("[href]")].filter((n) => n.getAttribute("href").startsWith("../../"));
+    expect(aboveTheSite).toHaveLength(0);
   });
 
   it("offers a way past the map from the intro, after the start button", () => {
     const cta = doc.querySelector("#introCta");
     const skip = cta.querySelector("a.intro-skip");
-    expect(skip.getAttribute("href")).toBe("./in-short/");
+    expect(skip.getAttribute("href")).toBe("../");
     expect(skip.textContent).toMatch(/in short/i);
     expect(cta.querySelector("#startBtn").compareDocumentPosition(skip) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("uses the icons published beside it at the site root, borrowed from the app", () => {
+  it("uses the icons published beside it, under /map/, borrowed from the app", () => {
     const hrefs = [...doc.querySelectorAll('link[rel="icon"], link[rel="apple-touch-icon"]')].map((l) => l.getAttribute("href"));
     expect(hrefs).toEqual(["./favicon.ico", "./favicon.svg", "./apple-touch-icon.png"]);
     hrefs.forEach((href) => {

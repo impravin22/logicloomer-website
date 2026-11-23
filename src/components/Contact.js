@@ -1,56 +1,89 @@
 import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
-import { Block, Shell, Opener, Lnk } from "./_dossier";
+import { Block, Shell, Grid, Lnk, Primary, role, NewTab } from "./_dossier";
+import { EMAIL, GITHUB_URL, GITLAB_URL, PHONE, PHONE_URL } from "./site";
+import ThreadField from "./ThreadField";
 
-const EMAIL = "impravin22@gmail.com";
+const COPIED_MS = 1600;
+
+// The close runs over the same threads the page opened on, fainter.
+const Close = styled(Block)`
+  isolation: isolate;
+  overflow: hidden;
+  padding-bottom: ${(p) => p.theme.space["2xl"]};
+`;
+
+// The field starts where the words do: the space that parts this section from
+// the one above stays empty.
+const Field = styled.div`
+  position: absolute;
+  inset: ${(p) => p.theme.gap.l} 0 0;
+  z-index: -1;
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, transparent, black 24%, black 68%, transparent);
+`;
+
+// The close: one sentence set large on the left, the way to reach me on the right.
+const Cols = styled(Grid)`
+  row-gap: ${(p) => p.theme.space.xl};
+
+  > .say,
+  > .reach {
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: ${(p) => p.theme.bp.stage}) {
+    align-items: end;
+
+    > .say {
+      grid-column: 1 / span 7;
+    }
+    > .reach {
+      grid-column: 8 / span 5;
+    }
+  }
+`;
+
+const Statement = styled.h2`
+  ${role("displayS")}
+  max-width: 18ch;
+`;
 
 const Copy = styled.p`
-  font-size: 18px;
+  ${role("lead")}
   color: ${(p) => p.theme.stone};
   max-width: 42ch;
-  line-height: 1.6;
-  margin: 0 0 26px;
+  margin-top: ${(p) => p.theme.space.lg};
 `;
 
 const MailRow = styled.div`
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  border: 1px solid ${(p) => p.theme.hair};
-  border-radius: ${(p) => p.theme.radius};
-  padding: 11px 12px 11px 16px;
-  background: ${(p) => p.theme.card};
-  transition: border-color 0.2s ${(p) => p.theme.ease};
-
-  &:hover {
-    border-color: ${(p) => p.theme.pine};
-  }
-
-  .em {
-    font-family: ${(p) => p.theme.grot};
-    font-weight: 600;
-    font-size: clamp(17px, 3vw, 21px);
-    letter-spacing: -0.01em;
-  }
+  gap: ${(p) => p.theme.space.sm} ${(p) => p.theme.space.md};
 `;
 
 const CopyBtn = styled.button`
-  font-family: ${(p) => p.theme.mono};
-  font-size: 12px;
-  border: 1px solid ${(p) => p.theme.hair};
+  ${role("small")}
+  font-weight: 500;
+  min-height: ${(p) => p.theme.layout.control};
+  padding-inline: ${(p) => p.theme.space.md};
+  border: 1px solid ${(p) => p.theme.rim};
+  border-radius: ${(p) => p.theme.pill};
   background: ${(p) => p.theme.paper};
-  color: ${(p) => p.theme.stone};
-  padding: 6px 10px;
-  border-radius: ${(p) => p.theme.radius};
+  color: ${(p) => p.theme.ink};
   cursor: pointer;
-  transition: all 0.15s ${(p) => p.theme.ease};
+  white-space: nowrap;
+  transition: color ${(p) => p.theme.dur.micro} ${(p) => p.theme.ease},
+    background-color ${(p) => p.theme.dur.micro} ${(p) => p.theme.ease},
+    border-color ${(p) => p.theme.dur.micro} ${(p) => p.theme.ease};
 
   &:hover {
     border-color: ${(p) => p.theme.pine};
     color: ${(p) => p.theme.pine};
   }
   &:active {
-    transform: scale(0.95);
+    transform: translateY(1px);
   }
   &.done {
     background: ${(p) => p.theme.pine};
@@ -59,21 +92,31 @@ const CopyBtn = styled.button`
   }
 `;
 
+// Reserved height, so a message arriving never moves what is under it.
+const Status = styled.p`
+  ${role("small")}
+  color: ${(p) => p.theme.ink};
+  min-height: 1lh;
+  margin-top: ${(p) => p.theme.space.xs};
+`;
+
 const Socials = styled.div`
-  margin-top: 26px;
+  margin-top: ${(p) => p.theme.space.md};
   display: flex;
-  gap: 20px;
+  gap: ${(p) => p.theme.space.xs} ${(p) => p.theme.space.lg};
   flex-wrap: wrap;
-  font-size: 15.5px;
   align-items: center;
 
-  .ph {
-    color: ${(p) => p.theme.stone2};
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: ${(p) => p.theme.layout.control};
   }
 `;
 
 const Contact = () => {
   const [copied, setCopied] = useState(false);
+  const [refused, setRefused] = useState(false);
   const timerRef = useRef(null);
 
   useEffect(() => () => clearTimeout(timerRef.current), []);
@@ -81,44 +124,63 @@ const Contact = () => {
   const onCopy = async () => {
     try {
       await navigator.clipboard.writeText(EMAIL);
+      setRefused(false);
       setCopied(true);
       clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => setCopied(false), 1600);
+      timerRef.current = setTimeout(() => setCopied(false), COPIED_MS);
     } catch (err) {
-      /* clipboard unavailable: the address is visible to copy manually */
+      // The clipboard is unavailable (an insecure context, a refused
+      // permission). The address stays on screen; say so and say what to do.
+      setCopied(false);
+      setRefused(true);
     }
   };
 
   return (
-    <Block id="contact" aria-labelledby="contact-h">
+    <Close id="contact" aria-labelledby="contact-h" $gap="l">
+      <Field aria-hidden="true">
+        <ThreadField quiet />
+      </Field>
       <Shell>
-        <Opener index="04" id="contact-h" title="Let's build something worth shipping." />
-        <Copy>
-          If you are working on AI that has to actually hold up in production, I would like to hear
-          about it.
-        </Copy>
-        <MailRow>
-          <span className="em">{EMAIL}</span>
-          <CopyBtn
-            type="button"
-            onClick={onCopy}
-            className={copied ? "done" : ""}
-            aria-label={copied ? "Email address copied" : "Copy email address"}
-          >
-            {copied ? "Copied ✓" : "Copy"}
-          </CopyBtn>
-        </MailRow>
-        <Socials>
-          <Lnk href="https://github.com/impravin22" target="_blank" rel="noreferrer noopener">
-            GitHub
-          </Lnk>
-          <Lnk href="https://gitlab.com/impravin22" target="_blank" rel="noreferrer noopener">
-            GitLab
-          </Lnk>
-          <span className="ph">+886 958 605 515</span>
-        </Socials>
+        <Cols>
+          <div className="say">
+            <Statement id="contact-h">Let's build something worth shipping.</Statement>
+            <Copy>
+              If you are working on AI that has to actually hold up in production, I would like to
+              hear about it.
+            </Copy>
+          </div>
+          <div className="reach">
+            <MailRow>
+              <Primary href={`mailto:${EMAIL}`}>{EMAIL}</Primary>
+              <CopyBtn
+                type="button"
+                onClick={onCopy}
+                className={copied ? "done" : ""}
+                aria-label={copied ? "Email address copied" : "Copy email address"}
+              >
+                {copied ? "Copied ✓" : "Copy"}
+              </CopyBtn>
+            </MailRow>
+            <Status role="status">
+              {refused ? "Could not copy the address. Select it and copy it by hand." : ""}
+              {copied ? <span className="sr-only">Email address copied.</span> : null}
+            </Status>
+            <Socials>
+              <Lnk href={GITHUB_URL} target="_blank" rel="noreferrer noopener">
+                GitHub
+                <NewTab />
+              </Lnk>
+              <Lnk href={GITLAB_URL} target="_blank" rel="noreferrer noopener">
+                GitLab
+                <NewTab />
+              </Lnk>
+              <Lnk href={PHONE_URL}>{PHONE}</Lnk>
+            </Socials>
+          </div>
+        </Cols>
       </Shell>
-    </Block>
+    </Close>
   );
 };
 

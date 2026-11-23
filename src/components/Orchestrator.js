@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { motion, useReducedMotion } from "framer-motion";
+import { role } from "./_dossier";
 
 // A driveable agent-orchestration sandbox. Pick a request, watch it route
 // through the router to a specialist and a tool and back, with a streamed
@@ -87,36 +88,49 @@ const buildRun = (intentKey, failure) => {
 };
 
 const Fig = styled.figure`
-  margin: 30px 0 8px;
+  margin: 0;
 `;
 
 const Bar = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 8px;
+  align-items: center;
+  gap: ${(p) => p.theme.space.sm};
+  margin-bottom: ${(p) => p.theme.space.sm};
   flex-wrap: wrap;
 
   .t {
-    font-family: ${(p) => p.theme.mono};
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: ${(p) => p.theme.stone2};
+    font-size: ${(p) => p.theme.type.small.size};
+    line-height: ${(p) => p.theme.type.small.line};
+    font-weight: 500;
+    color: ${(p) => p.theme.stone};
   }
 `;
 
 const Toggle = styled.button`
   font-family: ${(p) => p.theme.mono};
-  font-size: 11.5px;
+  font-size: ${(p) => p.theme.type.code.size};
   color: ${(p) => (p.$on ? p.theme.paper : p.theme.stone)};
   background: ${(p) => (p.$on ? p.theme.pine : p.theme.paper)};
   border: 1px solid ${(p) => (p.$on ? p.theme.pine : p.theme.hair)};
-  border-radius: 999px;
-  padding: 5px 11px;
+  border-radius: ${(p) => p.theme.radius};
+  position: relative;
+  min-height: ${(p) => p.theme.layout.controlPlate};
+  padding: 0 ${(p) => p.theme.space.sm};
   cursor: pointer;
-  transition: all 0.15s ${(p) => p.theme.ease};
+  white-space: nowrap;
+  transition: color ${(p) => p.theme.dur.micro} ${(p) => p.theme.ease}, background-color ${(p) => p.theme.dur.micro} ${(p) => p.theme.ease},
+    border-color ${(p) => p.theme.dur.micro} ${(p) => p.theme.ease};
+
+  /* the hit area runs a little past the control's edge, so a near miss lands */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -${(p) => p.theme.space["2xs"]} 0;
+  }
+  &:active {
+    transform: translateY(1px);
+  }
 
   &:hover {
     border-color: ${(p) => p.theme.pine};
@@ -126,20 +140,33 @@ const Toggle = styled.button`
 const Chips = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
-  margin-bottom: 10px;
+  gap: ${(p) => p.theme.space.xs};
+  margin-bottom: ${(p) => p.theme.space.sm};
 `;
 
 const Chip = styled.button`
   font-family: ${(p) => p.theme.mono};
-  font-size: 12px;
+  font-size: ${(p) => p.theme.type.code.size};
   color: ${(p) => (p.$active ? p.theme.paper : p.theme.ink)};
   background: ${(p) => (p.$active ? p.theme.pine : p.theme.card)};
   border: 1px solid ${(p) => (p.$active ? p.theme.pine : p.theme.hair)};
-  border-radius: 999px;
-  padding: 6px 12px;
+  border-radius: ${(p) => p.theme.radius};
+  position: relative;
+  min-height: ${(p) => p.theme.layout.controlPlate};
+  padding: 0 ${(p) => p.theme.space.sm};
   cursor: pointer;
-  transition: all 0.15s ${(p) => p.theme.ease};
+  white-space: nowrap;
+  transition: color ${(p) => p.theme.dur.micro} ${(p) => p.theme.ease}, background-color ${(p) => p.theme.dur.micro} ${(p) => p.theme.ease},
+    border-color ${(p) => p.theme.dur.micro} ${(p) => p.theme.ease};
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -${(p) => p.theme.space["2xs"]} 0;
+  }
+  &:active {
+    transform: translateY(1px);
+  }
 
   &:hover {
     border-color: ${(p) => p.theme.pine};
@@ -148,49 +175,64 @@ const Chip = styled.button`
 
 const Form = styled.form`
   display: flex;
-  gap: 7px;
-  margin-bottom: 12px;
+  gap: ${(p) => p.theme.space.xs};
+  margin-bottom: ${(p) => p.theme.space.md};
 
   input {
     flex: 1;
+    min-width: 0;
     font-family: ${(p) => p.theme.body};
-    font-size: 14px;
+    font-size: 1rem;
     color: ${(p) => p.theme.ink};
     background: ${(p) => p.theme.paper};
     border: 1px solid ${(p) => p.theme.hair};
     border-radius: ${(p) => p.theme.radius};
-    padding: 9px 12px;
+    min-height: ${(p) => p.theme.layout.controlPlate};
+    padding: 0 ${(p) => p.theme.space.sm};
   }
   input::placeholder {
     color: ${(p) => p.theme.stone2};
   }
-  input:focus-visible {
-    border-color: ${(p) => p.theme.pine};
-  }
   button {
     font-family: ${(p) => p.theme.mono};
-    font-size: 13px;
+    font-size: ${(p) => p.theme.type.code.size};
     color: ${(p) => p.theme.paper};
     background: ${(p) => p.theme.pine};
     border: 0;
     border-radius: ${(p) => p.theme.radius};
-    padding: 9px 16px;
+    min-height: ${(p) => p.theme.layout.controlPlate};
+    padding: 0 ${(p) => p.theme.space.md};
     cursor: pointer;
+    transition: background-color ${(p) => p.theme.dur.micro} ${(p) => p.theme.ease};
   }
   button:hover {
     background: ${(p) => p.theme.pineDeep};
   }
+  button:active {
+    transform: translateY(1px);
+  }
 `;
 
+// The narrowest the graph is drawn on a narrow screen.
+const GRAPH_MIN_WIDTH = "560px";
+
+// On a narrow screen the graph keeps a readable size and scrolls sideways
+// inside the plate instead of shrinking its labels. From the two-column
+// breakpoint up it fits. ScrollHint follows the same breakpoint, so the page
+// says the graph scrolls exactly where it does.
 const Stage = styled.div`
-  border: 1px solid ${(p) => p.theme.hair};
-  border-radius: 8px;
-  padding: 6px;
+  overflow-x: auto;
 
   svg {
     display: block;
     width: 100%;
+    min-width: ${GRAPH_MIN_WIDTH};
     height: auto;
+  }
+  @media (min-width: ${(p) => p.theme.bp.grid2}) {
+    svg {
+      min-width: 0;
+    }
   }
   .edge {
     fill: none;
@@ -217,7 +259,7 @@ const Stage = styled.div`
   }
   .node text {
     font-family: ${(p) => p.theme.mono};
-    font-size: 12.5px;
+    font-size: 13.5px;
     font-weight: 500;
     fill: ${(p) => p.theme.ink};
   }
@@ -229,13 +271,25 @@ const Stage = styled.div`
   }
 `;
 
+const ScrollHint = styled.p`
+  ${role("small")}
+  margin-top: ${(p) => p.theme.space.xs};
+  color: ${(p) => p.theme.stone2};
+
+  @media (min-width: ${(p) => p.theme.bp.grid2}) {
+    display: none;
+  }
+`;
+
 const Trace = styled.div`
-  margin-top: 10px;
+  margin-top: ${(p) => p.theme.space.sm};
   font-family: ${(p) => p.theme.mono};
-  font-size: 12px;
+  font-size: ${(p) => p.theme.type.code.size};
   line-height: 1.7;
   color: ${(p) => p.theme.stone};
-  min-height: 92px;
+  /* room for six lines, the longest trace, so a degraded run does not shift
+     the page (a narrow screen that wraps a line still can) */
+  min-height: calc(6 * 1.7em);
 
   .line b {
     color: ${(p) => p.theme.pine};
@@ -319,7 +373,7 @@ const Orchestrator = () => {
   return (
     <Fig role="group" aria-label="Interactive agent orchestrator: pick a request and watch it route through the system.">
       <Bar>
-        <span className="t">The orchestrator: drive a request</span>
+        <span className="t">Drive a request</span>
         <Toggle type="button" $on={failure} aria-pressed={failure} onClick={() => setFailure((f) => !f)}>
           {failure ? "failure: on" : "inject failure"}
         </Toggle>
@@ -343,7 +397,7 @@ const Orchestrator = () => {
         <button type="submit">Route</button>
       </Form>
 
-      <Stage>
+      <Stage tabIndex={0} role="group" aria-label="Routing graph. On a small screen it scrolls sideways.">
         <svg viewBox="0 0 680 292" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           {EDGES.map((e) => (
             <path key={e.id} className={run.activeEdges.has(e.id) ? "edge on" : "edge"} d={e.d} />
@@ -372,6 +426,7 @@ const Orchestrator = () => {
           )}
         </svg>
       </Stage>
+      <ScrollHint>Scroll sideways to see the whole graph.</ScrollHint>
 
       <Trace aria-live="polite">
         {run.trace.slice(0, shown).map((l, i) => (

@@ -1,6 +1,6 @@
 // Tests for the site icon set in public/: the Route P favicon, its raster
-// fallbacks, and the tags and manifest entries that point at them. The map at
-// the site root borrows the same files (see scripts/assemble-site.js).
+// fallbacks, and the tags and manifest entries that point at them. The map,
+// under /map/, borrows the same files (see scripts/assemble-site.js).
 import fs from "fs";
 import path from "path";
 import zlib from "zlib";
